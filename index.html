@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Scan-to-Print Studio v4.0 Pro</title>
-    <!-- Google Fonts: Plus Jakarta Sans -->
+    <title>Smart Scan-to-Print Studio v5.0 Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- PeerJS -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
@@ -17,7 +16,7 @@
     <style>
         :root {
             --bg-main: #f4f7fb;
-            --bg-card: rgba(255, 255, 255, 0.92);
+            --bg-card: rgba(255, 255, 255, 0.95);
             --text-main: #0f172a;
             --text-muted: #64748b;
             --border-color: #e2e8f0;
@@ -26,7 +25,6 @@
             --success: #10b981;
             --success-grad: linear-gradient(135deg, #10b981 0%, #059669 100%);
             --danger: #ef4444;
-            --warning: #f59e0b;
             --shadow-lg: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
             --radius-lg: 16px;
             --radius-md: 12px;
@@ -34,7 +32,7 @@
 
         [data-theme="dark"] {
             --bg-main: #090d16;
-            --bg-card: rgba(17, 24, 39, 0.92);
+            --bg-card: rgba(17, 24, 39, 0.95);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #1e293b;
@@ -44,196 +42,137 @@
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
         body {
             margin: 0; padding: 0;
-            background: var(--bg-main);
-            color: var(--text-main);
+            background: var(--bg-main); color: var(--text-main);
             transition: background 0.3s, color 0.3s;
-            background-image: radial-gradient(circle at 10% 10%, rgba(79, 70, 229, 0.07), transparent 35%),
-                              radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.07), transparent 35%);
             min-height: 100vh;
         }
-
         .hidden { display: none !important; }
 
-        /* Modern Glass Navbar */
+        /* Navbar */
         .navbar {
             position: sticky; top: 0; z-index: 100;
-            background: rgba(15, 23, 42, 0.88);
-            backdrop-filter: blur(14px);
-            color: #fff;
-            padding: 12px 24px;
+            background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(14px);
+            color: #fff; padding: 12px 20px;
             display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            flex-wrap: wrap; gap: 10px;
         }
-        .brand {
-            display: flex; align-items: center; gap: 12px;
-        }
+        .brand { display: flex; align-items: center; gap: 10px; }
         .brand-logo {
-            width: 40px; height: 40px; border-radius: 12px;
-            background: var(--primary-grad);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+            width: 38px; height: 38px; border-radius: 10px; background: var(--primary-grad);
+            display: flex; align-items: center; justify-content: center; font-size: 19px;
         }
-        .brand h1 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
+        .brand h1 { margin: 0; font-size: 17px; font-weight: 800; }
         .badge-pro {
-            background: linear-gradient(135deg, #f59e0b, #ef4444);
-            font-size: 10px; font-weight: 800; padding: 3px 8px;
-            border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 20px;
         }
 
-        .nav-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .nav-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .pill-tabs {
-            background: rgba(255,255,255,0.1); padding: 4px; border-radius: 12px;
-            display: flex; gap: 4px;
+            background: rgba(255,255,255,0.1); padding: 4px; border-radius: 10px; display: flex; gap: 4px;
         }
         .pill-tabs button {
             background: transparent; color: #cbd5e1; border: none;
-            padding: 7px 14px; border-radius: 8px; cursor: pointer;
-            font-size: 13px; font-weight: 700; transition: 0.2s;
+            padding: 6px 12px; border-radius: 7px; cursor: pointer; font-size: 12.5px; font-weight: 700;
         }
-        .pill-tabs button.active {
-            background: var(--primary-grad); color: #fff;
-            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4);
-        }
+        .pill-tabs button.active { background: var(--primary-grad); color: #fff; }
         .icon-btn {
             background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.15);
-            width: 36px; height: 36px; border-radius: 10px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; font-size: 16px;
-            transition: 0.2s;
+            width: 34px; height: 34px; border-radius: 9px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 15px;
         }
-        .icon-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-1px); }
 
-        /* Container & Grid */
-        .container { max-width: 1240px; margin: 24px auto; padding: 0 16px; }
-        .admin-layout { display: grid; grid-template-columns: 350px 1fr; gap: 24px; align-items: start; }
-        @media (max-width: 900px) { .admin-layout { grid-template-columns: 1fr; } }
+        /* Layout */
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 14px; }
+        .admin-layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+        @media (max-width: 880px) { .admin-layout { grid-template-columns: 1fr; } }
 
-        /* Cards */
         .glass-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 22px;
-            box-shadow: var(--shadow-lg);
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-lg);
         }
 
-        /* Stats Row */
-        .stats-bar {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px;
-        }
+        /* Stats */
+        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
         .stat-box {
             background: var(--bg-card); border: 1px solid var(--border-color);
-            border-radius: var(--radius-md); padding: 14px 16px;
-            display: flex; align-items: center; gap: 12px;
-            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-md); padding: 12px 14px;
+            display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow-lg);
         }
         .stat-icon {
-            width: 42px; height: 42px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; font-size: 20px;
+            width: 38px; height: 38px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 18px;
         }
-        .stat-val { font-size: 20px; font-weight: 800; line-height: 1.1; }
-        .stat-lbl { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .stat-val { font-size: 18px; font-weight: 800; }
+        .stat-lbl { font-size: 11px; color: var(--text-muted); font-weight: 600; }
 
-        /* Animated QR Scanner Card */
+        /* Animated QR Box */
         .qr-wrapper {
-            position: relative;
-            background: #ffffff;
-            padding: 18px;
-            border-radius: 16px;
-            border: 2px solid #e2e8f0;
-            display: flex; justify-content: center; align-items: center;
-            margin: 16px auto;
-            width: fit-content;
-            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.12);
-            overflow: hidden;
+            position: relative; background: #fff; padding: 16px; border-radius: 16px;
+            border: 2px solid #e2e8f0; display: flex; justify-content: center;
+            margin: 14px auto; width: fit-content; overflow: hidden;
         }
         .qr-scan-line {
             position: absolute; left: 0; right: 0; height: 3px;
             background: linear-gradient(90deg, transparent, #4f46e5, #10b981, transparent);
-            box-shadow: 0 0 12px #4f46e5;
-            animation: scanMove 2.6s ease-in-out infinite;
-            pointer-events: none;
+            animation: scanMove 2.5s ease-in-out infinite; pointer-events: none;
         }
-        @keyframes scanMove {
-            0%, 100% { top: 8%; opacity: 0.8; }
-            50% { top: 90%; opacity: 1; }
-        }
+        @keyframes scanMove { 0%, 100% { top: 8%; } 50% { top: 90%; } }
 
-        /* Status Badge with Pulsing Dot */
         .live-status {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 6px 14px; border-radius: 30px; font-size: 12px; font-weight: 700;
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 12px; border-radius: 30px; font-size: 11.5px; font-weight: 700;
             background: rgba(16, 185, 129, 0.15); color: #10b981;
         }
         .pulse-dot {
             width: 8px; height: 8px; border-radius: 50%; background: #10b981;
-            box-shadow: 0 0 0 rgba(16, 185, 129, 0.7);
             animation: pulseDot 1.5s infinite;
         }
         @keyframes pulseDot {
             0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            70% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
-        /* Modern Buttons */
+        /* Buttons */
         .btn {
             background: var(--primary-grad); color: #fff; border: none;
-            padding: 10px 16px; border-radius: 10px; cursor: pointer;
-            font-weight: 700; font-size: 13.5px;
-            display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.22);
+            padding: 10px 15px; border-radius: 10px; cursor: pointer;
+            font-weight: 700; font-size: 13px;
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            transition: 0.2s;
         }
-        .btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
-        .btn:active { transform: translateY(0); }
-        .btn-success { background: var(--success-grad); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); }
-        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-success { background: var(--success-grad); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
         .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
         .btn-soft {
             background: rgba(100, 116, 139, 0.12); color: var(--text-main);
-            box-shadow: none; border: 1px solid var(--border-color);
+            border: 1px solid var(--border-color);
         }
-        .btn-sm { padding: 7px 12px; font-size: 12px; border-radius: 8px; }
+        .btn-sm { padding: 6px 11px; font-size: 12px; border-radius: 8px; }
 
         /* Print Job Cards */
         .job-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-left: 5px solid var(--primary);
-            border-radius: 14px;
-            padding: 16px; margin-bottom: 14px;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-left: 5px solid var(--primary); border-radius: 14px;
+            padding: 14px; margin-bottom: 12px;
             display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 14px;
-            transition: all 0.25s ease;
-            animation: cardPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            flex-wrap: wrap; gap: 12px; animation: cardPop 0.25s ease;
         }
-        .job-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -6px rgba(0,0,0,0.1); }
-        @keyframes cardPop {
-            from { opacity: 0; transform: translateY(-12px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .job-left { display: flex; align-items: center; gap: 14px; }
+        @keyframes cardPop { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        .job-left { display: flex; align-items: center; gap: 12px; }
         .job-thumb {
-            width: 66px; height: 66px; border-radius: 12px; object-fit: cover;
-            border: 2px solid var(--border-color); background: #f8fafc; cursor: pointer;
-            transition: transform 0.2s;
+            width: 62px; height: 62px; border-radius: 10px; object-fit: cover;
+            border: 2px solid var(--border-color); cursor: pointer;
         }
-        .job-thumb:hover { transform: scale(1.06); }
-        .meta-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+        .meta-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
         .pill {
-            font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+            font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 20px;
             background: rgba(79, 70, 229, 0.1); color: var(--primary);
         }
-        .pill-timer {
-            background: rgba(245, 158, 11, 0.15); color: #d97706;
-        }
-        .pill-timer.urgent {
-            background: rgba(239, 68, 68, 0.18); color: #ef4444;
-            animation: blinkUrgent 1s infinite;
-        }
-        @keyframes blinkUrgent { 50% { opacity: 0.45; } }
+        .pill-timer { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+        .pill-timer.urgent { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
 
         /* Progress Bar */
         .progress-track {
@@ -242,123 +181,95 @@
         }
         .progress-fill {
             height: 100%; width: 0%;
-            background: linear-gradient(90deg, #4f46e5, #06b6d4, #10b981);
-            background-size: 200% 100%;
-            animation: shimmer 2s infinite linear;
+            background: linear-gradient(90deg, #4f46e5, #10b981);
             transition: width 0.15s ease;
         }
-        @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 
-        /* Customer Mobile Portal Styling */
-        .customer-wrap { max-width: 480px; margin: 10px auto; }
+        /* Customer Portal */
+        .customer-wrap { max-width: 460px; margin: 10px auto; }
         .hero-banner {
             background: var(--primary-grad); color: #fff;
-            padding: 22px; border-radius: 16px; margin-bottom: 18px;
-            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
-            position: relative; overflow: hidden;
+            padding: 20px; border-radius: 16px; margin-bottom: 16px;
         }
-        .hero-banner h2 { margin: 0 0 6px 0; font-size: 21px; font-weight: 800; }
-        .hero-banner p { margin: 0; font-size: 13px; opacity: 0.9; }
+        .hero-banner h2 { margin: 0 0 5px 0; font-size: 20px; font-weight: 800; }
+        .hero-banner p { margin: 0; font-size: 12.5px; opacity: 0.92; }
 
-        .form-field { margin-bottom: 15px; }
-        .form-field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+        .form-field { margin-bottom: 14px; }
+        .form-field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 5px; }
         .form-field input, .form-field select {
-            width: 100%; padding: 12px 14px; border-radius: 10px;
-            border: 1.5px solid var(--border-color);
-            background: var(--bg-main); color: var(--text-main);
-            font-size: 14px; font-weight: 600; outline: none; transition: 0.2s;
+            width: 100%; padding: 11px 13px; border-radius: 10px;
+            border: 1.5px solid var(--border-color); background: var(--bg-main);
+            color: var(--text-main); font-size: 14px; font-weight: 600;
         }
-        .form-field input:focus, .form-field select:focus { border-color: var(--primary); }
 
-        .action-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .action-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
         .upload-tile {
-            border: 2px dashed var(--border-color);
-            border-radius: 14px; padding: 18px 12px; text-align: center;
-            cursor: pointer; transition: 0.2s; background: rgba(79, 70, 229, 0.03);
+            border: 2px dashed var(--border-color); border-radius: 14px;
+            padding: 16px 10px; text-align: center; cursor: pointer;
+            background: rgba(79, 70, 229, 0.03);
         }
-        .upload-tile:hover {
-            border-color: var(--primary); background: rgba(79, 70, 229, 0.08);
-            transform: translateY(-2px);
-        }
-        .upload-tile .tile-icon {
-            width: 48px; height: 48px; border-radius: 14px; margin: 0 auto 10px auto;
-            display: flex; align-items: center; justify-content: center; font-size: 24px;
+        .upload-tile:hover { border-color: var(--primary); background: rgba(79, 70, 229, 0.08); }
+        .tile-icon {
+            width: 44px; height: 44px; border-radius: 12px; margin: 0 auto 8px auto;
+            display: flex; align-items: center; justify-content: center; font-size: 22px;
         }
 
-        /* Toast Notification */
-        #toast-box {
-            position: fixed; bottom: 20px; right: 20px; z-index: 2000;
-            display: flex; flex-direction: column; gap: 10px;
-        }
+        #toast-box { position: fixed; bottom: 18px; right: 18px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
         .toast {
-            background: #0f172a; color: #fff; padding: 12px 18px; border-radius: 12px;
-            font-size: 13px; font-weight: 700; box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-            display: flex; align-items: center; gap: 10px;
-            border-left: 4px solid #10b981;
-            animation: cardPop 0.25s ease;
+            background: #0f172a; color: #fff; padding: 11px 16px; border-radius: 10px;
+            font-size: 12.5px; font-weight: 700; border-left: 4px solid #10b981;
         }
 
-        /* Pro Dark Studio Modal */
+        /* Studio Modal */
         .modal-backdrop {
             position: fixed; inset: 0; background: rgba(9, 13, 22, 0.88);
             backdrop-filter: blur(8px); z-index: 1500;
-            display: flex; justify-content: center; align-items: center; padding: 14px;
+            display: flex; justify-content: center; align-items: center; padding: 12px;
         }
         .studio-modal {
-            background: #111827; color: #f8fafc;
-            width: 100%; max-width: 1080px; max-height: 94vh;
-            border-radius: 18px; border: 1px solid #1f2937;
+            background: #111827; color: #f8fafc; width: 100%; max-width: 1050px;
+            max-height: 94vh; border-radius: 18px; border: 1px solid #1f2937;
             display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
         }
         .studio-header {
-            padding: 14px 20px; background: #090d16; border-bottom: 1px solid #1f2937;
+            padding: 12px 18px; background: #090d16; border-bottom: 1px solid #1f2937;
             display: flex; justify-content: space-between; align-items: center;
         }
         .studio-body {
-            display: grid; grid-template-columns: 1fr 320px; gap: 18px;
-            padding: 18px; overflow-y: auto; flex: 1;
+            display: grid; grid-template-columns: 1fr 310px; gap: 16px;
+            padding: 16px; overflow-y: auto; flex: 1;
         }
-        @media (max-width: 820px) { .studio-body { grid-template-columns: 1fr; } }
-
+        @media (max-width: 800px) { .studio-body { grid-template-columns: 1fr; } }
         .studio-canvas-wrap {
-            background: radial-gradient(circle, #1e293b 0%, #090d16 100%);
-            border: 1px solid #334155; border-radius: 14px; min-height: 410px;
-            display: flex; justify-content: center; align-items: center;
+            background: #090d16; border: 1px solid #334155; border-radius: 12px;
+            min-height: 390px; display: flex; justify-content: center; align-items: center;
             position: relative; overflow: hidden; touch-action: none;
         }
-        #persp-canvas { max-width: 100%; max-height: 64vh; cursor: crosshair; }
-        #cropper-img { max-width: 100%; max-height: 64vh; display: block; }
-
+        #persp-canvas { max-width: 100%; max-height: 62vh; cursor: crosshair; }
+        #cropper-img { max-width: 100%; max-height: 62vh; display: block; }
         #loupe {
-            position: absolute; top: 14px; left: 14px; width: 120px; height: 120px;
+            position: absolute; top: 12px; left: 12px; width: 115px; height: 115px;
             border: 3px solid #38bdf8; border-radius: 50%; overflow: hidden;
-            pointer-events: none; display: none; background: #000;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.65); z-index: 30;
+            pointer-events: none; display: none; background: #000; z-index: 30;
         }
-
         .studio-panel {
             background: #1e293b; border: 1px solid #334155; border-radius: 12px;
-            padding: 14px; margin-bottom: 12px;
+            padding: 13px; margin-bottom: 12px;
         }
-        .studio-panel h4 {
-            margin: 0 0 10px 0; font-size: 13px; color: #94a3b8;
-            text-transform: uppercase; letter-spacing: 0.5px;
-        }
+        .studio-panel h4 { margin: 0 0 8px 0; font-size: 12px; color: #94a3b8; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-<!-- TOP GLASS NAVBAR -->
 <nav class="navbar">
     <div class="brand">
         <div class="brand-logo">🖨️</div>
         <div>
             <div style="display:flex; align-items:center; gap:8px;">
-                <h1>Smart Scan-to-Print Studio</h1>
-                <span class="badge-pro">v4.0 PRO</span>
+                <h1>Smart Scan-to-Print</h1>
+                <span class="badge-pro">v5.0 FIXED</span>
             </div>
-            <small style="color:#94a3b8; font-size:11px;">Zero-Server WebRTC Instant Cyber Cafe Portal</small>
+            <small style="color:#94a3b8; font-size:11px;">Fast Mobile-to-PC Document Drop</small>
         </div>
     </div>
 
@@ -367,105 +278,99 @@
             <button id="tab-admin" class="active" onclick="switchView('admin')">🖥️ Shop Admin</button>
             <button id="tab-customer" onclick="switchView('customer')">📱 Customer Mobile</button>
         </div>
-        <button class="icon-btn" id="sound-btn" onclick="toggleMute()" title="Sound Alert">🔔</button>
-        <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Dark / Light Theme">🌙</button>
+        <button class="icon-btn" id="sound-btn" onclick="toggleMute()">🔔</button>
+        <button class="icon-btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
     </div>
 </nav>
 
-<!-- TOAST CONTAINER -->
 <div id="toast-box"></div>
 
 <div class="container">
 
-    <!-- ================= SHOP ADMIN DASHBOARD ================= -->
+    <!-- ================= ADMIN VIEW ================= -->
     <div id="admin-view">
-        <!-- Quick Stats Row -->
         <div class="stats-bar">
             <div class="stat-box">
                 <div class="stat-icon" style="background:rgba(79,70,229,0.12); color:#4f46e5;">📥</div>
                 <div>
                     <div class="stat-val" id="stat-active">0</div>
-                    <div class="stat-lbl">Active Queue Docs</div>
+                    <div class="stat-lbl">Queue Docs</div>
                 </div>
             </div>
             <div class="stat-box">
                 <div class="stat-icon" style="background:rgba(16,185,129,0.12); color:#10b981;">🖨️</div>
                 <div>
                     <div class="stat-val" id="stat-printed">0</div>
-                    <div class="stat-lbl">Total Printed Today</div>
+                    <div class="stat-lbl">Printed Today</div>
                 </div>
             </div>
             <div class="stat-box">
                 <div class="stat-icon" style="background:rgba(245,158,11,0.12); color:#f59e0b;">⏱️</div>
                 <div>
                     <div class="stat-val">10 Min</div>
-                    <div class="stat-lbl">Auto-Privacy Wipe</div>
+                    <div class="stat-lbl">Auto-Delete</div>
                 </div>
             </div>
         </div>
 
         <div class="admin-layout">
-            <!-- Left Column: Animated QR & Shop ID -->
+            <!-- Left QR Box -->
             <div class="glass-card" style="text-align:center;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <span style="font-weight:800; font-size:15px;">📲 Scan to Send File</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-weight:800; font-size:14.5px;">📲 Shop QR Scanner</span>
                     <div class="live-status" id="admin-status">
-                        <span class="pulse-dot"></span> Online
+                        <span class="pulse-dot"></span> Connecting...
                     </div>
                 </div>
 
-                <!-- Animated Scanner QR Box -->
                 <div class="qr-wrapper">
                     <div class="qr-scan-line"></div>
                     <div id="qrcode"></div>
                 </div>
 
-                <div style="text-align:left; margin-top:14px;">
-                    <label style="font-size:12px; font-weight:700; color:var(--text-muted);">CUSTOM SHOP ID (Permanent QR):</label>
-                    <div style="display:flex; gap:6px; margin-top:5px;">
-                        <input type="text" id="shop-id-input" style="flex:1; padding:8px 11px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-main); color:var(--text-main); font-weight:700; font-size:13px;">
+                <div style="text-align:left; margin-top:12px;">
+                    <label style="font-size:11.5px; font-weight:700; color:var(--text-muted);">PERMANENT SHOP ID (दोनों डिवाइस में सेम रहे):</label>
+                    <div style="display:flex; gap:6px; margin-top:4px;">
+                        <input type="text" id="shop-id-input" style="flex:1; padding:8px 10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-main); color:var(--text-main); font-weight:700; font-size:13px;">
                         <button class="btn btn-sm" onclick="saveShopId()">Save</button>
                     </div>
                 </div>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
                     <button class="btn btn-soft btn-sm" onclick="copyCustomerLink()">🔗 Copy Link</button>
-                    <button class="btn btn-soft btn-sm" onclick="printShopQR()">🖨️ Print Standee</button>
+                    <button class="btn btn-soft btn-sm" onclick="printShopQR()">🖨️ Print QR</button>
                 </div>
 
-                <hr style="border:none; border-top:1px solid var(--border-color); margin:16px 0;">
-
+                <hr style="border:none; border-top:1px solid var(--border-color); margin:14px 0;">
                 <button class="btn btn-warning" style="width:100%;" onclick="loadSkewedDemo()">
-                    ⚡ Load Skewed Aadhaar Demo
+                    ⚡ Test Skewed ID Demo
                 </button>
             </div>
 
-            <!-- Right Column: Live Incoming Documents Queue -->
+            <!-- Right Print Queue -->
             <div class="glass-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
                     <div>
-                        <h2 style="margin:0; font-size:18px; font-weight:800;">🔔 Incoming Print Queue</h2>
-                        <small style="color:var(--text-muted);">Files automatically delete after 10 minutes for customer privacy</small>
+                        <h2 style="margin:0; font-size:17px; font-weight:800;">🔔 Incoming Print Queue</h2>
+                        <small style="color:var(--text-muted);">कंप्यूटर पर यह पेज खुला रखें ताकि ग्राहक की फाइल तुरंत रिसीव हो सके</small>
                     </div>
                     <button class="btn btn-soft btn-sm" onclick="clearAllJobs()">🗑️ Clear All</button>
                 </div>
 
-                <!-- Live Receiving Chunk Progress -->
-                <div id="admin-rx-box" class="hidden" style="background:rgba(79,70,229,0.08); border:1px solid rgba(79,70,229,0.25); padding:12px 16px; border-radius:12px; margin-bottom:16px;">
-                    <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700;">
-                        <span id="admin-rx-label">📥 Receiving document...</span>
+                <div id="admin-rx-box" class="hidden" style="background:rgba(79,70,229,0.08); border:1px solid rgba(79,70,229,0.25); padding:12px; border-radius:12px; margin-bottom:14px;">
+                    <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:700;">
+                        <span id="admin-rx-label">📥 Receiving file...</span>
                         <span id="admin-rx-pct">0%</span>
                     </div>
                     <div class="progress-track"><div id="admin-rx-bar" class="progress-fill"></div></div>
                 </div>
 
-                <!-- Queue List -->
                 <div id="print-queue">
-                    <div id="empty-queue" style="text-align:center; padding:55px 20px; color:var(--text-muted);">
-                        <div style="font-size:48px; margin-bottom:10px; opacity:0.6;">📭</div>
-                        <div style="font-weight:700; font-size:16px; color:var(--text-main);">Waiting for Customer Documents...</div>
-                        <p style="font-size:13px; max-width:360px; margin:6px auto 0 auto;">
-                            जब ग्राहक QR कोड स्कैन करके अपने मोबाइल से फोटो या PDF भेजेगा, तो बीप साउंड के साथ यहाँ तुरंत कार्ड आ जाएगा।
+                    <div id="empty-queue" style="text-align:center; padding:45px 15px; color:var(--text-muted);">
+                        <div style="font-size:44px; margin-bottom:8px;">📭</div>
+                        <div style="font-weight:700; font-size:15px; color:var(--text-main);">Ready to Receive Customer Files</div>
+                        <p style="font-size:12.5px; max-width:360px; margin:6px auto 0 auto;">
+                            अपने कंप्यूटर में यह पेज खुला रखें और मोबाइल से QR कोड स्कैन करके डॉक्यूमेंट भेजें।
                         </p>
                     </div>
                 </div>
@@ -473,11 +378,14 @@
         </div>
     </div>
 
-    <!-- ================= CUSTOMER MOBILE UPLOAD VIEW ================= -->
+    <!-- ================= CUSTOMER VIEW ================= -->
     <div id="customer-view" class="customer-wrap hidden">
         <div class="hero-banner">
             <h2>📤 Instant Document Print</h2>
             <p>बिना WhatsApp या ईमेल के सीधे दुकानदार के कंप्यूटर पर अपनी फाइल भेजें</p>
+            <div style="margin-top:8px; font-size:11.5px; background:rgba(0,0,0,0.22); display:inline-block; padding:4px 10px; border-radius:20px;">
+                🔗 Target Shop ID: <b id="cust-target-badge">...</b>
+            </div>
         </div>
 
         <div class="glass-card">
@@ -486,7 +394,7 @@
                 <input type="text" id="cust-name" placeholder="जैसे: राहुल शर्मा">
             </div>
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <div class="form-field">
                     <label>🎨 Print Color</label>
                     <select id="cust-color">
@@ -500,7 +408,6 @@
                 </div>
             </div>
 
-            <!-- Separate Hidden Inputs for Direct Rear Camera & Gallery/PDF -->
             <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleCustomerFileSelect(this)">
             <input type="file" id="file-input" accept="image/*,application/pdf" class="hidden" onchange="handleCustomerFileSelect(this)">
 
@@ -508,27 +415,25 @@
             <div class="action-tiles">
                 <div class="upload-tile" onclick="document.getElementById('camera-input').click()">
                     <div class="tile-icon" style="background:rgba(79,70,229,0.12); color:#4f46e5;">📸</div>
-                    <div style="font-weight:800; font-size:14px;">Take Photo</div>
-                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">सीधे कैमरा खोलें</div>
+                    <div style="font-weight:800; font-size:13.5px;">Take Photo</div>
+                    <div style="font-size:11px; color:var(--text-muted);">सीधे कैमरा खोलें</div>
                 </div>
                 <div class="upload-tile" onclick="document.getElementById('file-input').click()">
                     <div class="tile-icon" style="background:rgba(16,185,129,0.12); color:#10b981;">📁</div>
-                    <div style="font-weight:800; font-size:14px;">Choose File / PDF</div>
-                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">गैलरी या PDF चुनें</div>
+                    <div style="font-weight:800; font-size:13.5px;">Choose File / PDF</div>
+                    <div style="font-size:11px; color:var(--text-muted);">गैलरी या PDF चुनें</div>
                 </div>
             </div>
 
-            <!-- Selected File Preview -->
-            <div id="cust-preview-box" class="hidden" style="background:rgba(79,70,229,0.06); border:1px solid var(--border-color); border-radius:12px; padding:12px; margin-bottom:16px; display:flex; align-items:center; gap:12px;">
-                <img id="cust-preview-img" src="" style="width:56px; height:56px; object-fit:cover; border-radius:10px; border:1px solid var(--border-color);">
+            <div id="cust-preview-box" class="hidden" style="background:rgba(79,70,229,0.06); border:1px solid var(--border-color); border-radius:12px; padding:10px; margin-bottom:14px; display:flex; align-items:center; gap:12px;">
+                <img id="cust-preview-img" src="" style="width:52px; height:52px; object-fit:cover; border-radius:8px; border:1px solid var(--border-color);">
                 <div style="flex:1; overflow:hidden;">
-                    <div id="cust-file-name" style="font-weight:800; font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
-                    <div id="cust-file-size" style="font-size:12px; color:var(--text-muted); font-weight:600;"></div>
+                    <div id="cust-file-name" style="font-weight:800; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+                    <div id="cust-file-size" style="font-size:11.5px; color:var(--text-muted); font-weight:600;"></div>
                 </div>
             </div>
 
-            <!-- Upload Progress -->
-            <div id="cust-progress-box" class="hidden" style="margin-bottom:14px;">
+            <div id="cust-progress-box" class="hidden" style="margin-bottom:12px;">
                 <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:800;">
                     <span id="cust-progress-text">🚀 Sending to Shop PC...</span>
                     <span id="cust-progress-pct">0%</span>
@@ -536,57 +441,55 @@
                 <div class="progress-track"><div id="cust-progress-bar" class="progress-fill"></div></div>
             </div>
 
-            <button class="btn btn-success" style="width:100%; padding:14px; font-size:16px; border-radius:12px;" onclick="sendFileChunked()">
+            <button class="btn btn-success" id="send-btn" style="width:100%; padding:14px; font-size:15.5px; border-radius:12px;" onclick="sendFileChunked()">
                 🚀 Send Document for Print
             </button>
-            <p id="cust-status-msg" style="text-align:center; font-weight:700; font-size:13px; margin:12px 0 0 0;"></p>
+            <p id="cust-status-msg" style="text-align:center; font-weight:700; font-size:12.5px; margin:12px 0 0 0; line-height:1.4;"></p>
         </div>
     </div>
 
 </div>
 
-<!-- ================= PRO 4-POINT PERSPECTIVE & PRINT STUDIO MODAL ================= -->
+<!-- ================= 4-POINT PERSPECTIVE & PRINT STUDIO MODAL ================= -->
 <div id="editor-modal" class="modal-backdrop hidden">
     <div class="studio-modal">
         <div class="studio-header">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <span style="font-size:20px;">📐</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:18px;">📐</span>
                 <div>
-                    <h3 style="margin:0; font-size:16px; font-weight:800;">Smart Perspective & Print Studio</h3>
-                    <small style="color:#94a3b8; font-size:11px;">4-Corner Homography Straightener & Document Cleaner</small>
+                    <h3 style="margin:0; font-size:15px; font-weight:800;">Smart Perspective & Print Studio</h3>
+                    <small style="color:#94a3b8; font-size:11px;">4-Corner Straightener & Document Cleaner</small>
                 </div>
             </div>
-            <button class="btn btn-danger btn-sm" onclick="closeEditor()">✖ Close Studio</button>
+            <button class="btn btn-danger btn-sm" onclick="closeEditor()">✖ Close</button>
         </div>
 
         <div class="studio-body">
-            <!-- Interactive Canvas Workspace -->
             <div class="studio-canvas-wrap">
                 <canvas id="persp-canvas"></canvas>
                 <img id="cropper-img" class="hidden" src="">
-                <canvas id="loupe" width="120" height="120"></canvas>
+                <canvas id="loupe" width="115" height="115"></canvas>
             </div>
 
-            <!-- Studio Sidebar Controls -->
             <div>
                 <div class="studio-panel">
-                    <h4>1. Crop & Straighten Mode</h4>
+                    <h4>1. Straighten / Crop Mode</h4>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                         <button class="btn btn-sm" id="btn-mode-persp" onclick="setEditorMode('perspective')">📐 4-Point Warp</button>
                         <button class="btn btn-sm btn-soft" id="btn-mode-rect" style="color:#fff;" onclick="setEditorMode('rect')">✂️ Box Crop</button>
                     </div>
 
-                    <div id="persp-controls" style="margin-top:12px;">
-                        <p style="font-size:11.5px; color:#cbd5e1; margin:0 0 10px 0; line-height:1.4;">
-                            💡 तिरछे डॉक्यूमेंट के चारों कोनों पर <b>TL, TR, BR, BL</b> पॉइंट्स को ड्रैग करें और नीचे बटन दबाएं:
+                    <div id="persp-controls" style="margin-top:10px;">
+                        <p style="font-size:11px; color:#cbd5e1; margin:0 0 8px 0;">
+                            💡 चारों कोनों पर <b>TL, TR, BR, BL</b> पॉइंट्स को सेट करके नीचे बटन दबाएं:
                         </p>
                         <button class="btn btn-success" style="width:100%;" onclick="applyPerspectiveTransform()">
                             ✨ सीधा करें (Apply Perspective)
                         </button>
                     </div>
 
-                    <div id="rect-controls" class="hidden" style="margin-top:12px;">
-                        <div style="display:flex; gap:8px; margin-bottom:8px;">
+                    <div id="rect-controls" class="hidden" style="margin-top:10px;">
+                        <div style="display:flex; gap:6px; margin-bottom:8px;">
                             <button class="btn btn-sm btn-soft" style="flex:1; color:#fff;" onclick="rotateCropper(-90)">↺ -90°</button>
                             <button class="btn btn-sm btn-soft" style="flex:1; color:#fff;" onclick="rotateCropper(90)">↻ +90°</button>
                         </div>
@@ -597,7 +500,7 @@
                 </div>
 
                 <div class="studio-panel">
-                    <h4>2. Document Cleaner Filters</h4>
+                    <h4>2. Document Cleaner</h4>
                     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
                         <button class="btn btn-sm btn-soft" style="color:#fff;" onclick="applyDocFilter('original')">Original</button>
                         <button class="btn btn-sm btn-soft" style="color:#fff;" onclick="applyDocFilter('magic')">✨ Magic</button>
@@ -606,19 +509,19 @@
                 </div>
 
                 <div class="studio-panel">
-                    <h4>3. A4 Print Page Layout</h4>
-                    <select id="print-layout" style="width:100%; padding:10px; border-radius:8px; background:#090d16; color:#fff; border:1px solid #334155; font-weight:600; margin-bottom:12px;">
+                    <h4>3. Print Page Size</h4>
+                    <select id="print-layout" style="width:100%; padding:9px; border-radius:8px; background:#090d16; color:#fff; border:1px solid #334155; font-weight:600; margin-bottom:10px;">
                         <option value="full">📄 Full A4 Page</option>
                         <option value="half">📃 Half A4 Page (Upper)</option>
                         <option value="idcard">🪪 ID Card / Aadhaar (8.6 × 5.4 cm)</option>
-                        <option value="passport">👤 6 Passport Photos Sheet</option>
+                        <option value="passport">👤 6 Passport Photos</option>
                     </select>
 
-                    <button class="btn" style="width:100%; padding:13px; font-size:15px;" onclick="printEditedImage()">
-                        🖨️ Final Print Document
+                    <button class="btn" style="width:100%; padding:12px; font-size:14.5px;" onclick="printEditedImage()">
+                        🖨️ Final Print Now
                     </button>
                     <button class="btn btn-soft btn-sm" style="width:100%; margin-top:8px; color:#cbd5e1;" onclick="resetEditorImage()">
-                        🔄 Reset to Original
+                        🔄 Reset Original
                     </button>
                 </div>
             </div>
@@ -627,11 +530,25 @@
 </div>
 
 <script>
-    // ================== STATE & CONFIG ==================
+    // ================== CONFIG & STUN SERVERS FOR MOBILE DATA ==================
+    const DEFAULT_PERMANENT_SHOP_ID = "quickprint-amit-shop-95";
     const urlParams = new URLSearchParams(window.location.search);
     const qrShopParam = urlParams.get('shop');
-    const CHUNK_SIZE = 64 * 1024; // 64KB chunks for 3MB-20MB+ files
+    const CHUNK_SIZE = 48 * 1024; // 48KB Base64 safe chunks for 100% WebRTC mobile reliability
     const TEN_MINUTES_MS = 10 * 60 * 1000;
+
+    const PEER_CONFIG = {
+        debug: 1,
+        config: {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun3.l.google.com:19302' },
+                { urls: 'stun:stun4.l.google.com:19302' }
+            ]
+        }
+    };
 
     let adminPeer = null;
     let currentCustomerUrl = "";
@@ -640,7 +557,7 @@
     let isMuted = false;
     let selectedCustFile = null;
 
-    // Studio State
+    // Studio Variables
     let currentEditingJobId = null;
     let originalEditImg = new Image();
     let workingImg = new Image();
@@ -649,12 +566,12 @@
     let corners = [];
     let draggingCornerIndex = -1;
 
-    // ================== UI HELPERS (THEME, SOUND, TOAST) ==================
+    // ================== UI HELPERS ==================
     function showToast(msg) {
         const box = document.getElementById('toast-box');
         const t = document.createElement('div');
         t.className = 'toast';
-        t.innerHTML = `<span>✨</span> <span>${msg}</span>`;
+        t.innerHTML = `✨ ${msg}`;
         box.appendChild(t);
         setTimeout(() => t.remove(), 3200);
     }
@@ -669,7 +586,6 @@
     function toggleMute() {
         isMuted = !isMuted;
         document.getElementById('sound-btn').innerText = isMuted ? '🔇' : '🔔';
-        showToast(isMuted ? "Sound Alerts Muted" : "Sound Alerts Enabled");
     }
 
     function playNotificationChime() {
@@ -697,17 +613,29 @@
         document.getElementById('customer-view').classList.toggle('hidden', mode !== 'customer');
         document.getElementById('tab-admin').classList.toggle('active', mode === 'admin');
         document.getElementById('tab-customer').classList.toggle('active', mode === 'customer');
+        updateTargetBadge();
     }
 
-    // ================== INITIALIZE ==================
+    function getActiveShopId() {
+        return qrShopParam || localStorage.getItem('smart_shop_id') || DEFAULT_PERMANENT_SHOP_ID;
+    }
+
+    function updateTargetBadge() {
+        document.getElementById('cust-target-badge').innerText = getActiveShopId();
+    }
+
+    // ================== INITIALIZATION ==================
     window.addEventListener('DOMContentLoaded', () => {
-        const savedShopId = localStorage.getItem('smart_shop_id') || ('shop-print-' + Math.floor(1000 + Math.random() * 9000));
+        const savedShopId = localStorage.getItem('smart_shop_id') || DEFAULT_PERMANENT_SHOP_ID;
         localStorage.setItem('smart_shop_id', savedShopId);
         document.getElementById('shop-id-input').value = savedShopId;
+        updateTargetBadge();
 
         if (qrShopParam) {
+            // Opened via QR Code scan on customer phone
             switchView('customer');
         } else {
+            // Opened as Shop Admin
             initAdminPeer(savedShopId);
         }
 
@@ -716,56 +644,68 @@
     });
 
     function saveShopId() {
-        const val = document.getElementById('shop-id-input').value.trim();
+        const val = document.getElementById('shop-id-input').value.trim().replace(/\s+/g, '-');
         if (!val) return;
         localStorage.setItem('smart_shop_id', val);
+        updateTargetBadge();
         initAdminPeer(val);
-        showToast("Shop ID Updated & QR Regenerated!");
+        showToast("Shop ID Saved!");
     }
 
     function copyCustomerLink() {
         if (!currentCustomerUrl) return;
         navigator.clipboard.writeText(currentCustomerUrl);
-        showToast("Customer Upload Link Copied!");
+        showToast("Customer Link Copied!");
     }
 
-    // ================== ADMIN PEER & 64KB CHUNK RECEIVER ==================
+    // ================== ADMIN PEER RECEIVER ==================
     function initAdminPeer(shopId) {
         if (adminPeer) adminPeer.destroy();
         const statusEl = document.getElementById('admin-status');
         statusEl.innerHTML = `<span class="pulse-dot"></span> Connecting...`;
 
-        adminPeer = new Peer(shopId);
+        currentCustomerUrl = window.location.origin + window.location.pathname + "?shop=" + encodeURIComponent(shopId);
+        const qrBox = document.getElementById('qrcode');
+        qrBox.innerHTML = "";
+        new QRCode(qrBox, { text: currentCustomerUrl, width: 165, height: 165 });
+
+        adminPeer = new Peer(shopId, PEER_CONFIG);
 
         adminPeer.on('open', (id) => {
-            statusEl.innerHTML = `<span class="pulse-dot"></span> Online & Ready`;
-            currentCustomerUrl = window.location.origin + window.location.pathname + "?shop=" + encodeURIComponent(id);
-            const qrBox = document.getElementById('qrcode');
-            qrBox.innerHTML = "";
-            new QRCode(qrBox, { text: currentCustomerUrl, width: 170, height: 170 });
+            statusEl.innerHTML = `<span class="pulse-dot"></span> Online (${id})`;
+        });
+
+        adminPeer.on('error', (err) => {
+            if (err.type === 'unavailable-id') {
+                statusEl.innerHTML = `⚠️ Already Open in Another Tab`;
+            } else {
+                statusEl.innerHTML = `⚠️ Network Retry...`;
+            }
         });
 
         adminPeer.on('connection', (conn) => {
-            let incomingBuffer = [];
+            let incomingBase64Parts = [];
             let meta = null;
 
             conn.on('data', (data) => {
                 if (data.type === 'start') {
                     meta = data;
-                    incomingBuffer = [];
+                    incomingBase64Parts = [];
                     document.getElementById('admin-rx-box').classList.remove('hidden');
                     document.getElementById('admin-rx-label').innerText = `📥 Receiving "${meta.fileName}" from ${meta.customerName}...`;
                 } else if (data.type === 'chunk') {
-                    incomingBuffer.push(data.chunk);
+                    incomingBase64Parts.push(data.chunk);
                     if (meta && meta.totalChunks) {
-                        const pct = Math.min(100, Math.round((incomingBuffer.length / meta.totalChunks) * 100));
+                        const pct = Math.min(100, Math.round((incomingBase64Parts.length / meta.totalChunks) * 100));
                         document.getElementById('admin-rx-pct').innerText = pct + '%';
                         document.getElementById('admin-rx-bar').style.width = pct + '%';
                     }
                 } else if (data.type === 'end') {
                     document.getElementById('admin-rx-box').classList.add('hidden');
-                    const blob = new Blob(incomingBuffer, { type: meta.fileType });
+                    const fullDataUrl = incomingBase64Parts.join('');
+                    const blob = dataURLtoBlob(fullDataUrl);
                     const fileUrl = URL.createObjectURL(blob);
+
                     addJobToQueue({
                         customerName: meta.customerName,
                         fileName: meta.fileName,
@@ -781,7 +721,188 @@
         });
     }
 
-    // ================== QUEUE MANAGEMENT & 10-MIN AUTO WIPE ==================
+    function dataURLtoBlob(dataurl) {
+        const arr = dataurl.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) u8arr[n] = bstr.charCodeAt(n);
+        return new Blob([u8arr], { type: mime });
+    }
+
+    function fileToDataURL(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // ================== CUSTOMER UPLOAD & SAME-DEVICE FALLBACK ==================
+    async function handleCustomerFileSelect(input) {
+        if (!input.files || !input.files[0]) return;
+        let file = input.files[0];
+
+        if (file.type.startsWith('image/') && file.size > 3.5 * 1024 * 1024) {
+            file = await compressLargeCameraPhoto(file);
+        }
+
+        selectedCustFile = file;
+        document.getElementById('cust-preview-box').classList.remove('hidden');
+        document.getElementById('cust-file-name').innerText = file.name;
+        document.getElementById('cust-file-size').innerText = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+
+        if (file.type.startsWith('image/')) {
+            document.getElementById('cust-preview-img').src = URL.createObjectURL(file);
+        } else {
+            document.getElementById('cust-preview-img').src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60'><rect width='60' height='60' rx='10' fill='%23fee2e2'/><text x='13' y='36' font-weight='bold' fill='%23dc2626'>PDF</text></svg>";
+        }
+    }
+
+    function compressLargeCameraPhoto(file) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                const maxW = 2000;
+                let w = img.width, h = img.height;
+                if (w > maxW) { h = Math.round((h * maxW) / w); w = maxW; }
+                const c = document.createElement('canvas');
+                c.width = w; c.height = h;
+                c.getContext('2d').drawImage(img, 0, 0, w, h);
+                c.toBlob((blob) => {
+                    resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: 'image/jpeg' }));
+                }, 'image/jpeg', 0.85);
+            };
+            img.src = URL.createObjectURL(file);
+        });
+    }
+
+    async function sendFileChunked() {
+        if (!selectedCustFile) {
+            alert("कृपया पहले कैमरे से फोटो खींचें या फाइल चुनें!");
+            return;
+        }
+
+        const targetShopId = getActiveShopId();
+        const custName = document.getElementById('cust-name').value.trim() || "Customer";
+        const colorMode = document.getElementById('cust-color').value;
+        const copies = document.getElementById('cust-copies').value;
+        const statusMsg = document.getElementById('cust-status-msg');
+        const sendBtn = document.getElementById('send-btn');
+
+        document.getElementById('cust-progress-box').classList.remove('hidden');
+        document.getElementById('cust-progress-pct').innerText = '0%';
+        document.getElementById('cust-progress-bar').style.width = '0%';
+        sendBtn.disabled = true;
+
+        // 1. SAME-TAB / SAME-DEVICE INSTANT TEST MODE:
+        // If Admin Peer is active right here in this same browser tab, deliver immediately!
+        if (adminPeer && !adminPeer.destroyed && adminPeer.id === targetShopId && !qrShopParam) {
+            statusMsg.style.color = "#4f46e5";
+            statusMsg.innerText = "⚡ Same-Device Test Mode: सीधे Admin Queue में भेजा जा रहा है...";
+            document.getElementById('cust-progress-pct').innerText = '100%';
+            document.getElementById('cust-progress-bar').style.width = '100%';
+
+            const localUrl = URL.createObjectURL(selectedCustFile);
+            addJobToQueue({
+                customerName: custName,
+                fileName: selectedCustFile.name,
+                fileType: selectedCustFile.type || 'image/jpeg',
+                fileSize: selectedCustFile.size,
+                colorMode: colorMode,
+                copies: copies,
+                fileUrl: localUrl
+            });
+
+            statusMsg.style.color = "#10b981";
+            statusMsg.innerText = "✅ फाइल भेज दी गई है! ऊपर '🖥️ Shop Admin' टैब पर क्लिक करके प्रिंट करें।";
+            sendBtn.disabled = false;
+            return;
+        }
+
+        // 2. REMOTE MOBILE-TO-PC WEBRTC TRANSFER:
+        statusMsg.style.color = "#4f46e5";
+        statusMsg.innerText = `⏳ दुकान के कंप्यूटर (${targetShopId}) से कनेक्ट हो रहा है...`;
+
+        const dataUrl = await fileToDataURL(selectedCustFile);
+        const totalChunks = Math.ceil(dataUrl.length / CHUNK_SIZE);
+
+        const tempPeer = new Peer(PEER_CONFIG);
+        let isConnected = false;
+
+        const timeoutTimer = setTimeout(() => {
+            if (!isConnected) {
+                statusMsg.style.color = "#ef4444";
+                statusMsg.innerHTML = `❌ <b>कनेक्ट नहीं हो पाया!</b><br>कृपया चेक करें कि आपके कंप्यूटर पर यह वेबसाइट (Shop Admin पेज) खुली है और उसमें Shop ID <b>"${targetShopId}"</b> ही है।`;
+                sendBtn.disabled = false;
+                tempPeer.destroy();
+            }
+        }, 12000);
+
+        tempPeer.on('open', () => {
+            const conn = tempPeer.connect(targetShopId, {
+                reliable: true,
+                serialization: 'json'
+            });
+
+            conn.on('open', async () => {
+                isConnected = true;
+                clearTimeout(timeoutTimer);
+                statusMsg.innerText = "🚀 कनेक्ट हो गया! फाइल भेजी जा रही है...";
+
+                conn.send({
+                    type: 'start',
+                    customerName: custName,
+                    fileName: selectedCustFile.name,
+                    fileType: selectedCustFile.type || 'application/octet-stream',
+                    fileSize: selectedCustFile.size,
+                    colorMode: colorMode,
+                    copies: copies,
+                    totalChunks: totalChunks
+                });
+
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkStr = dataUrl.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+                    conn.send({ type: 'chunk', chunk: chunkStr });
+
+                    const pct = Math.round(((i + 1) / totalChunks) * 100);
+                    document.getElementById('cust-progress-pct').innerText = pct + '%';
+                    document.getElementById('cust-progress-bar').style.width = pct + '%';
+
+                    if (i % 5 === 0) await new Promise(r => setTimeout(r, 15));
+                }
+
+                conn.send({ type: 'end' });
+            });
+
+            conn.on('data', (data) => {
+                if (data.type === 'ack') {
+                    statusMsg.style.color = "#10b981";
+                    statusMsg.innerText = "✅ आपका डॉक्यूमेंट सफलतापूर्वक दुकानदार के कंप्यूटर पर पहुंच गया है!";
+                    sendBtn.disabled = false;
+                    setTimeout(() => tempPeer.destroy(), 1500);
+                }
+            });
+
+            conn.on('error', () => {
+                clearTimeout(timeoutTimer);
+                statusMsg.style.color = "#ef4444";
+                statusMsg.innerText = "❌ ट्रांसफर के दौरान कनेक्शन टूट गया। पुनः प्रयास करें।";
+                sendBtn.disabled = false;
+            });
+        });
+
+        tempPeer.on('error', () => {
+            clearTimeout(timeoutTimer);
+            statusMsg.style.color = "#ef4444";
+            statusMsg.innerHTML = `❌ <b>Shop PC Offline!</b><br>कृपया पहले कंप्यूटर पर Shop Admin पेज खोलें (ID: <b>${targetShopId}</b>)।`;
+            sendBtn.disabled = false;
+        });
+    }
+
+    // ================== QUEUE & 10-MINUTE AUTO DELETE ==================
     function addJobToQueue(jobData) {
         playNotificationChime();
         showToast(`New Document from ${jobData.customerName}`);
@@ -802,12 +923,12 @@
         card.innerHTML = `
             <div class="job-left">
                 ${isImg
-                    ? `<img src="${jobData.fileUrl}" class="job-thumb" id="thumb-${jobId}" onclick="openEditor('${jobId}')" title="Click to Edit">`
-                    : `<div class="job-thumb" style="display:flex;align-items:center;justify-content:center;font-weight:800;color:#ef4444;font-size:15px;">PDF</div>`
+                    ? `<img src="${jobData.fileUrl}" class="job-thumb" id="thumb-${jobId}" onclick="openEditor('${jobId}')">`
+                    : `<div class="job-thumb" style="display:flex;align-items:center;justify-content:center;font-weight:800;color:#ef4444;">PDF</div>`
                 }
                 <div>
-                    <div style="font-weight:800; font-size:15.5px;">👤 ${jobData.customerName}</div>
-                    <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+                    <div style="font-weight:800; font-size:15px;">👤 ${jobData.customerName}</div>
+                    <div style="font-size:12px; color:var(--text-muted);">
                         📄 ${jobData.fileName} • ${(jobData.fileSize / (1024 * 1024)).toFixed(2)} MB
                     </div>
                     <div class="meta-pills">
@@ -817,7 +938,7 @@
                     </div>
                 </div>
             </div>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
                 ${isImg ? `<button class="btn btn-sm" onclick="openEditor('${jobId}')">📐 Perspective / Crop</button>` : ''}
                 <button class="btn btn-success btn-sm" onclick="directPrintJob('${jobId}')">🖨️ Print</button>
                 <button class="btn btn-soft btn-sm" onclick="extendJobTime('${jobId}')">+5m</button>
@@ -836,7 +957,6 @@
             const rem = job.expiresAt - now;
             if (rem <= 0) {
                 deleteJob(jobId);
-                showToast(`Auto-deleted expired document (${job.customerName})`);
             } else {
                 const m = Math.floor(rem / 60000);
                 const s = Math.floor((rem % 60000) / 1000);
@@ -853,7 +973,6 @@
         if (jobs[jobId]) {
             jobs[jobId].expiresAt += 5 * 60 * 1000;
             updateCountdowns();
-            showToast("Added +5 Minutes to Document Timer");
         }
     }
 
@@ -867,9 +986,7 @@
         updateStats();
     }
 
-    function clearAllJobs() {
-        Object.keys(jobs).forEach(deleteJob);
-    }
+    function clearAllJobs() { Object.keys(jobs).forEach(deleteJob); }
 
     function updateStats() {
         const count = Object.keys(jobs).length;
@@ -878,103 +995,7 @@
         if (count === 0) document.getElementById('empty-queue').classList.remove('hidden');
     }
 
-    // ================== CUSTOMER CAMERA & CHUNKED UPLOAD ==================
-    async function handleCustomerFileSelect(input) {
-        if (!input.files || !input.files[0]) return;
-        let file = input.files[0];
-
-        if (file.type.startsWith('image/') && file.size > 4 * 1024 * 1024) {
-            file = await compressLargeCameraPhoto(file);
-        }
-
-        selectedCustFile = file;
-        document.getElementById('cust-preview-box').classList.remove('hidden');
-        document.getElementById('cust-file-name').innerText = file.name;
-        document.getElementById('cust-file-size').innerText = (file.size / (1024 * 1024)).toFixed(2) + " MB";
-
-        if (file.type.startsWith('image/')) {
-            document.getElementById('cust-preview-img').src = URL.createObjectURL(file);
-        } else {
-            document.getElementById('cust-preview-img').src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60'><rect width='60' height='60' rx='10' fill='%23fee2e2'/><text x='13' y='36' font-weight='bold' fill='%23dc2626'>PDF</text></svg>";
-        }
-    }
-
-    function compressLargeCameraPhoto(file) {
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => {
-                const maxW = 2200;
-                let w = img.width, h = img.height;
-                if (w > maxW) { h = Math.round((h * maxW) / w); w = maxW; }
-                const c = document.createElement('canvas');
-                c.width = w; c.height = h;
-                c.getContext('2d').drawImage(img, 0, 0, w, h);
-                c.toBlob((blob) => {
-                    resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: 'image/jpeg' }));
-                }, 'image/jpeg', 0.86);
-            };
-            img.src = URL.createObjectURL(file);
-        });
-    }
-
-    function sendFileChunked() {
-        if (!selectedCustFile) {
-            alert("कृपया पहले कैमरे से फोटो खींचें या फाइल चुनें!");
-            return;
-        }
-        const targetShopId = qrShopParam || document.getElementById('shop-id-input').value.trim();
-        const custName = document.getElementById('cust-name').value.trim() || "Customer";
-        const colorMode = document.getElementById('cust-color').value;
-        const copies = document.getElementById('cust-copies').value;
-        const statusMsg = document.getElementById('cust-status-msg');
-
-        document.getElementById('cust-progress-box').classList.remove('hidden');
-        statusMsg.style.color = "#4f46e5";
-        statusMsg.innerText = "⏳ दुकान के कंप्यूटर से कनेक्ट हो रहा है...";
-
-        const tempPeer = new Peer();
-
-        tempPeer.on('open', () => {
-            const conn = tempPeer.connect(targetShopId, { reliable: true });
-
-            conn.on('open', async () => {
-                const buffer = await selectedCustFile.arrayBuffer();
-                const totalChunks = Math.ceil(buffer.byteLength / CHUNK_SIZE);
-
-                conn.send({
-                    type: 'start',
-                    customerName: custName,
-                    fileName: selectedCustFile.name,
-                    fileType: selectedCustFile.type || 'application/octet-stream',
-                    fileSize: selectedCustFile.size,
-                    colorMode: colorMode,
-                    copies: copies,
-                    totalChunks: totalChunks
-                });
-
-                for (let i = 0; i < totalChunks; i++) {
-                    const slice = buffer.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
-                    conn.send({ type: 'chunk', chunk: slice });
-                    const pct = Math.round(((i + 1) / totalChunks) * 100);
-                    document.getElementById('cust-progress-pct').innerText = pct + '%';
-                    document.getElementById('cust-progress-bar').style.width = pct + '%';
-                    if (i % 8 === 0) await new Promise(r => setTimeout(r, 12));
-                }
-
-                conn.send({ type: 'end' });
-            });
-
-            conn.on('data', (data) => {
-                if (data.type === 'ack') {
-                    statusMsg.style.color = "#10b981";
-                    statusMsg.innerText = "✅ आपका डॉक्यूमेंट सफलतापूर्वक प्रिंट के लिए पहुंच गया है!";
-                    setTimeout(() => tempPeer.destroy(), 1000);
-                }
-            });
-        });
-    }
-
-    // ================== 4-POINT PERSPECTIVE CROP & STUDIO ==================
+    // ================== 4-POINT PERSPECTIVE STUDIO ==================
     function openEditor(jobId) {
         currentEditingJobId = jobId;
         const job = jobs[jobId];
@@ -1062,7 +1083,6 @@
         ctx.drawImage(activeImg, 0, 0);
         ctx.restore();
 
-        // Neon Cyan Border
         ctx.strokeStyle = "#38bdf8";
         ctx.lineWidth = Math.max(3, canvas.width / 240);
         ctx.beginPath();
@@ -1071,7 +1091,6 @@
         ctx.closePath();
         ctx.stroke();
 
-        // Corner Handles
         const r = Math.max(13, canvas.width / 42);
         const labels = ["TL", "TR", "BR", "BL"];
         corners.forEach((pt, idx) => {
@@ -1146,8 +1165,8 @@
             lCtx.strokeStyle = "#facc15";
             lCtx.lineWidth = 2;
             lCtx.beginPath();
-            lCtx.moveTo(60, 0); lCtx.lineTo(60, 120);
-            lCtx.moveTo(0, 60); lCtx.lineTo(120, 60);
+            lCtx.moveTo(57, 0); lCtx.lineTo(57, 115);
+            lCtx.moveTo(0, 57); lCtx.lineTo(115, 57);
             lCtx.stroke();
         }
 
@@ -1212,7 +1231,7 @@
 
         dCtx.putImageData(dstImageData, 0, 0);
         updateWorkingImageFromCanvas(dstCanvas);
-        showToast("4-Point Perspective Straightened!");
+        showToast("Perspective Straightened!");
     }
 
     function solveHomography(src, dst) {
@@ -1248,7 +1267,6 @@
     function applyRectCrop() {
         if (!cropperInstance) return;
         updateWorkingImageFromCanvas(cropperInstance.getCroppedCanvas());
-        showToast("Crop Applied!");
     }
 
     function applyDocFilter(type) {
@@ -1297,7 +1315,6 @@
         workingImg.onload = () => {
             initDefaultCorners(workingImg.width, workingImg.height);
             setEditorMode('perspective');
-            showToast("Reset to Original Image");
         };
     }
 
@@ -1336,7 +1353,7 @@
         }
 
         const win = window.open('', '_blank');
-        win.document.write(`<html><head><title>Print Document</title><style>@page{margin:10mm;} body{margin:0;} ${styleHtml}</style></head><body>${bodyHtml}<script>window.onload=()=>{setTimeout(()=>{window.print();window.close();},300);}<\/script></body></html>`);
+        win.document.write(`<html><head><title>Print</title><style>@page{margin:10mm;} body{margin:0;} ${styleHtml}</style></head><body>${bodyHtml}<script>window.onload=()=>{setTimeout(()=>{window.print();window.close();},300);}<\/script></body></html>`);
         win.document.close();
     }
 
@@ -1351,7 +1368,7 @@
                     <h1 style="color:#4f46e5; margin:0;">🖨️ Scan & Send for Print</h1>
                     <p style="color:#475569;">मोबाइल से QR स्कैन करें और तुरंत डॉक्यूमेंट प्रिंट के लिए भेजें</p>
                     <img src="${src}" style="width:260px; height:260px; margin:20px auto; display:block;">
-                    <p style="font-weight:bold; font-size:14px; color:#10b981;">🔒 100% Private • Auto-Deletes in 10 Minutes</p>
+                    <p style="font-weight:bold; font-size:14px; color:#10b981;">Shop ID: ${getActiveShopId()}</p>
                 </div>
                 <script>window.onload=()=>{window.print();window.close();}<\/script>
             </body></html>
@@ -1359,7 +1376,6 @@
         win.document.close();
     }
 
-    // ================== SKEWED AADHAAR DEMO GENERATOR ==================
     function loadSkewedDemo() {
         const c = document.createElement('canvas');
         c.width = 720; c.height = 500;
@@ -1408,7 +1424,6 @@
                 copies: 1,
                 fileUrl: url
             });
-            // Pre-set the 4 corners right on the skewed card when opened
             setTimeout(() => {
                 corners = [
                     { x: 125, y: 85 },
