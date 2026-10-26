@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Scan-to-Print Studio v3.0</title>
+    <!-- PeerJS for WebRTC Direct Transfer -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <!-- QRCode.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Cropper.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --success: #1e8e3e;
+            --danger: #d93025;
+            --warning: #f9ab00;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { margin: 0; padding: 0; background: var(--bg); color: var(--text); }
+
+        /* Top Bar */
+        .topbar {
+            background: #0f172a; color: #fff; padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .topbar h1 { margin: 0; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+        .mode-switch button {
+            background: #334155; color: #fff; border: none; padding: 6px 12px;
+            border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;
+        }
+        .mode-switch button.active { background: var(--primary); }
+
+        .container { max-width: 1150px; margin: 20px auto; padding: 0 15px; }
+        .hidden { display: none !important; }
+
+        /* Grid Layout for Admin */
+        .admin-grid { display: grid; grid-template-columns: 320px 1fr; gap: 20px; }
+        @media (max-width: 820px) { .admin-grid { grid-template-columns: 1fr; } }
+
+        .panel {
+            background: var(--card); border-radius: 12px; padding: 18px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+
+        /* Buttons */
+        .btn {
+            background: var(--primary); color: #fff; border: none; padding: 10px 15px;
+            border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            transition: 0.2s;
+        }
+        .btn:hover { opacity: 0.92; }
+        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
+        .btn-warning { background: #ea8600; color: #fff; }
+        .btn-outline { background: #e2e8f0; color: #1e293b; }
+        .btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 6px; }
+
+        /* QR Box */
+        #qrcode {
+            background: #fff; padding: 12px; border: 2px dashed #cbd5e1;
+            border-radius: 10px; display: flex; justify-content: center; margin: 12px 0;
+        }
+        .status-pill {
+            display: inline-block; padding: 5px 12px; border-radius: 20px;
+            font-size: 12px; font-weight: 700; background: #dcfce7; color: #166534;
+        }
+
+        /* Incoming Print Queue Cards */
+        .job-card {
+            background: #fff; border: 1px solid #e2e8f0; border-left: 5px solid var(--primary);
+            border-radius: 10px; padding: 14px; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            animation: slideIn 0.25s ease;
+        }
+        @keyframes slideIn { from { transform: translateY(-8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .job-info { display: flex; align-items: center; gap: 12px; }
+        .job-thumb {
+            width: 58px; height: 58px; border-radius: 8px; object-fit: cover;
+            border: 1px solid #cbd5e1; background: #f8fafc;
+        }
+        .timer-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: #fef3c7; color: #92400e; padding: 3px 8px;
+            border-radius: 12px; font-size: 11px; font-weight: 700; margin-top: 4px;
+        }
+        .timer-badge.urgent {
+            background: #fee2e2; color: #b91c1c; animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 50% { opacity: 0.5; } }
+
+        /* Progress Bar */
+        .progress-wrap {
+            width: 100%; background: #e2e8f0; height: 10px; border-radius: 6px;
+            overflow: hidden; margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%; width: 0%; background: var(--primary); transition: width 0.15s;
+        }
+
+        /* Customer Form */
+        .cust-box { max-width: 480px; margin: auto; }
+        .input-group { margin-bottom: 14px; }
+        .input-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+        .input-group input, .input-group select {
+            width: 100%; padding: 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;
+        }
+        .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+        .upload-btn-box {
+            border: 2px dashed #94a3b8; border-radius: 10px; padding: 16px 10px;
+            text-align: center; cursor: pointer; background: #f8fafc; font-weight: 600;
+            font-size: 13px; color: #334155; transition: 0.2s;
+        }
+        .upload-btn-box:hover { border-color: var(--primary); background: #eff6ff; }
+
+        /* Editor Modal (Perspective + Cropper + Filters) */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(15,23,42,0.85);
+            z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 12px;
+        }
+        .modal-box {
+            background: #fff; width: 100%; max-width: 1000px; max-height: 95vh;
+            border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;
+        }
+        .modal-header {
+            padding: 12px 18px; background: #0f172a; color: #fff;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-body {
+            display: grid; grid-template-columns: 1fr 300px; gap: 15px;
+            padding: 15px; overflow-y: auto; flex: 1;
+        }
+        @media (max-width: 780px) { .modal-body { grid-template-columns: 1fr; } }
+
+        .canvas-stage {
+            background: #1e293b; border-radius: 10px; min-height: 380px;
+            display: flex; justify-content: center; align-items: center;
+            position: relative; overflow: hidden; touch-action: none;
+        }
+        #persp-canvas { max-width: 100%; max-height: 62vh; cursor: crosshair; }
+        #cropper-img { max-width: 100%; max-height: 62vh; display: block; }
+
+        /* Magnifier Loupe for Perspective Corner Dragging */
+        #loupe {
+            position: absolute; top: 10px; left: 10px; width: 110px; height: 110px;
+            border: 3px solid #38bdf8; border-radius: 50%; overflow: hidden;
+            pointer-events: none; display: none; background: #000;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.5); z-index: 20;
+        }
+
+        .tool-section {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+            padding: 12px; margin-bottom: 12px;
+        }
+        .tool-section h4 { margin: 0 0 8px 0; font-size: 13px; color: #334155; }
+    </style>
+</head>
+<body>
+
+<!-- TOP NAVIGATION BAR -->
+<div class="topbar">
+    <h1>🖨️ Smart Scan-to-Print Studio <span style="font-size:12px; background:#2563eb; padding:2px 8px; border-radius:10px;">v3.0</span></h1>
+    <div class="mode-switch">
+        <button id="tab-admin" class="active" onclick="switchView('admin')">🖥️ Shop Admin</button>
+        <button id="tab-customer" onclick="switchView('customer')">📱 Customer Upload View</button>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- ================= ADMIN VIEW ================= -->
+    <div id="admin-view" class="admin-grid">
+        <!-- Left Sidebar: QR & Shop Settings -->
+        <div class="panel">
+            <h3 style="margin-top:0;">🏪 Shop QR Code</h3>
+            <div id="admin-status" class="status-pill">⏳ Connecting...</div>
+
+            <div style="margin-top:12px;">
+                <label style="font-size:12px; font-weight:600;">Shop Fixed ID:</label>
+                <div style="display:flex; gap:6px; margin-top:4px;">
+                    <input type="text" id="shop-id-input" style="flex:1; padding:7px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">
+                    <button class="btn btn-sm" onclick="saveShopId()">Save</button>
+                </div>
+            </div>
+
+            <div id="qrcode"></div>
+            <p id="qr-url-text" style="font-size:11px; color:#64748b; word-break:break-all; text-align:center; margin:6px 0;"></p>
+
+            <button class="btn btn-outline" style="width:100%; margin-top:6px;" onclick="printShopQR()">🖨️ Print Shop QR Standee</button>
+            <hr style="border:none; border-top:1px solid #e2e8f0; margin:15px 0;">
+            <button class="btn btn-warning" style="width:100%;" onclick="loadSkewedDemo()">⚡ Test Skewed ID (पर्सपेक्टिव डेमो)</button>
+        </div>
+
+        <!-- Right Panel: Live Incoming Print Queue -->
+        <div class="panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3 style="margin:0;">🔔 Live Print Queue (10-Min Auto-Delete)</h3>
+                <span id="job-count" style="font-size:13px; font-weight:700; color:var(--primary);">0 Jobs</span>
+            </div>
+
+            <!-- Live Receiving Progress -->
+            <div id="admin-rx-box" class="hidden" style="background:#eff6ff; padding:10px; border-radius:8px; margin-bottom:12px;">
+                <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700;">
+                    <span id="admin-rx-label">📥 Receiving file...</span>
+                    <span id="admin-rx-pct">0%</span>
+                </div>
+                <div class="progress-wrap"><div id="admin-rx-bar" class="progress-bar"></div></div>
+            </div>
+
+            <div id="print-queue">
+                <p id="empty-queue" style="text-align:center; color:#64748b; padding:40px 10px;">
+                    अभी कोई डॉक्यूमेंट नहीं आया है।<br>ग्राहक द्वारा QR स्कैन करके फाइल भेजने पर यहाँ तुरंत नोटिफिकेशन आएगा।
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= CUSTOMER VIEW ================= -->
+    <div id="customer-view" class="cust-box hidden">
+        <div class="panel">
+            <h2 style="margin-top:0; color:var(--primary);">📤 Send Document for Print</h2>
+            <p style="font-size:13px; color:#475569; margin-top:-6px;">कैमरे से फोटो खींचें या अपने फोन से फाइल चुनकर सीधे दुकानदार को भेजें।</p>
+
+            <div class="input-group">
+                <label>👤 आपका नाम (Customer Name):</label>
+                <input type="text" id="cust-name" placeholder="जैसे: अमित कुमार">
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="input-group">
+                    <label>🎨 Print Type:</label>
+                    <select id="cust-color">
+                        <option value="B&W">Black & White</option>
+                        <option value="Color">Color Print</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>📑 Copies:</label>
+                    <input type="number" id="cust-copies" value="1" min="1" max="50">
+                </div>
+            </div>
+
+            <!-- Hidden Separate Inputs for Camera & File -->
+            <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleCustomerFileSelect(this)">
+            <input type="file" id="file-input" accept="image/*,application/pdf" class="hidden" onchange="handleCustomerFileSelect(this)">
+
+            <label style="font-weight:600; font-size:14px; display:block; margin-bottom:8px;">📎 डॉक्यूमेंट या फोटो चुनें:</label>
+            <div class="upload-grid">
+                <div class="upload-btn-box" onclick="document.getElementById('camera-input').click()">
+                    <div style="font-size:24px;">📸</div>
+                    <div>Take Photo<br><small style="color:#64748b;">(सीधे कैमरा खोलें)</small></div>
+                </div>
+                <div class="upload-btn-box" onclick="document.getElementById('file-input').click()">
+                    <div style="font-size:24px;">📁</div>
+                    <div>Choose File / PDF<br><small style="color:#64748b;">(गैलरी या PDF)</small></div>
+                </div>
+            </div>
+
+            <!-- Selected File Preview Card -->
+            <div id="cust-preview-box" class="hidden" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:10px; margin-bottom:14px; display:flex; align-items:center; gap:12px;">
+                <img id="cust-preview-img" src="" style="width:55px; height:55px; object-fit:cover; border-radius:6px; border:1px solid #ccc;">
+                <div style="flex:1; overflow:hidden;">
+                    <div id="cust-file-name" style="font-weight:700; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+                    <div id="cust-file-size" style="font-size:12px; color:#475569;"></div>
+                </div>
+            </div>
+
+            <!-- Customer Upload Progress Bar -->
+            <div id="cust-progress-box" class="hidden">
+                <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700;">
+                    <span id="cust-progress-text">Sending...</span>
+                    <span id="cust-progress-pct">0%</span>
+                </div>
+                <div class="progress-wrap"><div id="cust-progress-bar" class="progress-bar"></div></div>
+            </div>
+
+            <button class="btn btn-success" id="send-btn" style="width:100%; padding:13px; font-size:16px;" onclick="sendFileChunked()">
+                🚀 Send for Print
+            </button>
+            <p id="cust-status-msg" style="text-align:center; font-weight:700; font-size:13px; margin-top:12px;"></p>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= SMART PRINT & PERSPECTIVE CROP MODAL ================= -->
+<div id="editor-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 style="margin:0; font-size:16px;">📐 Smart Document Studio (4-Point Perspective & Print)</h3>
+            <button class="btn btn-danger btn-sm" onclick="closeEditor()">✖ Close</button>
+        </div>
+
+        <div class="modal-body">
+            <!-- Left Canvas Area -->
+            <div class="canvas-stage" id="canvas-stage">
+                <canvas id="persp-canvas"></canvas>
+                <img id="cropper-img" class="hidden" src="">
+                <canvas id="loupe" width="110" height="110"></canvas>
+            </div>
+
+            <!-- Right Controls Sidebar -->
+            <div>
+                <!-- Mode Switcher inside Editor -->
+                <div class="tool-section">
+                    <h4>1️⃣ Crop Mode चुनें:</h4>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                        <button class="btn btn-sm" id="btn-mode-persp" onclick="setEditorMode('perspective')">📐 4-Point Perspective</button>
+                        <button class="btn btn-sm btn-outline" id="btn-mode-rect" onclick="setEditorMode('rect')">✂️ Normal Crop</button>
+                    </div>
+
+                    <!-- Perspective Actions -->
+                    <div id="persp-controls" style="margin-top:10px;">
+                        <p style="font-size:11px; color:#475569; margin:0 0 8px 0;">
+                            💡 डॉक्यूमेंट के चारों कोनों पर नीले बिंदुओं को सेट करें और नीचे बटन दबाएं:
+                        </p>
+                        <button class="btn btn-success" style="width:100%;" onclick="applyPerspectiveTransform()">
+                            ✅ सीधा करें (Apply Perspective)
+                        </button>
+                    </div>
+
+                    <!-- Normal Cropper Actions -->
+                    <div id="rect-controls" class="hidden" style="margin-top:10px;">
+                        <div style="display:flex; gap:6px; margin-bottom:8px;">
+                            <button class="btn btn-sm btn-outline" style="flex:1;" onclick="rotateCropper(-90)">↺ -90°</button>
+                            <button class="btn btn-sm btn-outline" style="flex:1;" onclick="rotateCropper(90)">↻ +90°</button>
+                        </div>
+                        <button class="btn btn-success" style="width:100%;" onclick="applyRectCrop()">
+                            ✅ Apply Box Crop
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Document Filter / Cleaner -->
+                <div class="tool-section">
+                    <h4>2️⃣ Document Cleaner (साफ करें):</h4>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+                        <button class="btn btn-sm btn-outline" onclick="applyDocFilter('original')">Original</button>
+                        <button class="btn btn-sm btn-outline" onclick="applyDocFilter('magic')">✨ Magic</button>
+                        <button class="btn btn-sm btn-outline" onclick="applyDocFilter('bw')">🖤 B&W Scan</button>
+                    </div>
+                </div>
+
+                <!-- Print Layout -->
+                <div class="tool-section">
+                    <h4>3️⃣ Print Page Size Layout:</h4>
+                    <select id="print-layout" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1; margin-bottom:10px;">
+                        <option value="full">Full A4 Page</option>
+                        <option value="half">Half A4 Page (Upper Half)</option>
+                        <option value="idcard">ID Card / Aadhaar Size (8.6cm × 5.4cm)</option>
+                        <option value="passport">Passport Photo Sheet (6 Photos)</option>
+                    </select>
+
+                    <button class="btn" style="width:100%; padding:12px; font-size:15px;" onclick="printEditedImage()">
+                        🖨️ Final Print Now
+                    </button>
+                    <button class="btn btn-outline btn-sm" style="width:100%; margin-top:8px;" onclick="resetEditorImage()">
+                        🔄 Reset Original Image
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ================== GLOBAL VARIABLES ==================
+    const urlParams = new URLSearchParams(window.location.search);
+    const qrShopParam = urlParams.get('shop');
+    const CHUNK_SIZE = 64 * 1024; // 64KB chunks for large 3MB-20MB files
+    const TEN_MINUTES_MS = 10 * 60 * 1000;
+
+    let adminPeer = null;
+    let jobs = {}; // Store jobs with 10-min expiry
+    let selectedCustFile = null;
+
+    // Editor & Perspective Variables
+    let currentEditingJobId = null;
+    let originalEditImg = new Image();
+    let workingImg = new Image();
+    let editorMode = 'perspective';
+    let cropperInstance = null;
+
+    // 4 Corner Points in Image Coordinates: TL, TR, BR, BL
+    let corners = [];
+    let draggingCornerIndex = -1;
+
+    // Notification Beep
+    function playBeep() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.25);
+        } catch (e) {}
+    }
+
+    // Switch between Admin and Customer tabs
+    function switchView(mode) {
+        document.getElementById('admin-view').classList.toggle('hidden', mode !== 'admin');
+        document.getElementById('customer-view').classList.toggle('hidden', mode !== 'customer');
+        document.getElementById('tab-admin').classList.toggle('active', mode === 'admin');
+        document.getElementById('tab-customer').classList.toggle('active', mode === 'customer');
+    }
+
+    // ================== INITIALIZATION ==================
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedShopId = localStorage.getItem('smart_shop_id') || ('shop-print-' + Math.floor(1000 + Math.random() * 9000));
+        localStorage.setItem('smart_shop_id', savedShopId);
+        document.getElementById('shop-id-input').value = savedShopId;
+
+        if (qrShopParam) {
+            switchView('customer');
+        } else {
+            initAdminPeer(savedShopId);
+        }
+
+        // Start 1-second interval for 10-Minute Auto-Delete Countdown
+        setInterval(updateCountdowns, 1000);
+        initPerspectiveCanvasEvents();
+    });
+
+    function saveShopId() {
+        const val = document.getElementById('shop-id-input').value.trim();
+        if (!val) return;
+        localStorage.setItem('smart_shop_id', val);
+        initAdminPeer(val);
+    }
+
+    // ================== ADMIN PEER & CHUNK RECEIVER ==================
+    function initAdminPeer(shopId) {
+        if (adminPeer) adminPeer.destroy();
+        const statusEl = document.getElementById('admin-status');
+        statusEl.innerText = "⏳ Connecting...";
+
+        adminPeer = new Peer(shopId);
+
+        adminPeer.on('open', (id) => {
+            statusEl.innerText = "🟢 Online & Ready";
+            const custUrl = window.location.origin + window.location.pathname + "?shop=" + encodeURIComponent(id);
+            document.getElementById('qr-url-text').innerText = custUrl;
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = "";
+            new QRCode(qrContainer, { text: custUrl, width: 165, height: 165 });
+        });
+
+        adminPeer.on('connection', (conn) => {
+            let incomingBuffer = [];
+            let meta = null;
+
+            conn.on('data', (data) => {
+                if (data.type === 'start') {
+                    meta = data;
+                    incomingBuffer = [];
+                    document.getElementById('admin-rx-box').classList.remove('hidden');
+                    document.getElementById('admin-rx-label').innerText = `📥 Receiving ${meta.fileName} from ${meta.customerName}...`;
+                } else if (data.type === 'chunk') {
+                    incomingBuffer.push(data.chunk);
+                    if (meta && meta.totalChunks) {
+                        const pct = Math.min(100, Math.round((incomingBuffer.length / meta.totalChunks) * 100));
+                        document.getElementById('admin-rx-pct').innerText = pct + '%';
+                        document.getElementById('admin-rx-bar').style.width = pct + '%';
+                    }
+                } else if (data.type === 'end') {
+                    document.getElementById('admin-rx-box').classList.add('hidden');
+                    const blob = new Blob(incomingBuffer, { type: meta.fileType });
+                    const fileUrl = URL.createObjectURL(blob);
+                    addJobToQueue({
+                        customerName: meta.customerName,
+                        fileName: meta.fileName,
+                        fileType: meta.fileType,
+                        fileSize: meta.fileSize,
+                        colorMode: meta.colorMode,
+                        copies: meta.copies,
+                        fileUrl: fileUrl
+                    });
+                    conn.send({ type: 'ack' });
+                }
+            });
+        });
+    }
+
+    // ================== QUEUE & 10-MINUTE AUTO DELETE ==================
+    function addJobToQueue(jobData) {
+        playBeep();
+        document.getElementById('empty-queue').classList.add('hidden');
+
+        const jobId = 'job-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+        const isImg = jobData.fileType.startsWith('image/');
+
+        jobs[jobId] = {
+            ...jobData,
+            id: jobId,
+            expiresAt: Date.now() + TEN_MINUTES_MS
+        };
+
+        const card = document.createElement('div');
+        card.className = 'job-card';
+        card.id = jobId;
+        card.innerHTML = `
+            <div class="job-info">
+                ${isImg ? `<img src="${jobData.fileUrl}" class="job-thumb" id="thumb-${jobId}">` : `<div class="job-thumb" style="display:flex;align-items:center;justify-content:center;font-weight:bold;color:#dc2626;">PDF</div>`}
+                <div>
+                    <div style="font-weight:700; font-size:15px;">👤 ${jobData.customerName}</div>
+                    <div style="font-size:12px; color:#475569;">
+                        📄 ${jobData.fileName} (${(jobData.fileSize / (1024 * 1024)).toFixed(2)} MB) • <b>${jobData.colorMode}</b> • <b>${jobData.copies} Copy</b>
+                    </div>
+                    <div class="timer-badge" id="timer-${jobId}">⏱️ Auto-deletes in 10:00</div>
+                </div>
+            </div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                ${isImg ? `<button class="btn btn-sm" onclick="openEditor('${jobId}')">📐 Perspective / Crop</button>` : ''}
+                <button class="btn btn-success btn-sm" onclick="directPrintJob('${jobId}')">🖨️ Direct Print</button>
+                <button class="btn btn-outline btn-sm" onclick="extendJobTime('${jobId}')">+5 Min</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteJob('${jobId}')">✖</button>
+            </div>
+        `;
+
+        document.getElementById('print-queue').prepend(card);
+        updateJobCount();
+    }
+
+    function updateCountdowns() {
+        const now = Date.now();
+        Object.keys(jobs).forEach(jobId => {
+            const job = jobs[jobId];
+            const remaining = job.expiresAt - now;
+            if (remaining <= 0) {
+                deleteJob(jobId);
+            } else {
+                const mins = Math.floor(remaining / 60000);
+                const secs = Math.floor((remaining % 60000) / 1000);
+                const el = document.getElementById('timer-' + jobId);
+                if (el) {
+                    el.innerText = `⏱️ Auto-deletes in ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                    el.classList.toggle('urgent', remaining < 120000);
+                }
+            }
+        });
+    }
+
+    function extendJobTime(jobId) {
+        if (jobs[jobId]) {
+            jobs[jobId].expiresAt += 5 * 60 * 1000;
+            updateCountdowns();
+        }
+    }
+
+    function deleteJob(jobId) {
+        if (jobs[jobId]) {
+            URL.revokeObjectURL(jobs[jobId].fileUrl);
+            delete jobs[jobId];
+        }
+        const el = document.getElementById(jobId);
+        if (el) el.remove();
+        updateJobCount();
+    }
+
+    function updateJobCount() {
+        const count = Object.keys(jobs).length;
+        document.getElementById('job-count').innerText = count + " Jobs";
+        if (count === 0) document.getElementById('empty-queue').classList.remove('hidden');
+    }
+
+    // ================== CUSTOMER CAMERA & CHUNKED UPLOAD ==================
+    async function handleCustomerFileSelect(input) {
+        if (!input.files || !input.files[0]) return;
+        let file = input.files[0];
+
+        // Optional lightweight compression if camera image > 4MB so transfer is super fast
+        if (file.type.startsWith('image/') && file.size > 4 * 1024 * 1024) {
+            file = await compressLargeCameraPhoto(file);
+        }
+
+        selectedCustFile = file;
+        document.getElementById('cust-preview-box').classList.remove('hidden');
+        document.getElementById('cust-file-name').innerText = file.name;
+        document.getElementById('cust-file-size').innerText = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+
+        if (file.type.startsWith('image/')) {
+            document.getElementById('cust-preview-img').src = URL.createObjectURL(file);
+        } else {
+            document.getElementById('cust-preview-img').src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60'><rect width='60' height='60' fill='%23fee2e2'/><text x='12' y='35' font-weight='bold' fill='%23dc2626'>PDF</text></svg>";
+        }
+    }
+
+    function compressLargeCameraPhoto(file) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                const maxW = 2200;
+                let w = img.width, h = img.height;
+                if (w > maxW) { h = Math.round((h * maxW) / w); w = maxW; }
+                const c = document.createElement('canvas');
+                c.width = w; c.height = h;
+                c.getContext('2d').drawImage(img, 0, 0, w, h);
+                c.toBlob((blob) => {
+                    resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: 'image/jpeg' }));
+                }, 'image/jpeg', 0.85);
+            };
+            img.src = URL.createObjectURL(file);
+        });
+    }
+
+    function sendFileChunked() {
+        if (!selectedCustFile) {
+            alert("कृपया पहले कैमरे से फोटो खींचें या फाइल चुनें!");
+            return;
+        }
+        const targetShopId = qrShopParam || document.getElementById('shop-id-input').value.trim();
+        const custName = document.getElementById('cust-name').value.trim() || "Customer";
+        const colorMode = document.getElementById('cust-color').value;
+        const copies = document.getElementById('cust-copies').value;
+        const statusMsg = document.getElementById('cust-status-msg');
+
+        document.getElementById('cust-progress-box').classList.remove('hidden');
+        statusMsg.style.color = "#1a73e8";
+        statusMsg.innerText = "⏳ दुकान के सिस्टम से कनेक्ट हो रहा है...";
+
+        // If testing on same browser without another device, also push directly if Peer fails
+        const tempPeer = new Peer();
+
+        tempPeer.on('open', () => {
+            const conn = tempPeer.connect(targetShopId, { reliable: true });
+
+            conn.on('open', async () => {
+                const buffer = await selectedCustFile.arrayBuffer();
+                const totalChunks = Math.ceil(buffer.byteLength / CHUNK_SIZE);
+
+                conn.send({
+                    type: 'start',
+                    customerName: custName,
+                    fileName: selectedCustFile.name,
+                    fileType: selectedCustFile.type || 'application/octet-stream',
+                    fileSize: selectedCustFile.size,
+                    colorMode: colorMode,
+                    copies: copies,
+                    totalChunks: totalChunks
+                });
+
+                for (let i = 0; i < totalChunks; i++) {
+                    const slice = buffer.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+                    conn.send({ type: 'chunk', chunk: slice });
+                    const pct = Math.round(((i + 1) / totalChunks) * 100);
+                    document.getElementById('cust-progress-pct').innerText = pct + '%';
+                    document.getElementById('cust-progress-bar').style.width = pct + '%';
+                    if (i % 8 === 0) await new Promise(r => setTimeout(r, 12));
+                }
+
+                conn.send({ type: 'end' });
+            });
+
+            conn.on('data', (data) => {
+                if (data.type === 'ack') {
+                    statusMsg.style.color = "#1e8e3e";
+                    statusMsg.innerText = "✅ डॉक्यूमेंट सफलतापूर्वक प्रिंट के लिए पहुंच गया है!";
+                    setTimeout(() => tempPeer.destroy(), 1000);
+                }
+            });
+        });
+    }
+
+    // ================== 4-POINT PERSPECTIVE CROP & STUDIO ==================
+    function openEditor(jobId) {
+        currentEditingJobId = jobId;
+        const job = jobs[jobId];
+        if (!job) return;
+
+        document.getElementById('editor-modal').classList.remove('hidden');
+        originalEditImg = new Image();
+        originalEditImg.onload = () => {
+            workingImg = cloneImageElement(originalEditImg);
+            initDefaultCorners(workingImg.width, workingImg.height);
+            setEditorMode('perspective');
+        };
+        originalEditImg.src = job.fileUrl;
+    }
+
+    function closeEditor() {
+        document.getElementById('editor-modal').classList.add('hidden');
+        if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+    }
+
+    function cloneImageElement(img) {
+        const c = document.createElement('canvas');
+        c.width = img.width; c.height = img.height;
+        c.getContext('2d').drawImage(img, 0, 0);
+        const copy = new Image();
+        copy.src = c.toDataURL('image/jpeg', 0.95);
+        return copy;
+    }
+
+    function initDefaultCorners(w, h) {
+        const padX = w * 0.12, padY = h * 0.12;
+        corners = [
+            { x: padX, y: padY },         // Top-Left
+            { x: w - padX, y: padY },     // Top-Right
+            { x: w - padX, y: h - padY }, // Bottom-Right
+            { x: padX, y: h - padY }      // Bottom-Left
+        ];
+    }
+
+    function setEditorMode(mode) {
+        editorMode = mode;
+        const perspCanvas = document.getElementById('persp-canvas');
+        const cropperImg = document.getElementById('cropper-img');
+
+        document.getElementById('btn-mode-persp').classList.toggle('btn-outline', mode !== 'perspective');
+        document.getElementById('btn-mode-rect').classList.toggle('btn-outline', mode !== 'rect');
+        document.getElementById('persp-controls').classList.toggle('hidden', mode !== 'perspective');
+        document.getElementById('rect-controls').classList.toggle('hidden', mode !== 'rect');
+
+        if (mode === 'perspective') {
+            if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+            cropperImg.classList.add('hidden');
+            perspCanvas.classList.remove('hidden');
+            setTimeout(drawPerspectiveOverlay, 30);
+        } else {
+            perspCanvas.classList.add('hidden');
+            cropperImg.classList.remove('hidden');
+            cropperImg.src = workingImg.src;
+            cropperImg.onload = () => {
+                if (cropperInstance) cropperInstance.destroy();
+                cropperInstance = new Cropper(cropperImg, { viewMode: 1, autoCropArea: 0.9 });
+            };
+        }
+    }
+
+    function drawPerspectiveOverlay() {
+        const canvas = document.getElementById('persp-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = workingImg.width || originalEditImg.width;
+        canvas.height = workingImg.height || originalEditImg.height;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(workingImg.complete && workingImg.width ? workingImg : originalEditImg, 0, 0);
+
+        // Semi-transparent dark outside polygon
+        ctx.fillStyle = "rgba(15, 23, 42, 0.45)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw Polygon Cutout & Grid
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(corners[0].x, corners[0].y);
+        for (let i = 1; i < 4; i++) ctx.lineTo(corners[i].x, corners[i].y);
+        ctx.closePath();
+        ctx.clip();
+        ctx.drawImage(workingImg.complete && workingImg.width ? workingImg : originalEditImg, 0, 0);
+        ctx.restore();
+
+        // Draw Connecting Lines
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = Math.max(3, canvas.width / 250);
+        ctx.beginPath();
+        ctx.moveTo(corners[0].x, corners[0].y);
+        for (let i = 1; i < 4; i++) ctx.lineTo(corners[i].x, corners[i].y);
+        ctx.closePath();
+        ctx.stroke();
+
+        // Draw 4 Corner Handles
+        const handleRadius = Math.max(12, canvas.width / 45);
+        const labels = ["TL", "TR", "BR", "BL"];
+        corners.forEach((pt, idx) => {
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, handleRadius, 0, Math.PI * 2);
+            ctx.fillStyle = idx === draggingCornerIndex ? "#facc15" : "#0284c7";
+            ctx.fill();
+            ctx.lineWidth = Math.max(2, canvas.width / 300);
+            ctx.strokeStyle = "#ffffff";
+            ctx.stroke();
+
+            ctx.fillStyle = "#fff";
+            ctx.font = `bold ${Math.round(handleRadius * 0.9)}px sans-serif`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(labels[idx], pt.x, pt.y);
+        });
+    }
+
+    function initPerspectiveCanvasEvents() {
+        const canvas = document.getElementById('persp-canvas');
+        const loupe = document.getElementById('loupe');
+
+        function getCanvasCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: (clientX - rect.left) * (canvas.width / rect.width),
+                y: (clientY - rect.top) * (canvas.height / rect.height)
+            };
+        }
+
+        function onDown(e) {
+            if (editorMode !== 'perspective') return;
+            const pos = getCanvasCoords(e);
+            const hitRadius = Math.max(30, canvas.width / 18);
+            draggingCornerIndex = corners.findIndex(c => Math.hypot(c.x - pos.x, c.y - pos.y) < hitRadius);
+            if (draggingCornerIndex !== -1) {
+                e.preventDefault();
+                updateLoupe(pos);
+            }
+        }
+
+        function onMove(e) {
+            if (draggingCornerIndex === -1 || editorMode !== 'perspective') return;
+            e.preventDefault();
+            const pos = getCanvasCoords(e);
+            corners[draggingCornerIndex].x = Math.max(0, Math.min(canvas.width, pos.x));
+            corners[draggingCornerIndex].y = Math.max(0, Math.min(canvas.height, pos.y));
+            drawPerspectiveOverlay();
+            updateLoupe(corners[draggingCornerIndex]);
+        }
+
+        function onUp() {
+            draggingCornerIndex = -1;
+            loupe.style.display = 'none';
+            if (editorMode === 'perspective') drawPerspectiveOverlay();
+        }
+
+        function updateLoupe(pt) {
+            loupe.style.display = 'block';
+            const lCtx = loupe.getContext('2d');
+            const zoom = 2;
+            const srcSize = loupe.width / zoom;
+            lCtx.clearRect(0, 0, loupe.width, loupe.height);
+            lCtx.drawImage(
+                workingImg.complete && workingImg.width ? workingImg : originalEditImg,
+                pt.x - srcSize / 2, pt.y - srcSize / 2, srcSize, srcSize,
+                0, 0, loupe.width, loupe.height
+            );
+            // Crosshair inside loupe
+            lCtx.strokeStyle = "#facc15";
+            lCtx.lineWidth = 2;
+            lCtx.beginPath();
+            lCtx.moveTo(55, 0); lCtx.lineTo(55, 110);
+            lCtx.moveTo(0, 55); lCtx.lineTo(110, 55);
+            lCtx.stroke();
+        }
+
+        canvas.addEventListener('mousedown', onDown);
+        canvas.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+        canvas.addEventListener('touchstart', onDown, { passive: false });
+        canvas.addEventListener('touchmove', onMove, { passive: false });
+        window.addEventListener('touchend', onUp);
+    }
+
+    // ================== HOMOGRAPHY MATRIX PERSPECTIVE WARP ==================
+    function applyPerspectiveTransform() {
+        const srcImg = workingImg.complete && workingImg.width ? workingImg : originalEditImg;
+        const srcCanvas = document.createElement('canvas');
+        srcCanvas.width = srcImg.width; srcCanvas.height = srcImg.height;
+        const sCtx = srcCanvas.getContext('2d');
+        sCtx.drawImage(srcImg, 0, 0);
+        const srcData = sCtx.getImageData(0, 0, srcCanvas.width, srcCanvas.height);
+
+        // Calculate output width & height from the 4 corners
+        const topW = Math.hypot(corners[1].x - corners[0].x, corners[1].y - corners[0].y);
+        const botW = Math.hypot(corners[2].x - corners[3].x, corners[2].y - corners[3].y);
+        const leftH = Math.hypot(corners[3].x - corners[0].x, corners[3].y - corners[0].y);
+        const rightH = Math.hypot(corners[2].x - corners[1].x, corners[2].y - corners[1].y);
+
+        const dstW = Math.round(Math.max(topW, botW));
+        const dstH = Math.round(Math.max(leftH, rightH));
+
+        const dstPts = [
+            { x: 0, y: 0 },
+            { x: dstW, y: 0 },
+            { x: dstW, y: dstH },
+            { x: 0, y: dstH }
+        ];
+
+        // Compute Homography mapping from Destination (x,y) -> Source (u,v)
+        const H = solveHomography(dstPts, corners);
+
+        const dstCanvas = document.createElement('canvas');
+        dstCanvas.width = dstW; dstCanvas.height = dstH;
+        const dCtx = dstCanvas.getContext('2d');
+        const dstImageData = dCtx.createImageData(dstW, dstH);
+
+        const sPixels = srcData.data;
+        const dPixels = dstImageData.data;
+        const sw = srcCanvas.width, sh = srcCanvas.height;
+
+        for (let y = 0; y < dstH; y++) {
+            for (let x = 0; x < dstW; x++) {
+                const denom = H[6] * x + H[7] * y + 1;
+                const u = (H[0] * x + H[1] * y + H[2]) / denom;
+                const v = (H[3] * x + H[4] * y + H[5]) / denom;
+
+                const sx = Math.round(u), sy = Math.round(v);
+                if (sx >= 0 && sx < sw && sy >= 0 && sy < sh) {
+                    const sIdx = (sy * sw + sx) * 4;
+                    const dIdx = (y * dstW + x) * 4;
+                    dPixels[dIdx] = sPixels[sIdx];
+                    dPixels[dIdx + 1] = sPixels[sIdx + 1];
+                    dPixels[dIdx + 2] = sPixels[sIdx + 2];
+                    dPixels[dIdx + 3] = 255;
+                }
+            }
+        }
+
+        dCtx.putImageData(dstImageData, 0, 0);
+        updateWorkingImageFromCanvas(dstCanvas);
+    }
+
+    function solveHomography(src, dst) {
+        let A = [], b = [];
+        for (let i = 0; i < 4; i++) {
+            const x = src[i].x, y = src[i].y;
+            const u = dst[i].x, v = dst[i].y;
+            A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]);
+            b.push(u);
+            A.push([0, 0, 0, x, y, 1, -v * x, -v * y]);
+            b.push(v);
+        }
+        // Gaussian elimination for 8x8 linear system
+        const n = 8;
+        for (let i = 0; i < n; i++) {
+            let maxRow = i;
+            for (let k = i + 1; k < n; k++) {
+                if (Math.abs(A[k][i]) > Math.abs(A[maxRow][i])) maxRow = k;
+            }
+            [A[i], A[maxRow]] = [A[maxRow], A[i]];
+            [b[i], b[maxRow]] = [b[maxRow], b[i]];
+
+            for (let k = i + 1; k < n; k++) {
+                const factor = A[k][i] / A[i][i];
+                b[k] -= factor * b[i];
+                for (let j = i; j < n; j++) A[k][j] -= factor * A[i][j];
+            }
+        }
+        const x = new Array(n).fill(0);
+        for (let i = n - 1; i >= 0; i--) {
+            let sum = b[i];
+            for (let j = i + 1; j < n; j++) sum -= A[i][j] * x[j];
+            x[i] = sum / A[i][i];
+        }
+        return x;
+    }
+
+    function rotateCropper(deg) {
+        if (cropperInstance) cropperInstance.rotate(deg);
+    }
+
+    function applyRectCrop() {
+        if (!cropperInstance) return;
+        const c = cropperInstance.getCroppedCanvas();
+        updateWorkingImageFromCanvas(c);
+    }
+
+    function applyDocFilter(type) {
+        const base = type === 'original' ? originalEditImg : workingImg;
+        const c = document.createElement('canvas');
+        c.width = base.width; c.height = base.height;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(base, 0, 0);
+
+        if (type !== 'original') {
+            const imgData = ctx.getImageData(0, 0, c.width, c.height);
+            const d = imgData.data;
+            for (let i = 0; i < d.length; i += 4) {
+                const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+                if (type === 'bw') {
+                    const val = gray > 145 ? 255 : 0;
+                    d[i] = d[i + 1] = d[i + 2] = val;
+                } else if (type === 'magic') {
+                    // Contrast stretch
+                    d[i] = Math.min(255, Math.max(0, (d[i] - 128) * 1.4 + 140));
+                    d[i + 1] = Math.min(255, Math.max(0, (d[i + 1] - 128) * 1.4 + 140));
+                    d[i + 2] = Math.min(255, Math.max(0, (d[i + 2] - 128) * 1.4 + 140));
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+        }
+        updateWorkingImageFromCanvas(c);
+    }
+
+    function updateWorkingImageFromCanvas(canvas) {
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+        workingImg = new Image();
+        workingImg.onload = () => {
+            initDefaultCorners(workingImg.width, workingImg.height);
+            if (currentEditingJobId && jobs[currentEditingJobId]) {
+                jobs[currentEditingJobId].fileUrl = dataUrl;
+                const thumb = document.getElementById('thumb-' + currentEditingJobId);
+                if (thumb) thumb.src = dataUrl;
+            }
+            setEditorMode('perspective');
+        };
+        workingImg.src = dataUrl;
+    }
+
+    function resetEditorImage() {
+        workingImg = cloneImageElement(originalEditImg);
+        workingImg.onload = () => {
+            initDefaultCorners(workingImg.width, workingImg.height);
+            setEditorMode('perspective');
+        };
+    }
+
+    // ================== PRINTING FUNCTIONS ==================
+    function printEditedImage() {
+        const layout = document.getElementById('print-layout').value;
+        printUrlWithLayout(workingImg.src, layout);
+    }
+
+    function directPrintJob(jobId) {
+        const job = jobs[jobId];
+        if (!job) return;
+        if (job.fileType.startsWith('image/')) {
+            printUrlWithLayout(job.fileUrl, 'full');
+        } else {
+            const win = window.open(job.fileUrl, '_blank');
+            if (win) win.focus();
+        }
+    }
+
+    function printUrlWithLayout(url, layout) {
+        let styleHtml = `img { max-width: 100%; max-height: 95vh; display: block; margin: auto; }`;
+        let bodyHtml = `<img src="${url}">`;
+
+        if (layout === 'half') {
+            styleHtml = `img { width: 100%; max-height: 48vh; object-fit: contain; }`;
+        } else if (layout === 'idcard') {
+            styleHtml = `img { width: 8.6cm; height: 5.4cm; object-fit: fill; border: 1px solid #ccc; margin: 20px; }`;
+        } else if (layout === 'passport') {
+            styleHtml = `.grid { display: flex; flex-wrap: wrap; gap: 10px; padding: 15px; } .grid img { width: 3.5cm; height: 4.5cm; object-fit: cover; border: 1px solid #000; }`;
+            bodyHtml = `<div class="grid">${`<img src="${url}">`.repeat(6)}</div>`;
+        }
+
+        const win = window.open('', '_blank');
+        win.document.write(`<html><head><title>Print Document</title><style>@page{margin:10mm;} body{margin:0;} ${styleHtml}</style></head><body>${bodyHtml}<script>window.onload=()=>{setTimeout(()=>{window.print();window.close();},300);}<\/script></body></html>`);
+        win.document.close();
+    }
+
+    function printShopQR() {
+        const qrImg = document.querySelector('#qrcode img') || document.querySelector('#qrcode canvas');
+        if (!qrImg) return;
+        const src = qrImg.src || qrImg.toDataURL();
+        const win = window.open('', '_blank');
+        win.document.write(`
+            <html><body style="text-align:center; font-family:sans-serif; padding:40px;">
+                <h1>🖨️ Scan to Send Document for Print</h1>
+                <p>अपने मोबाइल से यह QR कोड स्कैन करें और सीधे प्रिंट के लिए डॉक्यूमेंट भेजें</p>
+                <img src="${src}" style="width:280px; height:280px; margin:20px auto; display:block;">
+                <script>window.onload=()=>{window.print();window.close();}<\/script>
+            </body></html>
+        `);
+        win.document.close();
+    }
+
+    // ================== DEMO SKEWED ID GENERATOR ==================
+    function loadSkewedDemo() {
+        const c = document.createElement('canvas');
+        c.width = 700; c.height = 500;
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = "#334155";
+        ctx.fillRect(0, 0, 700, 500);
+
+        // Draw a skewed Aadhaar-like card on wooden/dark table
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(120, 90);
+        ctx.lineTo(590, 60);
+        ctx.lineTo(630, 410);
+        ctx.lineTo(80, 430);
+        ctx.closePath();
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = "#dc2626";
+        ctx.stroke();
+
+        ctx.translate(140, 120);
+        ctx.rotate(-0.05);
+        ctx.fillStyle = "#dc2626";
+        ctx.fillRect(0, 0, 420, 35);
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 18px sans-serif";
+        ctx.fillText("भारत सरकार / GOVERNMENT OF INDIA", 45, 24);
+
+        ctx.fillStyle = "#cbd5e1";
+        ctx.fillRect(15, 55, 95, 115);
+        ctx.fillStyle = "#1e293b";
+        ctx.font = "bold 18px sans-serif";
+        ctx.fillText("नाम: राहुल शर्मा", 130, 80);
+        ctx.fillText("DOB: 12/08/1996", 130, 115);
+        ctx.fillText("8452  9632  7410", 130, 165);
+        ctx.restore();
+
+        c.toBlob(blob => {
+            const url = URL.createObjectURL(blob);
+            addJobToQueue({
+                customerName: "Demo Customer (Skewed Card)",
+                fileName: "Skewed_ID_Card.jpg",
+                fileType: "image/jpeg",
+                fileSize: blob.size,
+                colorMode: "Color",
+                copies: 1,
+                fileUrl: url
+            });
+        }, 'image/jpeg', 0.92);
+    }
+</script>
+
+</body>
+</html>
