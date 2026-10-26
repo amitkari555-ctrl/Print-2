@@ -1,409 +1,273 @@
 <!DOCTYPE html>
-<html lang="hi" data-theme="light">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Scan-to-Print Studio v5.0 Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- PeerJS -->
+    <title>Smart Scan-to-Print Studio v3.5</title>
+    <!-- PeerJS for WebRTC Direct Transfer -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <!-- QRCode.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Cropper.js -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-main: #f4f7fb;
-            --bg-card: rgba(255, 255, 255, 0.95);
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #ec4899;
+            --success: #10b981;
+            --danger: #f43f5e;
+            --warning: #f59e0b;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            --card-bg: rgba(255, 255, 255, 0.85);
             --text-main: #0f172a;
             --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --primary: #4f46e5;
-            --primary-grad: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
-            --success: #10b981;
-            --success-grad: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            --danger: #ef4444;
-            --shadow-lg: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
-            --radius-lg: 16px;
-            --radius-md: 12px;
         }
 
-        [data-theme="dark"] {
-            --bg-main: #090d16;
-            --bg-card: rgba(17, 24, 39, 0.95);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #1e293b;
-            --shadow-lg: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
-        }
+        * { box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { margin: 0; padding: 0; background: var(--bg-gradient); color: var(--text-main); min-height: 100vh; }
 
-        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
-        body {
-            margin: 0; padding: 0;
-            background: var(--bg-main); color: var(--text-main);
-            transition: background 0.3s, color 0.3s;
-            min-height: 100vh;
+        /* Colorful Modern Topbar */
+        .topbar {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
+            color: #fff; padding: 15px 25px;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);
         }
+        .topbar h1 { margin: 0; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+        .mode-switch { background: rgba(255, 255, 255, 0.15); padding: 4px; border-radius: 12px; display: flex; gap: 4px; backdrop-filter: blur(8px); }
+        .mode-switch button {
+            background: transparent; color: #fff; border: none; padding: 8px 16px;
+            border-radius: 9px; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.3s;
+        }
+        .mode-switch button.active { background: #ffffff; color: #4f46e5; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+
+        .container { max-width: 1200px; margin: 25px auto; padding: 0 15px; }
         .hidden { display: none !important; }
 
-        /* Navbar */
-        .navbar {
-            position: sticky; top: 0; z-index: 100;
-            background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(14px);
-            color: #fff; padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 10px;
-        }
-        .brand { display: flex; align-items: center; gap: 10px; }
-        .brand-logo {
-            width: 38px; height: 38px; border-radius: 10px; background: var(--primary-grad);
-            display: flex; align-items: center; justify-content: center; font-size: 19px;
-        }
-        .brand h1 { margin: 0; font-size: 17px; font-weight: 800; }
-        .badge-pro {
-            background: linear-gradient(135deg, #10b981, #059669);
-            font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 20px;
+        /* Admin Grid Layout */
+        .admin-grid { display: grid; grid-template-columns: 340px 1fr; gap: 20px; }
+        @media (max-width: 850px) { .admin-grid { grid-template-columns: 1fr; } }
+
+        /* Glassmorphism Panel */
+        .panel {
+            background: var(--card-bg); backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 16px; padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
         }
 
-        .nav-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .pill-tabs {
-            background: rgba(255,255,255,0.1); padding: 4px; border-radius: 10px; display: flex; gap: 4px;
-        }
-        .pill-tabs button {
-            background: transparent; color: #cbd5e1; border: none;
-            padding: 6px 12px; border-radius: 7px; cursor: pointer; font-size: 12.5px; font-weight: 700;
-        }
-        .pill-tabs button.active { background: var(--primary-grad); color: #fff; }
-        .icon-btn {
-            background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.15);
-            width: 34px; height: 34px; border-radius: 9px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; font-size: 15px;
-        }
-
-        /* Layout */
-        .container { max-width: 1200px; margin: 20px auto; padding: 0 14px; }
-        .admin-layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
-        @media (max-width: 880px) { .admin-layout { grid-template-columns: 1fr; } }
-
-        .glass-card {
-            background: var(--bg-card); border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-lg);
-        }
-
-        /* Stats */
-        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
-        .stat-box {
-            background: var(--bg-card); border: 1px solid var(--border-color);
-            border-radius: var(--radius-md); padding: 12px 14px;
-            display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow-lg);
-        }
-        .stat-icon {
-            width: 38px; height: 38px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center; font-size: 18px;
-        }
-        .stat-val { font-size: 18px; font-weight: 800; }
-        .stat-lbl { font-size: 11px; color: var(--text-muted); font-weight: 600; }
-
-        /* Animated QR Box */
-        .qr-wrapper {
-            position: relative; background: #fff; padding: 16px; border-radius: 16px;
-            border: 2px solid #e2e8f0; display: flex; justify-content: center;
-            margin: 14px auto; width: fit-content; overflow: hidden;
-        }
-        .qr-scan-line {
-            position: absolute; left: 0; right: 0; height: 3px;
-            background: linear-gradient(90deg, transparent, #4f46e5, #10b981, transparent);
-            animation: scanMove 2.5s ease-in-out infinite; pointer-events: none;
-        }
-        @keyframes scanMove { 0%, 100% { top: 8%; } 50% { top: 90%; } }
-
-        .live-status {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 5px 12px; border-radius: 30px; font-size: 11.5px; font-weight: 700;
-            background: rgba(16, 185, 129, 0.15); color: #10b981;
-        }
-        .pulse-dot {
-            width: 8px; height: 8px; border-radius: 50%; background: #10b981;
-            animation: pulseDot 1.5s infinite;
-        }
-        @keyframes pulseDot {
-            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-
-        /* Buttons */
+        /* Vibrant Buttons */
         .btn {
-            background: var(--primary-grad); color: #fff; border: none;
-            padding: 10px 15px; border-radius: 10px; cursor: pointer;
-            font-weight: 700; font-size: 13px;
-            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-            transition: 0.2s;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: #fff; border: none; padding: 11px 18px;
+            border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 14px;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            transition: all 0.2s ease;
         }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .btn-success { background: var(--success-grad); }
-        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
-        .btn-soft {
-            background: rgba(100, 116, 139, 0.12); color: var(--text-main);
-            border: 1px solid var(--border-color);
-        }
-        .btn-sm { padding: 6px 11px; font-size: 12px; border-radius: 8px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); }
+        .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+        .btn-success:hover { box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4); }
+        .btn-danger { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3); }
+        .btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); color: #fff; }
+        .btn-outline { background: #ffffff; color: var(--text-main); border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .btn-outline:hover { background: #f8fafc; }
+        .btn-sm { padding: 7px 12px; font-size: 12px; border-radius: 8px; }
 
-        /* Print Job Cards */
+        /* QR Code Container Styling */
+        #qrcode {
+            background: #ffffff; padding: 15px; border: 2px dashed #a5b4fc;
+            border-radius: 14px; display: flex; justify-content: center; margin: 15px 0;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 30px;
+            font-size: 12px; font-weight: 700; background: #d1fae5; color: #065f46;
+            box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15);
+        }
+
+        /* Incoming Print Queue Cards */
         .job-card {
-            background: var(--bg-card); border: 1px solid var(--border-color);
-            border-left: 5px solid var(--primary); border-radius: 14px;
-            padding: 14px; margin-bottom: 12px;
+            background: #ffffff; border: 1px solid #e2e8f0; border-left: 6px solid var(--primary);
+            border-radius: 14px; padding: 16px; margin-bottom: 14px;
             display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 12px; animation: cardPop 0.25s ease;
+            flex-wrap: wrap; gap: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        @keyframes cardPop { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-        .job-left { display: flex; align-items: center; gap: 12px; }
+        @keyframes slideIn { from { transform: translateY(-12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .job-info { display: flex; align-items: center; gap: 14px; }
         .job-thumb {
-            width: 62px; height: 62px; border-radius: 10px; object-fit: cover;
-            border: 2px solid var(--border-color); cursor: pointer;
+            width: 64px; height: 64px; border-radius: 10px; object-fit: cover;
+            border: 2px solid #e2e8f0; background: #f8fafc;
         }
-        .meta-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
-        .pill {
-            font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 20px;
-            background: rgba(79, 70, 229, 0.1); color: var(--primary);
+        .timer-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: #fef3c7; color: #b45309; padding: 4px 10px;
+            border-radius: 20px; font-size: 11px; font-weight: 700; margin-top: 6px;
         }
-        .pill-timer { background: rgba(245, 158, 11, 0.15); color: #d97706; }
-        .pill-timer.urgent { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .timer-badge.urgent {
+            background: #fee2e2; color: #dc2626; animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 50% { opacity: 0.4; } }
 
-        /* Progress Bar */
-        .progress-track {
-            width: 100%; height: 10px; background: rgba(148, 163, 184, 0.25);
-            border-radius: 20px; overflow: hidden; margin: 8px 0;
+        /* Progress Bars */
+        .progress-wrap {
+            width: 100%; background: #e2e8f0; height: 10px; border-radius: 6px;
+            overflow: hidden; margin: 10px 0; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
-        .progress-fill {
-            height: 100%; width: 0%;
-            background: linear-gradient(90deg, #4f46e5, #10b981);
-            transition: width 0.15s ease;
-        }
-
-        /* Customer Portal */
-        .customer-wrap { max-width: 460px; margin: 10px auto; }
-        .hero-banner {
-            background: var(--primary-grad); color: #fff;
-            padding: 20px; border-radius: 16px; margin-bottom: 16px;
-        }
-        .hero-banner h2 { margin: 0 0 5px 0; font-size: 20px; font-weight: 800; }
-        .hero-banner p { margin: 0; font-size: 12.5px; opacity: 0.92; }
-
-        .form-field { margin-bottom: 14px; }
-        .form-field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 5px; }
-        .form-field input, .form-field select {
-            width: 100%; padding: 11px 13px; border-radius: 10px;
-            border: 1.5px solid var(--border-color); background: var(--bg-main);
-            color: var(--text-main); font-size: 14px; font-weight: 600;
+        .progress-bar {
+            height: 100%; width: 0%; background: linear-gradient(90deg, #6366f1, #ec4899); transition: width 0.15s;
         }
 
-        .action-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-        .upload-tile {
-            border: 2px dashed var(--border-color); border-radius: 14px;
-            padding: 16px 10px; text-align: center; cursor: pointer;
-            background: rgba(79, 70, 229, 0.03);
+        /* Customer Form Styles */
+        .cust-box { max-width: 500px; margin: auto; }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; color: #334155; }
+        .input-group input, .input-group select {
+            width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; background: #fff;
+            transition: border 0.2s, box-shadow 0.2s;
         }
-        .upload-tile:hover { border-color: var(--primary); background: rgba(79, 70, 229, 0.08); }
-        .tile-icon {
-            width: 44px; height: 44px; border-radius: 12px; margin: 0 auto 8px auto;
-            display: flex; align-items: center; justify-content: center; font-size: 22px;
+        .input-group input:focus, .input-group select:focus {
+            outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
         }
+        .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .upload-btn-box {
+            border: 2px dashed #a5b4fc; border-radius: 14px; padding: 20px 10px;
+            text-align: center; cursor: pointer; background: #f5f3ff; font-weight: 600;
+            font-size: 13px; color: #4338ca; transition: 0.2s;
+        }
+        .upload-btn-box:hover { border-color: var(--primary); background: #ede9fe; transform: translateY(-2px); }
 
-        #toast-box { position: fixed; bottom: 18px; right: 18px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
-        .toast {
-            background: #0f172a; color: #fff; padding: 11px 16px; border-radius: 10px;
-            font-size: 12.5px; font-weight: 700; border-left: 4px solid #10b981;
+        /* Editor Modal Styles */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px);
+            z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 12px;
         }
-
-        /* Studio Modal */
-        .modal-backdrop {
-            position: fixed; inset: 0; background: rgba(9, 13, 22, 0.88);
-            backdrop-filter: blur(8px); z-index: 1500;
-            display: flex; justify-content: center; align-items: center; padding: 12px;
+        .modal-box {
+            background: #ffffff; width: 100%; max-width: 1050px; max-height: 95vh;
+            border-radius: 20px; display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
         }
-        .studio-modal {
-            background: #111827; color: #f8fafc; width: 100%; max-width: 1050px;
-            max-height: 94vh; border-radius: 18px; border: 1px solid #1f2937;
-            display: flex; flex-direction: column; overflow: hidden;
-        }
-        .studio-header {
-            padding: 12px 18px; background: #090d16; border-bottom: 1px solid #1f2937;
+        .modal-header {
+            padding: 16px 20px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff;
             display: flex; justify-content: space-between; align-items: center;
         }
-        .studio-body {
-            display: grid; grid-template-columns: 1fr 310px; gap: 16px;
-            padding: 16px; overflow-y: auto; flex: 1;
+        .modal-body {
+            display: grid; grid-template-columns: 1fr 310px; gap: 18px;
+            padding: 18px; overflow-y: auto; flex: 1; background: #f8fafc;
         }
-        @media (max-width: 800px) { .studio-body { grid-template-columns: 1fr; } }
-        .studio-canvas-wrap {
-            background: #090d16; border: 1px solid #334155; border-radius: 12px;
-            min-height: 390px; display: flex; justify-content: center; align-items: center;
-            position: relative; overflow: hidden; touch-action: none;
+        @media (max-width: 800px) { .modal-body { grid-template-columns: 1fr; } }
+
+        .canvas-stage {
+            background: #0f172a; border-radius: 14px; min-height: 400px;
+            display: flex; justify-content: center; align-items: center;
+            position: relative; overflow: hidden; touch-action: none; box-shadow: inset 0 4px 12px rgba(0,0,0,0.5);
         }
-        #persp-canvas { max-width: 100%; max-height: 62vh; cursor: crosshair; }
-        #cropper-img { max-width: 100%; max-height: 62vh; display: block; }
+        #persp-canvas { max-width: 100%; max-height: 65vh; cursor: crosshair; }
+        #cropper-img { max-width: 100%; max-height: 65vh; display: block; }
+
+        /* Magnifier Loupe */
         #loupe {
-            position: absolute; top: 12px; left: 12px; width: 115px; height: 115px;
+            position: absolute; top: 12px; left: 12px; width: 120px; height: 120px;
             border: 3px solid #38bdf8; border-radius: 50%; overflow: hidden;
-            pointer-events: none; display: none; background: #000; z-index: 30;
+            pointer-events: none; display: none; background: #000;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6); z-index: 20;
         }
-        .studio-panel {
-            background: #1e293b; border: 1px solid #334155; border-radius: 12px;
-            padding: 13px; margin-bottom: 12px;
+
+        .tool-section {
+            background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;
+            padding: 14px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
-        .studio-panel h4 { margin: 0 0 8px 0; font-size: 12px; color: #94a3b8; text-transform: uppercase; }
+        .tool-section h4 { margin: 0 0 10px 0; font-size: 13px; color: #334155; font-weight: 700; letter-spacing: 0.3px; }
     </style>
 </head>
 <body>
 
-<nav class="navbar">
-    <div class="brand">
-        <div class="brand-logo">🖨️</div>
-        <div>
-            <div style="display:flex; align-items:center; gap:8px;">
-                <h1>Smart Scan-to-Print</h1>
-                <span class="badge-pro">v5.0 FIXED</span>
-            </div>
-            <small style="color:#94a3b8; font-size:11px;">Fast Mobile-to-PC Document Drop</small>
-        </div>
+<!-- TOP NAVIGATION BAR -->
+<div class="topbar">
+    <h1>🎨 Smart Scan-to-Print Studio <span style="font-size:11px; background:rgba(255,255,255,0.25); padding:3px 10px; border-radius:20px; backdrop-filter:blur(4px);">v3.5 Pro</span></h1>
+    <div class="mode-switch">
+        <button id="tab-admin" class="active" onclick="switchView('admin')">🖥️ Shop Admin</button>
+        <button id="tab-customer" onclick="switchView('customer')">📱 Customer View</button>
     </div>
-
-    <div class="nav-controls">
-        <div class="pill-tabs">
-            <button id="tab-admin" class="active" onclick="switchView('admin')">🖥️ Shop Admin</button>
-            <button id="tab-customer" onclick="switchView('customer')">📱 Customer Mobile</button>
-        </div>
-        <button class="icon-btn" id="sound-btn" onclick="toggleMute()">🔔</button>
-        <button class="icon-btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
-    </div>
-</nav>
-
-<div id="toast-box"></div>
+</div>
 
 <div class="container">
 
     <!-- ================= ADMIN VIEW ================= -->
-    <div id="admin-view">
-        <div class="stats-bar">
-            <div class="stat-box">
-                <div class="stat-icon" style="background:rgba(79,70,229,0.12); color:#4f46e5;">📥</div>
-                <div>
-                    <div class="stat-val" id="stat-active">0</div>
-                    <div class="stat-lbl">Queue Docs</div>
+    <div id="admin-view" class="admin-grid">
+        <!-- Left Sidebar: QR & Shop Settings -->
+        <div class="panel">
+            <h3 style="margin-top:0; color: #1e293b; display:flex; align-items:center; gap:8px;">🏪 Shop QR Standee</h3>
+            <div id="admin-status" class="status-pill">⏳ Connecting...</div>
+
+            <div style="margin-top:16px;">
+                <label style="font-size:12px; font-weight:700; color:#475569;">Shop Fixed ID:</label>
+                <div style="display:flex; gap:6px; margin-top:6px;">
+                    <input type="text" id="shop-id-input" style="flex:1; padding:9px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-weight:600;">
+                    <button class="btn btn-sm" onclick="saveShopId()">Save</button>
                 </div>
             </div>
-            <div class="stat-box">
-                <div class="stat-icon" style="background:rgba(16,185,129,0.12); color:#10b981;">🖨️</div>
-                <div>
-                    <div class="stat-val" id="stat-printed">0</div>
-                    <div class="stat-lbl">Printed Today</div>
-                </div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-icon" style="background:rgba(245,158,11,0.12); color:#f59e0b;">⏱️</div>
-                <div>
-                    <div class="stat-val">10 Min</div>
-                    <div class="stat-lbl">Auto-Delete</div>
-                </div>
-            </div>
+
+            <div id="qrcode"></div>
+            <p id="qr-url-text" style="font-size:11px; color:#64748b; word-break:break-all; text-align:center; margin:8px 0; font-weight:500;"></p>
+
+            <button class="btn btn-outline" style="width:100%; margin-top:8px;" onclick="printShopQR()">🖨️ Print QR Standee</button>
+            <hr style="border:none; border-top:1px solid rgba(203, 213, 225, 0.6); margin:18px 0;">
+            <button class="btn btn-warning" style="width:100%;" onclick="loadSkewedDemo()">⚡ Test Skewed ID Demo</button>
         </div>
 
-        <div class="admin-layout">
-            <!-- Left QR Box -->
-            <div class="glass-card" style="text-align:center;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-weight:800; font-size:14.5px;">📲 Shop QR Scanner</span>
-                    <div class="live-status" id="admin-status">
-                        <span class="pulse-dot"></span> Connecting...
-                    </div>
-                </div>
-
-                <div class="qr-wrapper">
-                    <div class="qr-scan-line"></div>
-                    <div id="qrcode"></div>
-                </div>
-
-                <div style="text-align:left; margin-top:12px;">
-                    <label style="font-size:11.5px; font-weight:700; color:var(--text-muted);">PERMANENT SHOP ID (दोनों डिवाइस में सेम रहे):</label>
-                    <div style="display:flex; gap:6px; margin-top:4px;">
-                        <input type="text" id="shop-id-input" style="flex:1; padding:8px 10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-main); color:var(--text-main); font-weight:700; font-size:13px;">
-                        <button class="btn btn-sm" onclick="saveShopId()">Save</button>
-                    </div>
-                </div>
-
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
-                    <button class="btn btn-soft btn-sm" onclick="copyCustomerLink()">🔗 Copy Link</button>
-                    <button class="btn btn-soft btn-sm" onclick="printShopQR()">🖨️ Print QR</button>
-                </div>
-
-                <hr style="border:none; border-top:1px solid var(--border-color); margin:14px 0;">
-                <button class="btn btn-warning" style="width:100%;" onclick="loadSkewedDemo()">
-                    ⚡ Test Skewed ID Demo
-                </button>
+        <!-- Right Panel: Live Queue -->
+        <div class="panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <h3 style="margin:0; color:#1e293b;">🔔 Live Print Queue <span style="font-size:12px; font-weight:normal; color:#64748b;">(10-Min Auto-Delete)</span></h3>
+                <span id="job-count" style="font-size:13px; font-weight:700; background:#e0e7ff; color:#4f46e5; padding:4px 10px; border-radius:20px;">0 Jobs</span>
             </div>
 
-            <!-- Right Print Queue -->
-            <div class="glass-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-                    <div>
-                        <h2 style="margin:0; font-size:17px; font-weight:800;">🔔 Incoming Print Queue</h2>
-                        <small style="color:var(--text-muted);">कंप्यूटर पर यह पेज खुला रखें ताकि ग्राहक की फाइल तुरंत रिसीव हो सके</small>
-                    </div>
-                    <button class="btn btn-soft btn-sm" onclick="clearAllJobs()">🗑️ Clear All</button>
+            <!-- Live Receiving Progress -->
+            <div id="admin-rx-box" class="hidden" style="background:#e0e7ff; padding:12px; border-radius:10px; margin-bottom:14px; border:1px solid #c7d2fe;">
+                <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:#312e81;">
+                    <span id="admin-rx-label">📥 Receiving file...</span>
+                    <span id="admin-rx-pct">0%</span>
                 </div>
+                <div class="progress-wrap"><div id="admin-rx-bar" class="progress-bar"></div></div>
+            </div>
 
-                <div id="admin-rx-box" class="hidden" style="background:rgba(79,70,229,0.08); border:1px solid rgba(79,70,229,0.25); padding:12px; border-radius:12px; margin-bottom:14px;">
-                    <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:700;">
-                        <span id="admin-rx-label">📥 Receiving file...</span>
-                        <span id="admin-rx-pct">0%</span>
-                    </div>
-                    <div class="progress-track"><div id="admin-rx-bar" class="progress-fill"></div></div>
-                </div>
-
-                <div id="print-queue">
-                    <div id="empty-queue" style="text-align:center; padding:45px 15px; color:var(--text-muted);">
-                        <div style="font-size:44px; margin-bottom:8px;">📭</div>
-                        <div style="font-weight:700; font-size:15px; color:var(--text-main);">Ready to Receive Customer Files</div>
-                        <p style="font-size:12.5px; max-width:360px; margin:6px auto 0 auto;">
-                            अपने कंप्यूटर में यह पेज खुला रखें और मोबाइल से QR कोड स्कैन करके डॉक्यूमेंट भेजें।
-                        </p>
-                    </div>
-                </div>
+            <div id="print-queue">
+                <p id="empty-queue" style="text-align:center; color:#94a3b8; padding:50px 10px; font-weight:500;">
+                    अभी कोई डॉक्यूमेंट नहीं आया है।<br>ग्राहक द्वारा QR स्कैन करके फाइल भेजने पर यहाँ तुरंत नोटिफिकेशन दिखेगा।
+                </p>
             </div>
         </div>
     </div>
 
     <!-- ================= CUSTOMER VIEW ================= -->
-    <div id="customer-view" class="customer-wrap hidden">
-        <div class="hero-banner">
-            <h2>📤 Instant Document Print</h2>
-            <p>बिना WhatsApp या ईमेल के सीधे दुकानदार के कंप्यूटर पर अपनी फाइल भेजें</p>
-            <div style="margin-top:8px; font-size:11.5px; background:rgba(0,0,0,0.22); display:inline-block; padding:4px 10px; border-radius:20px;">
-                🔗 Target Shop ID: <b id="cust-target-badge">...</b>
-            </div>
-        </div>
+    <div id="customer-view" class="cust-box hidden">
+        <div class="panel" style="background: rgba(255, 255, 255, 0.92);">
+            <h2 style="margin-top:0; color:var(--primary); font-weight:700;">📤 Send Document for Print</h2>
+            <p style="font-size:13px; color:#475569; margin-top:-6px;">कैमरे से फोटो खींचें या फाइल चुनकर सीधे दुकानदार को भेजें।</p>
 
-        <div class="glass-card">
-            <div class="form-field">
-                <label>👤 आपका नाम (Your Name)</label>
-                <input type="text" id="cust-name" placeholder="जैसे: राहुल शर्मा">
+            <div class="input-group">
+                <label>👤 आपका नाम (Customer Name):</label>
+                <input type="text" id="cust-name" placeholder="जैसे: राहुल कुमार">
             </div>
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <div class="form-field">
-                    <label>🎨 Print Color</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div class="input-group">
+                    <label>🎨 Print Type:</label>
                     <select id="cust-color">
-                        <option value="Color">🌈 Color Print</option>
-                        <option value="B&W">🖤 Black & White</option>
+                        <option value="B&W">Black & White</option>
+                        <option value="Color">Color Print</option>
                     </select>
                 </div>
-                <div class="form-field">
-                    <label>📑 Copies</label>
+                <div class="input-group">
+                    <label>📑 Copies:</label>
                     <input type="number" id="cust-copies" value="1" min="1" max="50">
                 </div>
             </div>
@@ -411,87 +275,81 @@
             <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleCustomerFileSelect(this)">
             <input type="file" id="file-input" accept="image/*,application/pdf" class="hidden" onchange="handleCustomerFileSelect(this)">
 
-            <label style="font-size:13px; font-weight:700; display:block; margin-bottom:8px;">📎 डॉक्यूमेंट चुनें या फोटो खींचें:</label>
-            <div class="action-tiles">
-                <div class="upload-tile" onclick="document.getElementById('camera-input').click()">
-                    <div class="tile-icon" style="background:rgba(79,70,229,0.12); color:#4f46e5;">📸</div>
-                    <div style="font-weight:800; font-size:13.5px;">Take Photo</div>
-                    <div style="font-size:11px; color:var(--text-muted);">सीधे कैमरा खोलें</div>
+            <label style="font-weight:600; font-size:14px; display:block; margin-bottom:8px; color:#334155;">📎 डॉक्यूमेंट या फोटो चुनें:</label>
+            <div class="upload-grid">
+                <div class="upload-btn-box" onclick="document.getElementById('camera-input').click()">
+                    <div style="font-size:26px; margin-bottom:4px;">📸</div>
+                    <div>Take Photo<br><small style="color:#6366f1;">(डायरेक्ट कैमरा)</small></div>
                 </div>
-                <div class="upload-tile" onclick="document.getElementById('file-input').click()">
-                    <div class="tile-icon" style="background:rgba(16,185,129,0.12); color:#10b981;">📁</div>
-                    <div style="font-weight:800; font-size:13.5px;">Choose File / PDF</div>
-                    <div style="font-size:11px; color:var(--text-muted);">गैलरी या PDF चुनें</div>
+                <div class="upload-btn-box" onclick="document.getElementById('file-input').click()">
+                    <div style="font-size:26px; margin-bottom:4px;">📁</div>
+                    <div>Choose File / PDF<br><small style="color:#6366f1;">(गैलरी / PDF)</small></div>
                 </div>
             </div>
 
-            <div id="cust-preview-box" class="hidden" style="background:rgba(79,70,229,0.06); border:1px solid var(--border-color); border-radius:12px; padding:10px; margin-bottom:14px; display:flex; align-items:center; gap:12px;">
-                <img id="cust-preview-img" src="" style="width:52px; height:52px; object-fit:cover; border-radius:8px; border:1px solid var(--border-color);">
+            <!-- Preview Card -->
+            <div id="cust-preview-box" class="hidden" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:12px; margin-bottom:16px; display:flex; align-items:center; gap:12px;">
+                <img id="cust-preview-img" src="" style="width:55px; height:55px; object-fit:cover; border-radius:8px; border:1px solid #cbd5e1;">
                 <div style="flex:1; overflow:hidden;">
-                    <div id="cust-file-name" style="font-weight:800; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
-                    <div id="cust-file-size" style="font-size:11.5px; color:var(--text-muted); font-weight:600;"></div>
+                    <div id="cust-file-name" style="font-weight:700; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+                    <div id="cust-file-size" style="font-size:12px; color:#64748b;"></div>
                 </div>
             </div>
 
-            <div id="cust-progress-box" class="hidden" style="margin-bottom:12px;">
-                <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:800;">
-                    <span id="cust-progress-text">🚀 Sending to Shop PC...</span>
+            <!-- Progress -->
+            <div id="cust-progress-box" class="hidden" style="margin-bottom:14px;">
+                <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:#4f46e5;">
+                    <span id="cust-progress-text">Sending...</span>
                     <span id="cust-progress-pct">0%</span>
                 </div>
-                <div class="progress-track"><div id="cust-progress-bar" class="progress-fill"></div></div>
+                <div class="progress-wrap"><div id="cust-progress-bar" class="progress-bar"></div></div>
             </div>
 
-            <button class="btn btn-success" id="send-btn" style="width:100%; padding:14px; font-size:15.5px; border-radius:12px;" onclick="sendFileChunked()">
-                🚀 Send Document for Print
+            <button class="btn btn-success" id="send-btn" style="width:100%; padding:14px; font-size:16px;" onclick="sendFileChunked()">
+                🚀 Send Document Now
             </button>
-            <p id="cust-status-msg" style="text-align:center; font-weight:700; font-size:12.5px; margin:12px 0 0 0; line-height:1.4;"></p>
+            <p id="cust-status-msg" style="text-align:center; font-weight:700; font-size:13px; margin-top:12px;"></p>
         </div>
     </div>
 
 </div>
 
-<!-- ================= 4-POINT PERSPECTIVE & PRINT STUDIO MODAL ================= -->
-<div id="editor-modal" class="modal-backdrop hidden">
-    <div class="studio-modal">
-        <div class="studio-header">
-            <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size:18px;">📐</span>
-                <div>
-                    <h3 style="margin:0; font-size:15px; font-weight:800;">Smart Perspective & Print Studio</h3>
-                    <small style="color:#94a3b8; font-size:11px;">4-Corner Straightener & Document Cleaner</small>
-                </div>
-            </div>
+<!-- ================= STUDIO / CROP MODAL ================= -->
+<div id="editor-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 style="margin:0; font-size:16px; font-weight:700;">📐 Smart Document Studio (Perspective & Print)</h3>
             <button class="btn btn-danger btn-sm" onclick="closeEditor()">✖ Close</button>
         </div>
 
-        <div class="studio-body">
-            <div class="studio-canvas-wrap">
+        <div class="modal-body">
+            <div class="canvas-stage" id="canvas-stage">
                 <canvas id="persp-canvas"></canvas>
                 <img id="cropper-img" class="hidden" src="">
-                <canvas id="loupe" width="115" height="115"></canvas>
+                <canvas id="loupe" width="120" height="120"></canvas>
             </div>
 
             <div>
-                <div class="studio-panel">
-                    <h4>1. Straighten / Crop Mode</h4>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                        <button class="btn btn-sm" id="btn-mode-persp" onclick="setEditorMode('perspective')">📐 4-Point Warp</button>
-                        <button class="btn btn-sm btn-soft" id="btn-mode-rect" style="color:#fff;" onclick="setEditorMode('rect')">✂️ Box Crop</button>
+                <div class="tool-section">
+                    <h4>1️⃣ Crop Mode चुनें:</h4>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                        <button class="btn btn-sm" id="btn-mode-persp" onclick="setEditorMode('perspective')">📐 4-Point Crop</button>
+                        <button class="btn btn-sm btn-outline" id="btn-mode-rect" onclick="setEditorMode('rect')">✂️ Box Crop</button>
                     </div>
 
                     <div id="persp-controls" style="margin-top:10px;">
-                        <p style="font-size:11px; color:#cbd5e1; margin:0 0 8px 0;">
-                            💡 चारों कोनों पर <b>TL, TR, BR, BL</b> पॉइंट्स को सेट करके नीचे बटन दबाएं:
+                        <p style="font-size:11px; color:#64748b; margin:0 0 8px 0; line-height:1.4;">
+                            💡 कोनों के नीले बिंदुओं को डॉक्यूमेंट के चारों कोनों पर सेट करें:
                         </p>
                         <button class="btn btn-success" style="width:100%;" onclick="applyPerspectiveTransform()">
-                            ✨ सीधा करें (Apply Perspective)
+                            ✅ सीधा करें (Apply Perspective)
                         </button>
                     </div>
 
                     <div id="rect-controls" class="hidden" style="margin-top:10px;">
                         <div style="display:flex; gap:6px; margin-bottom:8px;">
-                            <button class="btn btn-sm btn-soft" style="flex:1; color:#fff;" onclick="rotateCropper(-90)">↺ -90°</button>
-                            <button class="btn btn-sm btn-soft" style="flex:1; color:#fff;" onclick="rotateCropper(90)">↻ +90°</button>
+                            <button class="btn btn-sm btn-outline" style="flex:1;" onclick="rotateCropper(-90)">↺ -90°</button>
+                            <button class="btn btn-sm btn-outline" style="flex:1;" onclick="rotateCropper(90)">↻ +90°</button>
                         </div>
                         <button class="btn btn-success" style="width:100%;" onclick="applyRectCrop()">
                             ✅ Apply Box Crop
@@ -499,28 +357,28 @@
                     </div>
                 </div>
 
-                <div class="studio-panel">
-                    <h4>2. Document Cleaner</h4>
+                <div class="tool-section">
+                    <h4>2️⃣ Document Cleaner:</h4>
                     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
-                        <button class="btn btn-sm btn-soft" style="color:#fff;" onclick="applyDocFilter('original')">Original</button>
-                        <button class="btn btn-sm btn-soft" style="color:#fff;" onclick="applyDocFilter('magic')">✨ Magic</button>
-                        <button class="btn btn-sm btn-soft" style="color:#fff;" onclick="applyDocFilter('bw')">🖤 B&W</button>
+                        <button class="btn btn-sm btn-outline" onclick="applyDocFilter('original')">Original</button>
+                        <button class="btn btn-sm btn-outline" onclick="applyDocFilter('magic')">✨ Magic</button>
+                        <button class="btn btn-sm btn-outline" onclick="applyDocFilter('bw')">🖤 B&W Scan</button>
                     </div>
                 </div>
 
-                <div class="studio-panel">
-                    <h4>3. Print Page Size</h4>
-                    <select id="print-layout" style="width:100%; padding:9px; border-radius:8px; background:#090d16; color:#fff; border:1px solid #334155; font-weight:600; margin-bottom:10px;">
-                        <option value="full">📄 Full A4 Page</option>
-                        <option value="half">📃 Half A4 Page (Upper)</option>
-                        <option value="idcard">🪪 ID Card / Aadhaar (8.6 × 5.4 cm)</option>
-                        <option value="passport">👤 6 Passport Photos</option>
+                <div class="tool-section">
+                    <h4>3️⃣ Print Layout Size:</h4>
+                    <select id="print-layout" style="width:100%; padding:9px; border-radius:8px; border:1px solid #cbd5e1; margin-bottom:10px; background:#fff; font-size:13px;">
+                        <option value="full">Full A4 Page</option>
+                        <option value="half">Half A4 Page (Upper Half)</option>
+                        <option value="idcard">ID Card / Aadhaar Size (8.6cm × 5.4cm)</option>
+                        <option value="passport">Passport Photo Sheet (6 Photos)</option>
                     </select>
 
-                    <button class="btn" style="width:100%; padding:12px; font-size:14.5px;" onclick="printEditedImage()">
+                    <button class="btn" style="width:100%; padding:13px; font-size:15px;" onclick="printEditedImage()">
                         🖨️ Final Print Now
                     </button>
-                    <button class="btn btn-soft btn-sm" style="width:100%; margin-top:8px; color:#cbd5e1;" onclick="resetEditorImage()">
+                    <button class="btn btn-outline btn-sm" style="width:100%; margin-top:8px;" onclick="resetEditorImage()">
                         🔄 Reset Original
                     </button>
                 </div>
@@ -530,34 +388,15 @@
 </div>
 
 <script>
-    // ================== CONFIG & STUN SERVERS FOR MOBILE DATA ==================
-    const DEFAULT_PERMANENT_SHOP_ID = "quickprint-amit-shop-95";
     const urlParams = new URLSearchParams(window.location.search);
     const qrShopParam = urlParams.get('shop');
-    const CHUNK_SIZE = 48 * 1024; // 48KB Base64 safe chunks for 100% WebRTC mobile reliability
+    const CHUNK_SIZE = 64 * 1024;
     const TEN_MINUTES_MS = 10 * 60 * 1000;
 
-    const PEER_CONFIG = {
-        debug: 1,
-        config: {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' },
-                { urls: 'stun:stun3.l.google.com:19302' },
-                { urls: 'stun:stun4.l.google.com:19302' }
-            ]
-        }
-    };
-
     let adminPeer = null;
-    let currentCustomerUrl = "";
     let jobs = {};
-    let printedCount = 0;
-    let isMuted = false;
     let selectedCustFile = null;
 
-    // Studio Variables
     let currentEditingJobId = null;
     let originalEditImg = new Image();
     let workingImg = new Image();
@@ -566,45 +405,15 @@
     let corners = [];
     let draggingCornerIndex = -1;
 
-    // ================== UI HELPERS ==================
-    function showToast(msg) {
-        const box = document.getElementById('toast-box');
-        const t = document.createElement('div');
-        t.className = 'toast';
-        t.innerHTML = `✨ ${msg}`;
-        box.appendChild(t);
-        setTimeout(() => t.remove(), 3200);
-    }
-
-    function toggleTheme() {
-        const html = document.documentElement;
-        const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        html.setAttribute('data-theme', next);
-        document.getElementById('theme-btn').innerText = next === 'dark' ? '☀️' : '🌙';
-    }
-
-    function toggleMute() {
-        isMuted = !isMuted;
-        document.getElementById('sound-btn').innerText = isMuted ? '🔇' : '🔔';
-    }
-
-    function playNotificationChime() {
-        if (isMuted) return;
+    function playBeep() {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const now = ctx.currentTime;
-            [660, 880].forEach((freq, i) => {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(freq, now + i * 0.12);
-                gain.gain.setValueAtTime(0.25, now + i * 0.12);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.25);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start(now + i * 0.12);
-                osc.stop(now + i * 0.12 + 0.25);
-            });
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.25);
         } catch (e) {}
     }
 
@@ -613,29 +422,16 @@
         document.getElementById('customer-view').classList.toggle('hidden', mode !== 'customer');
         document.getElementById('tab-admin').classList.toggle('active', mode === 'admin');
         document.getElementById('tab-customer').classList.toggle('active', mode === 'customer');
-        updateTargetBadge();
     }
 
-    function getActiveShopId() {
-        return qrShopParam || localStorage.getItem('smart_shop_id') || DEFAULT_PERMANENT_SHOP_ID;
-    }
-
-    function updateTargetBadge() {
-        document.getElementById('cust-target-badge').innerText = getActiveShopId();
-    }
-
-    // ================== INITIALIZATION ==================
     window.addEventListener('DOMContentLoaded', () => {
-        const savedShopId = localStorage.getItem('smart_shop_id') || DEFAULT_PERMANENT_SHOP_ID;
+        const savedShopId = localStorage.getItem('smart_shop_id') || ('shop-print-' + Math.floor(1000 + Math.random() * 9000));
         localStorage.setItem('smart_shop_id', savedShopId);
         document.getElementById('shop-id-input').value = savedShopId;
-        updateTargetBadge();
 
         if (qrShopParam) {
-            // Opened via QR Code scan on customer phone
             switchView('customer');
         } else {
-            // Opened as Shop Admin
             initAdminPeer(savedShopId);
         }
 
@@ -644,68 +440,49 @@
     });
 
     function saveShopId() {
-        const val = document.getElementById('shop-id-input').value.trim().replace(/\s+/g, '-');
+        const val = document.getElementById('shop-id-input').value.trim();
         if (!val) return;
         localStorage.setItem('smart_shop_id', val);
-        updateTargetBadge();
         initAdminPeer(val);
-        showToast("Shop ID Saved!");
     }
 
-    function copyCustomerLink() {
-        if (!currentCustomerUrl) return;
-        navigator.clipboard.writeText(currentCustomerUrl);
-        showToast("Customer Link Copied!");
-    }
-
-    // ================== ADMIN PEER RECEIVER ==================
     function initAdminPeer(shopId) {
         if (adminPeer) adminPeer.destroy();
         const statusEl = document.getElementById('admin-status');
-        statusEl.innerHTML = `<span class="pulse-dot"></span> Connecting...`;
+        statusEl.innerText = "⏳ Connecting...";
 
-        currentCustomerUrl = window.location.origin + window.location.pathname + "?shop=" + encodeURIComponent(shopId);
-        const qrBox = document.getElementById('qrcode');
-        qrBox.innerHTML = "";
-        new QRCode(qrBox, { text: currentCustomerUrl, width: 165, height: 165 });
-
-        adminPeer = new Peer(shopId, PEER_CONFIG);
+        adminPeer = new Peer(shopId);
 
         adminPeer.on('open', (id) => {
-            statusEl.innerHTML = `<span class="pulse-dot"></span> Online (${id})`;
-        });
-
-        adminPeer.on('error', (err) => {
-            if (err.type === 'unavailable-id') {
-                statusEl.innerHTML = `⚠️ Already Open in Another Tab`;
-            } else {
-                statusEl.innerHTML = `⚠️ Network Retry...`;
-            }
+            statusEl.innerHTML = "🟢 Online & Ready";
+            const custUrl = window.location.origin + window.location.pathname + "?shop=" + encodeURIComponent(id);
+            document.getElementById('qr-url-text').innerText = custUrl;
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = "";
+            new QRCode(qrContainer, { text: custUrl, width: 165, height: 165 });
         });
 
         adminPeer.on('connection', (conn) => {
-            let incomingBase64Parts = [];
+            let incomingBuffer = [];
             let meta = null;
 
             conn.on('data', (data) => {
                 if (data.type === 'start') {
                     meta = data;
-                    incomingBase64Parts = [];
+                    incomingBuffer = [];
                     document.getElementById('admin-rx-box').classList.remove('hidden');
-                    document.getElementById('admin-rx-label').innerText = `📥 Receiving "${meta.fileName}" from ${meta.customerName}...`;
+                    document.getElementById('admin-rx-label').innerText = `📥 Receiving ${meta.fileName}...`;
                 } else if (data.type === 'chunk') {
-                    incomingBase64Parts.push(data.chunk);
+                    incomingBuffer.push(data.chunk);
                     if (meta && meta.totalChunks) {
-                        const pct = Math.min(100, Math.round((incomingBase64Parts.length / meta.totalChunks) * 100));
+                        const pct = Math.min(100, Math.round((incomingBuffer.length / meta.totalChunks) * 100));
                         document.getElementById('admin-rx-pct').innerText = pct + '%';
                         document.getElementById('admin-rx-bar').style.width = pct + '%';
                     }
                 } else if (data.type === 'end') {
                     document.getElementById('admin-rx-box').classList.add('hidden');
-                    const fullDataUrl = incomingBase64Parts.join('');
-                    const blob = dataURLtoBlob(fullDataUrl);
+                    const blob = new Blob(incomingBuffer, { type: meta.fileType });
                     const fileUrl = URL.createObjectURL(blob);
-
                     addJobToQueue({
                         customerName: meta.customerName,
                         fileName: meta.fileName,
@@ -721,31 +498,82 @@
         });
     }
 
-    function dataURLtoBlob(dataurl) {
-        const arr = dataurl.split(',');
-        const mime = arr[0].match(/:(.*?);/)[1];
-        const bstr = atob(arr[1]);
-        let n = bstr.length;
-        const u8arr = new Uint8Array(n);
-        while (n--) u8arr[n] = bstr.charCodeAt(n);
-        return new Blob([u8arr], { type: mime });
+    function addJobToQueue(jobData) {
+        playBeep();
+        document.getElementById('empty-queue').classList.add('hidden');
+
+        const jobId = 'job-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+        const isImg = jobData.fileType.startsWith('image/');
+
+        jobs[jobId] = { ...jobData, id: jobId, expiresAt: Date.now() + TEN_MINUTES_MS };
+
+        const card = document.createElement('div');
+        card.className = 'job-card';
+        card.id = jobId;
+        card.innerHTML = `
+            <div class="job-info">
+                ${isImg ? `<img src="${jobData.fileUrl}" class="job-thumb" id="thumb-${jobId}">` : `<div class="job-thumb" style="display:flex;align-items:center;justify-content:center;font-weight:bold;color:#f43f5e;background:#ffe4e6;">PDF</div>`}
+                <div>
+                    <div style="font-weight:700; font-size:15px; color:#0f172a;">👤 ${jobData.customerName}</div>
+                    <div style="font-size:12px; color:#64748b;">
+                        📄 ${jobData.fileName} • <b>${jobData.colorMode}</b> • <b>${jobData.copies} Copy</b>
+                    </div>
+                    <div class="timer-badge" id="timer-${jobId}">⏱️ Auto-deletes in 10:00</div>
+                </div>
+            </div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                ${isImg ? `<button class="btn btn-sm" onclick="openEditor('${jobId}')">📐 Perspective Crop</button>` : ''}
+                <button class="btn btn-success btn-sm" onclick="directPrintJob('${jobId}')">🖨️ Print</button>
+                <button class="btn btn-outline btn-sm" onclick="extendJobTime('${jobId}')">+5 Min</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteJob('${jobId}')">✖</button>
+            </div>
+        `;
+
+        document.getElementById('print-queue').prepend(card);
+        updateJobCount();
     }
 
-    function fileToDataURL(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
+    function updateCountdowns() {
+        const now = Date.now();
+        Object.keys(jobs).forEach(jobId => {
+            const job = jobs[jobId];
+            const remaining = job.expiresAt - now;
+            if (remaining <= 0) {
+                deleteJob(jobId);
+            } else {
+                const mins = Math.floor(remaining / 60000);
+                const secs = Math.floor((remaining % 60000) / 1000);
+                const el = document.getElementById('timer-' + jobId);
+                if (el) {
+                    el.innerText = `⏱️ Auto-deletes in ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                    el.classList.toggle('urgent', remaining < 120000);
+                }
+            }
         });
     }
 
-    // ================== CUSTOMER UPLOAD & SAME-DEVICE FALLBACK ==================
+    function extendJobTime(jobId) {
+        if (jobs[jobId]) { jobs[jobId].expiresAt += 5 * 60 * 1000; updateCountdowns(); }
+    }
+
+    function deleteJob(jobId) {
+        if (jobs[jobId]) { URL.revokeObjectURL(jobs[jobId].fileUrl); delete jobs[jobId]; }
+        const el = document.getElementById(jobId);
+        if (el) el.remove();
+        updateJobCount();
+    }
+
+    function updateJobCount() {
+        const count = Object.keys(jobs).length;
+        document.getElementById('job-count').innerText = count + " Jobs";
+        if (count === 0) document.getElementById('empty-queue').classList.remove('hidden');
+    }
+
     async function handleCustomerFileSelect(input) {
         if (!input.files || !input.files[0]) return;
         let file = input.files[0];
 
-        if (file.type.startsWith('image/') && file.size > 3.5 * 1024 * 1024) {
+        if (file.type.startsWith('image/') && file.size > 4 * 1024 * 1024) {
             file = await compressLargeCameraPhoto(file);
         }
 
@@ -757,7 +585,7 @@
         if (file.type.startsWith('image/')) {
             document.getElementById('cust-preview-img').src = URL.createObjectURL(file);
         } else {
-            document.getElementById('cust-preview-img').src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60'><rect width='60' height='60' rx='10' fill='%23fee2e2'/><text x='13' y='36' font-weight='bold' fill='%23dc2626'>PDF</text></svg>";
+            document.getElementById('cust-preview-img').src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60'><rect width='60' height='60' fill='%23fee2e2'/><text x='12' y='35' font-weight='bold' fill='%23dc2626'>PDF</text></svg>";
         }
     }
 
@@ -765,7 +593,7 @@
         return new Promise((resolve) => {
             const img = new Image();
             img.onload = () => {
-                const maxW = 2000;
+                const maxW = 2200;
                 let w = img.width, h = img.height;
                 if (w > maxW) { h = Math.round((h * maxW) / w); w = maxW; }
                 const c = document.createElement('canvas');
@@ -779,223 +607,53 @@
         });
     }
 
-    async function sendFileChunked() {
-        if (!selectedCustFile) {
-            alert("कृपया पहले कैमरे से फोटो खींचें या फाइल चुनें!");
-            return;
-        }
-
-        const targetShopId = getActiveShopId();
+    function sendFileChunked() {
+        if (!selectedCustFile) { alert("कृपया पहले कैमरे से फोटो खींचें या फाइल चुनें!"); return; }
+        const targetShopId = qrShopParam || document.getElementById('shop-id-input').value.trim();
         const custName = document.getElementById('cust-name').value.trim() || "Customer";
         const colorMode = document.getElementById('cust-color').value;
         const copies = document.getElementById('cust-copies').value;
         const statusMsg = document.getElementById('cust-status-msg');
-        const sendBtn = document.getElementById('send-btn');
 
         document.getElementById('cust-progress-box').classList.remove('hidden');
-        document.getElementById('cust-progress-pct').innerText = '0%';
-        document.getElementById('cust-progress-bar').style.width = '0%';
-        sendBtn.disabled = true;
-
-        // 1. SAME-TAB / SAME-DEVICE INSTANT TEST MODE:
-        // If Admin Peer is active right here in this same browser tab, deliver immediately!
-        if (adminPeer && !adminPeer.destroyed && adminPeer.id === targetShopId && !qrShopParam) {
-            statusMsg.style.color = "#4f46e5";
-            statusMsg.innerText = "⚡ Same-Device Test Mode: सीधे Admin Queue में भेजा जा रहा है...";
-            document.getElementById('cust-progress-pct').innerText = '100%';
-            document.getElementById('cust-progress-bar').style.width = '100%';
-
-            const localUrl = URL.createObjectURL(selectedCustFile);
-            addJobToQueue({
-                customerName: custName,
-                fileName: selectedCustFile.name,
-                fileType: selectedCustFile.type || 'image/jpeg',
-                fileSize: selectedCustFile.size,
-                colorMode: colorMode,
-                copies: copies,
-                fileUrl: localUrl
-            });
-
-            statusMsg.style.color = "#10b981";
-            statusMsg.innerText = "✅ फाइल भेज दी गई है! ऊपर '🖥️ Shop Admin' टैब पर क्लिक करके प्रिंट करें।";
-            sendBtn.disabled = false;
-            return;
-        }
-
-        // 2. REMOTE MOBILE-TO-PC WEBRTC TRANSFER:
         statusMsg.style.color = "#4f46e5";
-        statusMsg.innerText = `⏳ दुकान के कंप्यूटर (${targetShopId}) से कनेक्ट हो रहा है...`;
+        statusMsg.innerText = "⏳ दुकान के सिस्टम से कनेक्ट हो रहा है...";
 
-        const dataUrl = await fileToDataURL(selectedCustFile);
-        const totalChunks = Math.ceil(dataUrl.length / CHUNK_SIZE);
-
-        const tempPeer = new Peer(PEER_CONFIG);
-        let isConnected = false;
-
-        const timeoutTimer = setTimeout(() => {
-            if (!isConnected) {
-                statusMsg.style.color = "#ef4444";
-                statusMsg.innerHTML = `❌ <b>कनेक्ट नहीं हो पाया!</b><br>कृपया चेक करें कि आपके कंप्यूटर पर यह वेबसाइट (Shop Admin पेज) खुली है और उसमें Shop ID <b>"${targetShopId}"</b> ही है।`;
-                sendBtn.disabled = false;
-                tempPeer.destroy();
-            }
-        }, 12000);
-
+        const tempPeer = new Peer();
         tempPeer.on('open', () => {
-            const conn = tempPeer.connect(targetShopId, {
-                reliable: true,
-                serialization: 'json'
-            });
+            const conn = tempPeer.connect(targetShopId, { reliable: true });
 
             conn.on('open', async () => {
-                isConnected = true;
-                clearTimeout(timeoutTimer);
-                statusMsg.innerText = "🚀 कनेक्ट हो गया! फाइल भेजी जा रही है...";
+                const buffer = await selectedCustFile.arrayBuffer();
+                const totalChunks = Math.ceil(buffer.byteLength / CHUNK_SIZE);
 
                 conn.send({
-                    type: 'start',
-                    customerName: custName,
-                    fileName: selectedCustFile.name,
+                    type: 'start', customerName: custName, fileName: selectedCustFile.name,
                     fileType: selectedCustFile.type || 'application/octet-stream',
-                    fileSize: selectedCustFile.size,
-                    colorMode: colorMode,
-                    copies: copies,
-                    totalChunks: totalChunks
+                    fileSize: selectedCustFile.size, colorMode: colorMode, copies: copies, totalChunks: totalChunks
                 });
 
                 for (let i = 0; i < totalChunks; i++) {
-                    const chunkStr = dataUrl.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
-                    conn.send({ type: 'chunk', chunk: chunkStr });
-
+                    const slice = buffer.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+                    conn.send({ type: 'chunk', chunk: slice });
                     const pct = Math.round(((i + 1) / totalChunks) * 100);
                     document.getElementById('cust-progress-pct').innerText = pct + '%';
                     document.getElementById('cust-progress-bar').style.width = pct + '%';
-
-                    if (i % 5 === 0) await new Promise(r => setTimeout(r, 15));
+                    if (i % 8 === 0) await new Promise(r => setTimeout(r, 12));
                 }
-
                 conn.send({ type: 'end' });
             });
 
             conn.on('data', (data) => {
                 if (data.type === 'ack') {
                     statusMsg.style.color = "#10b981";
-                    statusMsg.innerText = "✅ आपका डॉक्यूमेंट सफलतापूर्वक दुकानदार के कंप्यूटर पर पहुंच गया है!";
-                    sendBtn.disabled = false;
-                    setTimeout(() => tempPeer.destroy(), 1500);
+                    statusMsg.innerText = "✅ डॉक्यूमेंट सफलतापूर्वक प्रिंट के लिए भेज दिया गया है!";
+                    setTimeout(() => tempPeer.destroy(), 1000);
                 }
             });
-
-            conn.on('error', () => {
-                clearTimeout(timeoutTimer);
-                statusMsg.style.color = "#ef4444";
-                statusMsg.innerText = "❌ ट्रांसफर के दौरान कनेक्शन टूट गया। पुनः प्रयास करें।";
-                sendBtn.disabled = false;
-            });
-        });
-
-        tempPeer.on('error', () => {
-            clearTimeout(timeoutTimer);
-            statusMsg.style.color = "#ef4444";
-            statusMsg.innerHTML = `❌ <b>Shop PC Offline!</b><br>कृपया पहले कंप्यूटर पर Shop Admin पेज खोलें (ID: <b>${targetShopId}</b>)।`;
-            sendBtn.disabled = false;
         });
     }
 
-    // ================== QUEUE & 10-MINUTE AUTO DELETE ==================
-    function addJobToQueue(jobData) {
-        playNotificationChime();
-        showToast(`New Document from ${jobData.customerName}`);
-        document.getElementById('empty-queue').classList.add('hidden');
-
-        const jobId = 'job-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-        const isImg = jobData.fileType.startsWith('image/');
-
-        jobs[jobId] = {
-            ...jobData,
-            id: jobId,
-            expiresAt: Date.now() + TEN_MINUTES_MS
-        };
-
-        const card = document.createElement('div');
-        card.className = 'job-card';
-        card.id = jobId;
-        card.innerHTML = `
-            <div class="job-left">
-                ${isImg
-                    ? `<img src="${jobData.fileUrl}" class="job-thumb" id="thumb-${jobId}" onclick="openEditor('${jobId}')">`
-                    : `<div class="job-thumb" style="display:flex;align-items:center;justify-content:center;font-weight:800;color:#ef4444;">PDF</div>`
-                }
-                <div>
-                    <div style="font-weight:800; font-size:15px;">👤 ${jobData.customerName}</div>
-                    <div style="font-size:12px; color:var(--text-muted);">
-                        📄 ${jobData.fileName} • ${(jobData.fileSize / (1024 * 1024)).toFixed(2)} MB
-                    </div>
-                    <div class="meta-pills">
-                        <span class="pill">${jobData.colorMode}</span>
-                        <span class="pill">${jobData.copies} Copy</span>
-                        <span class="pill pill-timer" id="timer-${jobId}">⏱️ 10:00</span>
-                    </div>
-                </div>
-            </div>
-            <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                ${isImg ? `<button class="btn btn-sm" onclick="openEditor('${jobId}')">📐 Perspective / Crop</button>` : ''}
-                <button class="btn btn-success btn-sm" onclick="directPrintJob('${jobId}')">🖨️ Print</button>
-                <button class="btn btn-soft btn-sm" onclick="extendJobTime('${jobId}')">+5m</button>
-                <button class="btn btn-danger btn-sm" onclick="deleteJob('${jobId}')">✖</button>
-            </div>
-        `;
-
-        document.getElementById('print-queue').prepend(card);
-        updateStats();
-    }
-
-    function updateCountdowns() {
-        const now = Date.now();
-        Object.keys(jobs).forEach(jobId => {
-            const job = jobs[jobId];
-            const rem = job.expiresAt - now;
-            if (rem <= 0) {
-                deleteJob(jobId);
-            } else {
-                const m = Math.floor(rem / 60000);
-                const s = Math.floor((rem % 60000) / 1000);
-                const el = document.getElementById('timer-' + jobId);
-                if (el) {
-                    el.innerText = `⏱️ ${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-                    el.classList.toggle('urgent', rem < 120000);
-                }
-            }
-        });
-    }
-
-    function extendJobTime(jobId) {
-        if (jobs[jobId]) {
-            jobs[jobId].expiresAt += 5 * 60 * 1000;
-            updateCountdowns();
-        }
-    }
-
-    function deleteJob(jobId) {
-        if (jobs[jobId]) {
-            URL.revokeObjectURL(jobs[jobId].fileUrl);
-            delete jobs[jobId];
-        }
-        const el = document.getElementById(jobId);
-        if (el) el.remove();
-        updateStats();
-    }
-
-    function clearAllJobs() { Object.keys(jobs).forEach(deleteJob); }
-
-    function updateStats() {
-        const count = Object.keys(jobs).length;
-        document.getElementById('stat-active').innerText = count;
-        document.getElementById('stat-printed').innerText = printedCount;
-        if (count === 0) document.getElementById('empty-queue').classList.remove('hidden');
-    }
-
-    // ================== 4-POINT PERSPECTIVE STUDIO ==================
     function openEditor(jobId) {
         currentEditingJobId = jobId;
         const job = jobs[jobId];
@@ -1027,12 +685,7 @@
 
     function initDefaultCorners(w, h) {
         const padX = w * 0.12, padY = h * 0.12;
-        corners = [
-            { x: padX, y: padY },
-            { x: w - padX, y: padY },
-            { x: w - padX, y: h - padY },
-            { x: padX, y: h - padY }
-        ];
+        corners = [{ x: padX, y: padY }, { x: w - padX, y: padY }, { x: w - padX, y: h - padY }, { x: padX, y: h - padY }];
     }
 
     function setEditorMode(mode) {
@@ -1040,8 +693,8 @@
         const perspCanvas = document.getElementById('persp-canvas');
         const cropperImg = document.getElementById('cropper-img');
 
-        document.getElementById('btn-mode-persp').classList.toggle('btn-soft', mode !== 'perspective');
-        document.getElementById('btn-mode-rect').classList.toggle('btn-soft', mode !== 'rect');
+        document.getElementById('btn-mode-persp').classList.toggle('btn-outline', mode !== 'perspective');
+        document.getElementById('btn-mode-rect').classList.toggle('btn-outline', mode !== 'rect');
         document.getElementById('persp-controls').classList.toggle('hidden', mode !== 'perspective');
         document.getElementById('rect-controls').classList.toggle('hidden', mode !== 'rect');
 
@@ -1064,14 +717,13 @@
     function drawPerspectiveOverlay() {
         const canvas = document.getElementById('persp-canvas');
         const ctx = canvas.getContext('2d');
-        const activeImg = workingImg.complete && workingImg.width ? workingImg : originalEditImg;
-        canvas.width = activeImg.width;
-        canvas.height = activeImg.height;
+        canvas.width = workingImg.width || originalEditImg.width;
+        canvas.height = workingImg.height || originalEditImg.height;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(activeImg, 0, 0);
+        ctx.drawImage(workingImg.complete && workingImg.width ? workingImg : originalEditImg, 0, 0);
 
-        ctx.fillStyle = "rgba(9, 13, 22, 0.55)";
+        ctx.fillStyle = "rgba(15, 23, 42, 0.5)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         ctx.save();
@@ -1080,30 +732,30 @@
         for (let i = 1; i < 4; i++) ctx.lineTo(corners[i].x, corners[i].y);
         ctx.closePath();
         ctx.clip();
-        ctx.drawImage(activeImg, 0, 0);
+        ctx.drawImage(workingImg.complete && workingImg.width ? workingImg : originalEditImg, 0, 0);
         ctx.restore();
 
         ctx.strokeStyle = "#38bdf8";
-        ctx.lineWidth = Math.max(3, canvas.width / 240);
+        ctx.lineWidth = Math.max(3, canvas.width / 250);
         ctx.beginPath();
         ctx.moveTo(corners[0].x, corners[0].y);
         for (let i = 1; i < 4; i++) ctx.lineTo(corners[i].x, corners[i].y);
         ctx.closePath();
         ctx.stroke();
 
-        const r = Math.max(13, canvas.width / 42);
+        const handleRadius = Math.max(13, canvas.width / 42);
         const labels = ["TL", "TR", "BR", "BL"];
         corners.forEach((pt, idx) => {
             ctx.beginPath();
-            ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
-            ctx.fillStyle = idx === draggingCornerIndex ? "#facc15" : "#4f46e5";
+            ctx.arc(pt.x, pt.y, handleRadius, 0, Math.PI * 2);
+            ctx.fillStyle = idx === draggingCornerIndex ? "#f59e0b" : "#6366f1";
             ctx.fill();
-            ctx.lineWidth = Math.max(2.5, canvas.width / 280);
+            ctx.lineWidth = 2;
             ctx.strokeStyle = "#ffffff";
             ctx.stroke();
 
             ctx.fillStyle = "#fff";
-            ctx.font = `800 ${Math.round(r * 0.85)}px sans-serif`;
+            ctx.font = `bold ${Math.round(handleRadius * 0.85)}px sans-serif`;
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillText(labels[idx], pt.x, pt.y);
@@ -1114,31 +766,28 @@
         const canvas = document.getElementById('persp-canvas');
         const loupe = document.getElementById('loupe');
 
-        function getCoords(e) {
+        function getCanvasCoords(e) {
             const rect = canvas.getBoundingClientRect();
-            const cx = e.touches ? e.touches[0].clientX : e.clientX;
-            const cy = e.touches ? e.touches[0].clientY : e.clientY;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             return {
-                x: (cx - rect.left) * (canvas.width / rect.width),
-                y: (cy - rect.top) * (canvas.height / rect.height)
+                x: (clientX - rect.left) * (canvas.width / rect.width),
+                y: (clientY - rect.top) * (canvas.height / rect.height)
             };
         }
 
         function onDown(e) {
             if (editorMode !== 'perspective') return;
-            const pos = getCoords(e);
-            const hitR = Math.max(32, canvas.width / 16);
-            draggingCornerIndex = corners.findIndex(c => Math.hypot(c.x - pos.x, c.y - pos.y) < hitR);
-            if (draggingCornerIndex !== -1) {
-                e.preventDefault();
-                updateLoupe(pos);
-            }
+            const pos = getCanvasCoords(e);
+            const hitRadius = Math.max(32, canvas.width / 16);
+            draggingCornerIndex = corners.findIndex(c => Math.hypot(c.x - pos.x, c.y - pos.y) < hitRadius);
+            if (draggingCornerIndex !== -1) { e.preventDefault(); updateLoupe(pos); }
         }
 
         function onMove(e) {
             if (draggingCornerIndex === -1 || editorMode !== 'perspective') return;
             e.preventDefault();
-            const pos = getCoords(e);
+            const pos = getCanvasCoords(e);
             corners[draggingCornerIndex].x = Math.max(0, Math.min(canvas.width, pos.x));
             corners[draggingCornerIndex].y = Math.max(0, Math.min(canvas.height, pos.y));
             drawPerspectiveOverlay();
@@ -1154,19 +803,18 @@
         function updateLoupe(pt) {
             loupe.style.display = 'block';
             const lCtx = loupe.getContext('2d');
-            const srcSize = loupe.width / 2;
-            const activeImg = workingImg.complete && workingImg.width ? workingImg : originalEditImg;
+            const zoom = 2;
+            const srcSize = loupe.width / zoom;
             lCtx.clearRect(0, 0, loupe.width, loupe.height);
             lCtx.drawImage(
-                activeImg,
-                pt.x - srcSize / 2, pt.y - srcSize / 2, srcSize, srcSize,
-                0, 0, loupe.width, loupe.height
+                workingImg.complete && workingImg.width ? workingImg : originalEditImg,
+                pt.x - srcSize / 2, pt.y - srcSize / 2, srcSize, srcSize, 0, 0, loupe.width, loupe.height
             );
-            lCtx.strokeStyle = "#facc15";
+            lCtx.strokeStyle = "#f59e0b";
             lCtx.lineWidth = 2;
             lCtx.beginPath();
-            lCtx.moveTo(57, 0); lCtx.lineTo(57, 115);
-            lCtx.moveTo(0, 57); lCtx.lineTo(115, 57);
+            lCtx.moveTo(60, 0); lCtx.lineTo(60, 120);
+            lCtx.moveTo(0, 60); lCtx.lineTo(120, 60);
             lCtx.stroke();
         }
 
@@ -1194,13 +842,7 @@
         const dstW = Math.round(Math.max(topW, botW));
         const dstH = Math.round(Math.max(leftH, rightH));
 
-        const dstPts = [
-            { x: 0, y: 0 },
-            { x: dstW, y: 0 },
-            { x: dstW, y: dstH },
-            { x: 0, y: dstH }
-        ];
-
+        const dstPts = [{ x: 0, y: 0 }, { x: dstW, y: 0 }, { x: dstW, y: dstH }, { x: 0, y: dstH }];
         const H = solveHomography(dstPts, corners);
 
         const dstCanvas = document.createElement('canvas');
@@ -1217,6 +859,7 @@
                 const denom = H[6] * x + H[7] * y + 1;
                 const u = (H[0] * x + H[1] * y + H[2]) / denom;
                 const v = (H[3] * x + H[4] * y + H[5]) / denom;
+
                 const sx = Math.round(u), sy = Math.round(v);
                 if (sx >= 0 && sx < sw && sy >= 0 && sy < sh) {
                     const sIdx = (sy * sw + sx) * 4;
@@ -1228,16 +871,15 @@
                 }
             }
         }
-
         dCtx.putImageData(dstImageData, 0, 0);
         updateWorkingImageFromCanvas(dstCanvas);
-        showToast("Perspective Straightened!");
     }
 
     function solveHomography(src, dst) {
         let A = [], b = [];
         for (let i = 0; i < 4; i++) {
-            const x = src[i].x, y = src[i].y, u = dst[i].x, v = dst[i].y;
+            const x = src[i].x, y = src[i].y;
+            const u = dst[i].x, v = dst[i].y;
             A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); b.push(u);
             A.push([0, 0, 0, x, y, 1, -v * x, -v * y]); b.push(v);
         }
@@ -1248,22 +890,21 @@
             [A[i], A[maxRow]] = [A[maxRow], A[i]];
             [b[i], b[maxRow]] = [b[maxRow], b[i]];
             for (let k = i + 1; k < n; k++) {
-                const f = A[k][i] / A[i][i];
-                b[k] -= f * b[i];
-                for (let j = i; j < n; j++) A[k][j] -= f * A[i][j];
+                const factor = A[k][i] / A[i][i];
+                b[k] -= factor * b[i];
+                for (let j = i; j < n; j++) A[k][j] -= factor * A[i][j];
             }
         }
         const x = new Array(n).fill(0);
         for (let i = n - 1; i >= 0; i--) {
-            let s = b[i];
-            for (let j = i + 1; j < n; j++) s -= A[i][j] * x[j];
-            x[i] = s / A[i][i];
+            let sum = b[i];
+            for (let j = i + 1; j < n; j++) sum -= A[i][j] * x[j];
+            x[i] = sum / A[i][i];
         }
         return x;
     }
 
     function rotateCropper(deg) { if (cropperInstance) cropperInstance.rotate(deg); }
-
     function applyRectCrop() {
         if (!cropperInstance) return;
         updateWorkingImageFromCanvas(cropperInstance.getCroppedCanvas());
@@ -1285,9 +926,9 @@
                     const val = gray > 145 ? 255 : 0;
                     d[i] = d[i + 1] = d[i + 2] = val;
                 } else if (type === 'magic') {
-                    d[i] = Math.min(255, Math.max(0, (d[i] - 128) * 1.42 + 142));
-                    d[i + 1] = Math.min(255, Math.max(0, (d[i + 1] - 128) * 1.42 + 142));
-                    d[i + 2] = Math.min(255, Math.max(0, (d[i + 2] - 128) * 1.42 + 142));
+                    d[i] = Math.min(255, Math.max(0, (d[i] - 128) * 1.4 + 140));
+                    d[i + 1] = Math.min(255, Math.max(0, (d[i + 1] - 128) * 1.4 + 140));
+                    d[i + 2] = Math.min(255, Math.max(0, (d[i + 2] - 128) * 1.4 + 140));
                 }
             }
             ctx.putImageData(imgData, 0, 0);
@@ -1312,48 +953,30 @@
 
     function resetEditorImage() {
         workingImg = cloneImageElement(originalEditImg);
-        workingImg.onload = () => {
-            initDefaultCorners(workingImg.width, workingImg.height);
-            setEditorMode('perspective');
-        };
+        workingImg.onload = () => { initDefaultCorners(workingImg.width, workingImg.height); setEditorMode('perspective'); };
     }
 
-    // ================== PRINTING ==================
-    function printEditedImage() {
-        const layout = document.getElementById('print-layout').value;
-        printedCount++;
-        updateStats();
-        printUrlWithLayout(workingImg.src, layout);
-    }
-
+    function printEditedImage() { printUrlWithLayout(workingImg.src, document.getElementById('print-layout').value); }
     function directPrintJob(jobId) {
         const job = jobs[jobId];
         if (!job) return;
-        printedCount++;
-        updateStats();
-        if (job.fileType.startsWith('image/')) {
-            printUrlWithLayout(job.fileUrl, 'full');
-        } else {
-            const win = window.open(job.fileUrl, '_blank');
-            if (win) win.focus();
-        }
+        if (job.fileType.startsWith('image/')) printUrlWithLayout(job.fileUrl, 'full');
+        else { const win = window.open(job.fileUrl, '_blank'); if (win) win.focus(); }
     }
 
     function printUrlWithLayout(url, layout) {
         let styleHtml = `img { max-width: 100%; max-height: 95vh; display: block; margin: auto; }`;
         let bodyHtml = `<img src="${url}">`;
 
-        if (layout === 'half') {
-            styleHtml = `img { width: 100%; max-height: 48vh; object-fit: contain; }`;
-        } else if (layout === 'idcard') {
-            styleHtml = `img { width: 8.6cm; height: 5.4cm; object-fit: fill; border: 1px solid #ccc; margin: 20px; }`;
-        } else if (layout === 'passport') {
+        if (layout === 'half') styleHtml = `img { width: 100%; max-height: 48vh; object-fit: contain; }`;
+        else if (layout === 'idcard') styleHtml = `img { width: 8.6cm; height: 5.4cm; object-fit: fill; border: 1px solid #ccc; margin: 20px; }`;
+        else if (layout === 'passport') {
             styleHtml = `.grid { display: flex; flex-wrap: wrap; gap: 10px; padding: 15px; } .grid img { width: 3.5cm; height: 4.5cm; object-fit: cover; border: 1px solid #000; }`;
             bodyHtml = `<div class="grid">${`<img src="${url}">`.repeat(6)}</div>`;
         }
 
         const win = window.open('', '_blank');
-        win.document.write(`<html><head><title>Print</title><style>@page{margin:10mm;} body{margin:0;} ${styleHtml}</style></head><body>${bodyHtml}<script>window.onload=()=>{setTimeout(()=>{window.print();window.close();},300);}<\/script></body></html>`);
+        win.document.write(`<html><head><title>Print Document</title><style>@page{margin:10mm;} body{margin:0;} ${styleHtml}</style></head><body>${bodyHtml}<script>window.onload=()=>{setTimeout(()=>{window.print();window.close();},300);}<\/script></body></html>`);
         win.document.close();
     }
 
@@ -1362,76 +985,39 @@
         if (!qrImg) return;
         const src = qrImg.src || qrImg.toDataURL();
         const win = window.open('', '_blank');
-        win.document.write(`
-            <html><body style="text-align:center; font-family:sans-serif; padding:40px;">
-                <div style="border:4px solid #4f46e5; border-radius:24px; padding:35px; max-width:460px; margin:auto;">
-                    <h1 style="color:#4f46e5; margin:0;">🖨️ Scan & Send for Print</h1>
-                    <p style="color:#475569;">मोबाइल से QR स्कैन करें और तुरंत डॉक्यूमेंट प्रिंट के लिए भेजें</p>
-                    <img src="${src}" style="width:260px; height:260px; margin:20px auto; display:block;">
-                    <p style="font-weight:bold; font-size:14px; color:#10b981;">Shop ID: ${getActiveShopId()}</p>
-                </div>
-                <script>window.onload=()=>{window.print();window.close();}<\/script>
-            </body></html>
-        `);
+        win.document.write(`<html><body style="text-align:center; font-family:sans-serif; padding:40px;"><h1>🖨️ Scan to Send Document for Print</h1><p>अपने मोबाइल से यह QR कोड स्कैन करें और सीधे प्रिंट के लिए डॉक्यूमेंट भेजें</p><img src="${src}" style="width:280px; height:280px; margin:20px auto; display:block;"><script>window.onload=()=>{window.print();window.close();}<\/script></body></html>`);
         win.document.close();
     }
 
     function loadSkewedDemo() {
         const c = document.createElement('canvas');
-        c.width = 720; c.height = 500;
+        c.width = 700; c.height = 500;
         const ctx = c.getContext('2d');
-        ctx.fillStyle = "#1e293b";
-        ctx.fillRect(0, 0, 720, 500);
+        ctx.fillStyle = "#1e293b"; ctx.fillRect(0, 0, 700, 500);
 
         ctx.save();
         ctx.beginPath();
-        ctx.moveTo(125, 85);
-        ctx.lineTo(595, 55);
-        ctx.lineTo(635, 415);
-        ctx.lineTo(80, 435);
-        ctx.closePath();
-        ctx.fillStyle = "#ffffff";
-        ctx.fill();
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = "#ef4444";
-        ctx.stroke();
+        ctx.moveTo(120, 90); ctx.lineTo(590, 60); ctx.lineTo(630, 410); ctx.lineTo(80, 430);
+        ctx.closePath(); ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = "#4f46e5"; ctx.stroke();
 
-        ctx.translate(145, 115);
-        ctx.rotate(-0.055);
-        ctx.fillStyle = "#ef4444";
-        ctx.fillRect(0, 0, 420, 36);
-        ctx.fillStyle = "#fff";
-        ctx.font = "bold 18px sans-serif";
-        ctx.fillText("भारत सरकार / GOVERNMENT OF INDIA", 42, 24);
+        ctx.translate(140, 120); ctx.rotate(-0.05);
+        ctx.fillStyle = "#4f46e5"; ctx.fillRect(0, 0, 420, 35);
+        ctx.fillStyle = "#fff"; ctx.font = "bold 18px sans-serif";
+        ctx.fillText("भारत सरकार / GOVERNMENT OF INDIA", 45, 24);
 
-        ctx.fillStyle = "#cbd5e1";
-        ctx.fillRect(15, 55, 95, 115);
-        ctx.fillStyle = "#0f172a";
-        ctx.font = "bold 18px sans-serif";
-        ctx.fillText("नाम: अमित कुमार", 130, 80);
-        ctx.fillText("DOB: 15/08/1997", 130, 115);
-        ctx.fillText("4921  8540  9632", 130, 165);
+        ctx.fillStyle = "#e2e8f0"; ctx.fillRect(15, 55, 95, 115);
+        ctx.fillStyle = "#0f172a"; ctx.font = "bold 18px sans-serif";
+        ctx.fillText("नाम: राहुल शर्मा", 130, 80);
+        ctx.fillText("DOB: 12/08/1996", 130, 115);
+        ctx.fillText("8452  9632  7410", 130, 165);
         ctx.restore();
 
         c.toBlob(blob => {
             const url = URL.createObjectURL(blob);
             addJobToQueue({
-                customerName: "Demo Customer (Skewed ID)",
-                fileName: "Aadhaar_Card_Skewed.jpg",
-                fileType: "image/jpeg",
-                fileSize: blob.size,
-                colorMode: "Color",
-                copies: 1,
-                fileUrl: url
+                customerName: "Demo Customer (Skewed Card)", fileName: "Skewed_ID_Card.jpg",
+                fileType: "image/jpeg", fileSize: blob.size, colorMode: "Color", copies: 1, fileUrl: url
             });
-            setTimeout(() => {
-                corners = [
-                    { x: 125, y: 85 },
-                    { x: 595, y: 55 },
-                    { x: 635, y: 415 },
-                    { x: 80, y: 435 }
-                ];
-            }, 100);
         }, 'image/jpeg', 0.92);
     }
 </script>
