@@ -3,122 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Scan-to-Print Studio v5.0 | Made in India 🇮🇳</title>
-    <!-- PeerJS for WebRTC Data, Audio/Video Calls & Screen Share -->
+    <title>Smart Scan-to-Print Studio v6.0 | Made in India 🇮🇳</title>
+    <!-- PeerJS for WebRTC Calls, Screen Share & File Transfer -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <!-- QRCode.js for Shop QR -->
+    <!-- QRCode.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
             --primary: #1a73e8;
-            --primary-dark: #1557b0;
             --success: #1e8e3e;
             --danger: #d93025;
-            --warning: #f9ab00;
+            --warning: #f29900;
             --dark: #202124;
-            --light: #f8f9fa;
             --border: #dadce0;
         }
-        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
         body { margin: 0; padding: 0; background: #f0f4f8; color: var(--dark); }
 
-        /* Top Tricolor Trust Banner */
         .india-banner {
             background: linear-gradient(90deg, #FF9933 0%, #ffffff 50%, #138808 100%);
-            padding: 4px 12px;
-            text-align: center;
-            font-size: 12px;
-            font-weight: 700;
-            color: #000080;
-            border-bottom: 1px solid #ccc;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 6px;
+            padding: 5px 14px; font-size: 12px; font-weight: 700; color: #000080;
+            border-bottom: 1px solid #ccc; display: flex; justify-content: space-between; flex-wrap: wrap;
         }
-
         header {
-            background: #fff;
-            padding: 10px 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            background: #fff; padding: 10px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+            position: sticky; top: 0; z-index: 100;
         }
         .brand { display: flex; align-items: center; gap: 10px; }
         .brand h1 { margin: 0; font-size: 18px; color: var(--primary); }
-        .badge-safe { background: #e6f4ea; color: var(--success); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
 
-        .mode-switch { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
         .btn {
             background: var(--primary); color: #fff; border: none; padding: 8px 14px;
             border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;
             display: inline-flex; align-items: center; gap: 6px; transition: 0.2s;
         }
         .btn:hover { opacity: 0.92; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-success { background: var(--success); }
         .btn-danger { background: var(--danger); }
-        .btn-warning { background: #f29900; color: #fff; }
+        .btn-warning { background: var(--warning); color: #fff; }
         .btn-outline { background: #fff; color: var(--dark); border: 1px solid var(--border); }
         .btn-outline.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
         .main-wrap { max-width: 1280px; margin: 14px auto; padding: 0 12px; }
         .hidden { display: none !important; }
 
-        /* Timer & Privacy Bar */
         .privacy-bar {
             background: #fff; border: 1px solid var(--border); border-radius: 10px;
             padding: 10px 14px; margin-bottom: 14px; display: flex;
             justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
         }
-        .timer-pills { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
         .pill {
             padding: 4px 10px; border-radius: 16px; font-size: 12px; cursor: pointer;
             border: 1px solid var(--border); background: #f8f9fa; font-weight: 600;
         }
         .pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-        /* Grid Layout for Admin */
-        .admin-grid { display: grid; grid-template-columns: 300px 1fr 350px; gap: 14px; }
+        .admin-grid { display: grid; grid-template-columns: 290px 1fr 350px; gap: 14px; }
         @media (max-width: 1024px) { .admin-grid { grid-template-columns: 1fr; } }
 
         .card {
             background: #fff; border-radius: 10px; padding: 14px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.06); border: 1px solid var(--border);
         }
-        .card h3 { margin: 0 0 10px 0; font-size: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .card h3 { margin: 0 0 10px 0; font-size: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
 
-        #qrcode { display: flex; justify-content: center; margin: 12px 0; padding: 10px; background: #fff; border: 1px dashed var(--border); border-radius: 8px; }
+        #qrcode { display: flex; justify-content: center; margin: 10px 0; padding: 10px; background: #fff; border: 1px dashed var(--border); border-radius: 8px; }
 
-        /* Job Cards */
         .job-card {
             background: #f8fbff; border: 1px solid #c2dbff; border-left: 5px solid var(--primary);
             border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex;
             gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap;
         }
-        .job-thumb { width: 64px; height: 64px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc; background: #fff; cursor: pointer; }
+        .job-thumb { width: 62px; height: 62px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc; cursor: pointer; }
         .timer-badge { font-size: 11px; padding: 3px 8px; border-radius: 12px; background: #fff3cd; color: #856404; font-weight: 700; }
-        .timer-badge.urgent { background: #f8d7da; color: #721c24; animation: pulse 1s infinite; }
-        @keyframes pulse { 50% { opacity: 0.5; } }
 
-        /* Chat Box */
-        .chat-container { display: flex; flex-direction: column; height: 460px; }
+        /* Chat UI */
+        .chat-container { display: flex; flex-direction: column; height: 450px; }
         .chat-messages {
             flex: 1; overflow-y: auto; padding: 10px; background: #f1f3f4;
             border-radius: 8px; display: flex; flex-direction: column; gap: 8px;
         }
-        .msg { max-width: 82%; padding: 8px 12px; border-radius: 12px; font-size: 13px; position: relative; word-wrap: break-word; }
+        .msg { max-width: 82%; padding: 8px 12px; border-radius: 12px; font-size: 13px; word-wrap: break-word; }
         .msg.customer { background: #fff; align-self: flex-start; border: 1px solid #ddd; }
         .msg.shop { background: #d2e3fc; align-self: flex-end; color: #174ea6; }
-        .msg img { max-width: 180px; border-radius: 6px; margin-top: 5px; display: block; cursor: pointer; }
-        .msg-meta { font-size: 10px; color: #666; margin-top: 4px; display: flex; justify-content: space-between; gap: 8px; }
+        .msg img { max-width: 170px; border-radius: 6px; margin-top: 5px; display: block; cursor: pointer; }
 
         .quick-replies { display: flex; gap: 5px; overflow-x: auto; padding: 6px 0; }
         .quick-chip {
@@ -128,163 +97,183 @@
         .chat-input-row { display: flex; gap: 6px; margin-top: 6px; }
         .chat-input-row input[type="text"] { flex: 1; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; }
 
-        /* Customer Mobile Portal */
+        /* Customer Portal */
         .customer-wrap { max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
         .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
         .upload-box {
             border: 2px dashed var(--primary); background: #f4f8ff; border-radius: 10px;
             padding: 16px 10px; text-align: center; cursor: pointer; font-weight: 600; color: var(--primary);
         }
-        .upload-box:hover { background: #e8f0fe; }
 
-        /* Modals (Call, Camera, Studio) */
+        /* Modals */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.82); z-index: 999;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 999;
             display: flex; align-items: center; justify-content: center; padding: 10px;
         }
         .modal-card {
-            background: #fff; border-radius: 12px; width: 100%; max-width: 960px;
+            background: #fff; border-radius: 12px; width: 100%; max-width: 900px;
             max-height: 95vh; overflow-y: auto; padding: 16px; position: relative;
         }
 
-        /* Video & Screen Share Call UI */
-        .video-stage {
-            position: relative; background: #111; border-radius: 10px; overflow: hidden;
-            height: 420px; display: flex; align-items: center; justify-content: center;
+        /*Incoming Call Ringing Banner*/
+        .incoming-ring-box {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #202124; color: #fff; padding: 16px 24px; border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 2000;
+            display: flex; align-items: center; gap: 16px; border: 2px solid #00e676;
+            animation: ringShake 0.6s infinite alternate;
         }
-        #remote-video { width: 100%; height: 100%; object-fit: contain; }
+        @keyframes ringShake { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.03); } }
+
+        /* Video & Audio Call Stage */
+        .video-stage {
+            position: relative; background: #000; border-radius: 10px; overflow: hidden;
+            height: 410px; display: flex; align-items: center; justify-content: center;
+        }
+        #remote-video { width: 100%; height: 100%; object-fit: contain; background: #000; }
         #local-video {
-            position: absolute; bottom: 12px; right: 12px; width: 130px; height: 96px;
-            object-fit: cover; border-radius: 8px; border: 2px solid #fff; background: #222; z-index: 5;
+            position: absolute; bottom: 12px; right: 12px; width: 135px; height: 100px;
+            object-fit: cover; border-radius: 8px; border: 2px solid #00e676; background: #222; z-index: 10;
         }
         .mirror-video { transform: scaleX(-1); }
         .call-badge {
-            position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.7);
-            color: #fff; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; z-index: 6;
+            position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.75);
+            color: #00e676; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; z-index: 10;
+        }
+        .audio-avatar-overlay {
+            position: absolute; inset: 0; background: radial-gradient(circle, #1a2a40 0%, #090d16 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: #fff; z-index: 4;
         }
         .call-controls {
             display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
             margin-top: 12px; padding: 10px; background: #f1f3f4; border-radius: 10px;
         }
 
-        /* 4-Point Perspective Studio */
-        .studio-layout { display: grid; grid-template-columns: 1fr 290px; gap: 14px; }
+        /* 4-Point Studio */
+        .studio-layout { display: grid; grid-template-columns: 1fr 280px; gap: 14px; }
         @media (max-width: 800px) { .studio-layout { grid-template-columns: 1fr; } }
         .canvas-stage {
             position: relative; background: #202124; border-radius: 8px; overflow: hidden;
-            display: flex; justify-content: center; align-items: center; min-height: 380px;
-            touch-action: none;
+            display: flex; justify-content: center; align-items: center; min-height: 360px; touch-action: none;
         }
-        #studio-canvas { max-width: 100%; max-height: 65vh; display: block; }
+        #studio-canvas { max-width: 100%; max-height: 62vh; display: block; }
         #loupe-canvas {
-            position: absolute; top: 10px; left: 10px; width: 110px; height: 110px;
+            position: absolute; top: 10px; left: 10px; width: 105px; height: 105px;
             border: 3px solid #00e5ff; border-radius: 50%; background: #000;
-            pointer-events: none; display: none; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            pointer-events: none; display: none; z-index: 20;
         }
-
-        .progress-wrap { width: 100%; background: #e0e0e0; height: 10px; border-radius: 6px; overflow: hidden; margin-top: 8px; }
+        .progress-wrap { width: 100%; background: #e0e0e0; height: 8px; border-radius: 6px; overflow: hidden; margin-top: 6px; }
         .progress-bar { height: 100%; width: 0%; background: var(--success); transition: width 0.15s; }
     </style>
 </head>
 <body>
 
-<!-- Top Made in India & Data Privacy Banner -->
 <div class="india-banner">
-    <span>🇮🇳 MADE IN INDIA | डिजिटल साइबर कैफे और प्रिंट पोर्टल</span>
-    <span>🛡️ Safe Your Data: P2P Encrypted • Zero Server Storage • Auto-Wipe in 10 Mins</span>
+    <span>🇮🇳 MADE IN INDIA | स्मार्ट साइबर कैफे और स्कैन-टू-प्रिंट स्टूडियो</span>
+    <span>🛡️ Safe Your Data: End-to-End P2P • Auto-Delete in 10 Mins</span>
+</div>
+
+<!-- Incoming Call Ringing Alert Banner -->
+<div id="incoming-call-banner" class="incoming-ring-box hidden">
+    <div style="font-size:30px;">📲</div>
+    <div>
+        <strong id="incoming-caller-title" style="font-size:15px;">Incoming Call...</strong><br>
+        <small id="incoming-caller-sub" style="color:#ccc;">Customer/Shopkeeper आपसे जुड़ना चाहते हैं</small>
+    </div>
+    <button class="btn btn-success" onclick="acceptIncomingCall('user')">🤳 Accept (Front Cam)</button>
+    <button class="btn btn-warning" onclick="acceptIncomingCall('environment')">📷 Accept (Back Cam)</button>
+    <button class="btn btn-danger" onclick="rejectIncomingCall()">❌ Cut</button>
 </div>
 
 <header>
     <div class="brand">
         <span style="font-size: 24px;">🖨️</span>
         <div>
-            <h1>Smart Scan-to-Print Studio v5.0</h1>
-            <small id="conn-status" style="color: var(--success); font-weight: 600;">🟢 Initializing P2P Network...</small>
+            <h1>Smart Scan-to-Print v6.0</h1>
+            <small id="conn-status" style="color: var(--success); font-weight: 700;">🟢 Connecting P2P Server...</small>
         </div>
-        <span class="badge-safe">🔒 100% Private</span>
     </div>
-
-    <div class="mode-switch">
-        <button class="btn btn-outline active" id="tab-admin" onclick="switchViewMode('admin')">💻 Shop Admin View</button>
-        <button class="btn btn-outline" id="tab-customer" onclick="switchViewMode('customer')">📱 Customer Mobile View</button>
-        <button class="btn btn-danger" onclick="panicWipeAll()">🧹 Instant Panic Wipe</button>
+    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button class="btn btn-outline active" id="tab-admin" onclick="switchViewMode('admin')">💻 Shop Admin</button>
+        <button class="btn btn-outline" id="tab-customer" onclick="switchViewMode('customer')">📱 Customer View</button>
+        <button class="btn btn-danger" onclick="panicWipeAll()">🧹 Panic Wipe</button>
     </div>
 </header>
 
 <div class="main-wrap">
 
-    <!-- Customizable Auto-Delete Bar -->
+    <!-- Auto-Delete Timer Bar -->
     <div class="privacy-bar">
         <div>
-            <strong>⏱️ Auto-Delete Timer (चैट और डॉक्यूमेंट डिलीट समय):</strong>
+            <strong>⏱️ Auto-Delete (चैट और डॉक्यूमेंट डिलीट समय):</strong>
             <span id="current-ttl-label" style="color: var(--primary); font-weight: 700;">10 Minutes</span>
         </div>
-        <div class="timer-pills">
-            <span class="pill" onclick="setGlobalTTL(2)">2 Min</span>
-            <span class="pill" onclick="setGlobalTTL(5)">5 Min</span>
-            <span class="pill active" onclick="setGlobalTTL(10)">10 Min (Default)</span>
-            <span class="pill" onclick="setGlobalTTL(15)">15 Min</span>
-            <span class="pill" onclick="setGlobalTTL(30)">30 Min</span>
-            <input type="range" min="1" max="60" value="10" style="width:90px;" oninput="setGlobalTTL(this.value)">
+        <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap;">
+            <span class="pill" onclick="setGlobalTTL(2)">2m</span>
+            <span class="pill" onclick="setGlobalTTL(5)">5m</span>
+            <span class="pill active" onclick="setGlobalTTL(10)">10m</span>
+            <span class="pill" onclick="setGlobalTTL(15)">15m</span>
+            <span class="pill" onclick="setGlobalTTL(30)">30m</span>
+            <input type="range" min="1" max="60" value="10" style="width:85px;" oninput="setGlobalTTL(this.value)">
         </div>
     </div>
 
     <!-- ================= ADMIN VIEW ================= -->
     <div id="view-admin" class="admin-grid">
-        <!-- Left Column: QR & Live Demo Controls -->
         <div class="card">
             <h3>📲 Shop QR Code</h3>
-            <p style="font-size: 12px; color: #555; margin: 0;">ग्राहक इस QR को स्कैन करके सीधे फोटो/PDF भेजें या कॉल/स्क्रीन शेयर करें:</p>
+            <p style="font-size: 12px; color: #555; margin: 0;">ग्राहक अपने फोन से यह QR स्कैन करें:</p>
             <div id="qrcode"></div>
             <div style="display:flex; gap:6px; margin-bottom:8px;">
-                <input type="text" id="shop-id-input" value="cyber-shop-india-101" style="flex:1; padding:6px; font-size:12px; border:1px solid #ccc; border-radius:4px;">
-                <button class="btn" onclick="updateShopId()">Set ID</button>
+                <input type="text" id="shop-id-input" value="amit-cyber-shop-101" style="flex:1; padding:6px; font-size:12px; border:1px solid #ccc; border-radius:4px;">
+                <button class="btn" onclick="updateShopId()">Save ID</button>
             </div>
-            <button class="btn btn-outline" style="width:100%; justify-content:center; margin-bottom:12px;" onclick="copyCustomerLink()">🔗 Copy Customer Link</button>
+            <button class="btn btn-outline" style="width:100%; justify-content:center; margin-bottom:10px;" onclick="copyCustomerLink()">🔗 Copy Customer Link</button>
 
-            <hr style="border:0; border-top:1px solid #eee; margin:12px 0;">
-            <h3>⚡ Instant Test Demos</h3>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-                <button class="btn btn-warning" onclick="loadSampleSkewedCard()">📐 Test Skewed ID (Perspective Crop)</button>
-                <button class="btn btn-success" onclick="openCallModal('video', true)">📹 Test Video Call + Camera Flip + Screen Share</button>
+            <div style="background:#eef7ff; padding:10px; border-radius:8px; border:1px solid #b6d4fe; font-size:12px; margin-bottom:10px;">
+                <strong>🔗 Live Connected Customer:</strong><br>
+                <span id="connected-peer-badge" style="color:#d93025; font-weight:700;">Waiting for customer scan...</span>
             </div>
+
+            <button class="btn btn-warning" style="width:100%; justify-content:center; margin-bottom:6px;" onclick="loadSampleSkewedCard()">📐 Test Skewed ID Crop</button>
+            <button class="btn btn-success" style="width:100%; justify-content:center;" onclick="initiateCall('video', 'user', true)">📹 Test Camera Flip & Call</button>
         </div>
 
-        <!-- Middle Column: Print Queue -->
+        <!-- Middle Column: Print Queue & Call Bar -->
         <div class="card">
             <h3>
-                <span>🔔 Incoming Print Documents (<span id="job-count">0</span>)</span>
-                <div style="display:flex; gap:6px;">
-                    <button class="btn btn-success" onclick="startPeerCall('video')">📹 Video Call</button>
-                    <button class="btn" onclick="startPeerCall('screen')">🖥️ Share My Screen</button>
+                <span>🔔 Print Queue (<span id="job-count">0</span>)</span>
+                <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                    <button class="btn" onclick="initiateCall('audio', 'user')">📞 Audio Call</button>
+                    <button class="btn btn-success" onclick="initiateCall('video', 'user')">🤳 Video (Front)</button>
+                    <button class="btn btn-warning" onclick="initiateCall('video', 'environment')">📷 Video (Back)</button>
+                    <button class="btn" style="background:#673ab7;" onclick="initiateCall('screen', 'environment')">🖥️ Screen Share</button>
                 </div>
             </h3>
             <div id="admin-upload-progress" class="hidden" style="margin-bottom:10px;">
-                <small id="admin-progress-text">Receiving large file...</small>
+                <small id="admin-progress-text">Receiving file...</small>
                 <div class="progress-wrap"><div class="progress-bar" id="admin-progress-bar"></div></div>
             </div>
             <div id="print-queue">
-                <p id="empty-queue" style="text-align:center; color:#777; padding:40px 10px;">
-                    अभी कोई डॉक्यूमेंट नहीं आया है।<br>ग्राहक द्वारा फाइल भेजने पर बीप साउंड के साथ यहाँ कार्ड दिखेगा।
+                <p id="empty-queue" style="text-align:center; color:#777; padding:35px 10px;">
+                    अभी कोई डॉक्यूमेंट नहीं आया है।<br>ग्राहक द्वारा फाइल भेजने पर यहाँ नोटिफिकेशन आएगा।
                 </p>
             </div>
         </div>
 
-        <!-- Right Column: Live 2-Way Chat -->
+        <!-- Right Column: Live Chat -->
         <div class="card chat-container">
-            <h3>
-                <span>💬 Live Customer Chat</span>
-                <button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="startPeerCall('audio')">📞 Audio Call</button>
-            </h3>
+            <h3>💬 Live Customer Chat</h3>
             <div class="chat-messages" id="admin-chat-box"></div>
             <div class="quick-replies">
                 <span class="quick-chip" onclick="sendQuickChat('shop', 'फाइल मिल गई है 👍🖨️')">फाइल मिल गई है 👍</span>
                 <span class="quick-chip" onclick="sendQuickChat('shop', 'प्रिंट तैयार है ✅')">प्रिंट तैयार है ✅</span>
-                <span class="quick-chip" onclick="sendQuickChat('shop', 'कृपया साफ फोटो भेजें 📷')">साफ फोटो भेजें 📷</span>
+                <span class="quick-chip" onclick="sendQuickChat('shop', 'वीडियो कॉल उठाएं 📹')">वीडियो कॉल उठाएं 📹</span>
                 <span class="quick-chip" onclick="sendQuickChat('shop', 'अपनी स्क्रीन शेयर करें 🖥️')">स्क्रीन शेयर करें 🖥️</span>
             </div>
             <div class="chat-input-row">
-                <input type="text" id="admin-chat-input" placeholder="ग्राहक को मैसेज लिखें..." onkeydown="if(event.key==='Enter') sendChatMessage('shop')">
+                <input type="text" id="admin-chat-input" placeholder="मैसेज लिखें..." onkeydown="if(event.key==='Enter') sendChatMessage('shop')">
                 <button class="btn" onclick="sendChatMessage('shop')">Send</button>
             </div>
         </div>
@@ -293,61 +282,52 @@
     <!-- ================= CUSTOMER MOBILE VIEW ================= -->
     <div id="view-customer" class="customer-wrap hidden">
         <div class="card">
-            <h3>📤 दुकानदार को डॉक्यूमेंट भेजें (Send for Print)</h3>
-            <input type="text" id="cust-name" placeholder="आपका नाम (जैसे: अमित कुमार)" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:6px; margin-bottom:10px;">
+            <h3>📤 दुकानदार को डॉक्यूमेंट भेजें या कॉल करें</h3>
+            <input type="text" id="cust-name" placeholder="आपका नाम लिखें (जैसे: अमित)" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:6px; margin-bottom:10px;">
 
-            <!-- Direct Camera & File Buttons -->
+            <!-- Direct Call & Screen Share Buttons for Customer -->
+            <div style="background:#e8f0fe; padding:10px; border-radius:8px; margin-bottom:12px; border:1px solid #c2dbff;">
+                <strong style="font-size:12px; display:block; margin-bottom:6px; color:#174ea6;">📞 दुकानदार से सीधे बात करें या स्क्रीन दिखाएं:</strong>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <button class="btn" style="justify-content:center;" onclick="initiateCall('audio', 'user')">📞 Audio Call (आवाज़)</button>
+                    <button class="btn btn-success" style="justify-content:center;" onclick="initiateCall('video', 'user')">🤳 Video (आगे का कैमरा)</button>
+                    <button class="btn btn-warning" style="justify-content:center;" onclick="initiateCall('video', 'environment')">📷 Video (पीछे का कैमरा)</button>
+                    <button class="btn" style="background:#673ab7; justify-content:center;" onclick="initiateCall('screen', 'environment')">🖥️ Share Screen (स्क्रीन दिखाएं)</button>
+                </div>
+            </div>
+
+            <!-- Upload Options -->
             <div class="upload-grid">
                 <label class="upload-box">
-                    📸 Take Photo<br><small>(पीछे का कैमरा खोलें)</small>
-                    <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleCustomerFileSelect(this)">
+                    📸 कैमरा से फोटो खींचें<br><small>(Back Camera)</small>
+                    <input type="file" accept="image/*" capture="environment" class="hidden" onchange="handleCustomerFileSelect(this)">
                 </label>
                 <label class="upload-box">
-                    📁 Choose File / PDF<br><small>(3MB - 20MB+ Supported)</small>
-                    <input type="file" id="file-input" accept="image/*,application/pdf" class="hidden" onchange="handleCustomerFileSelect(this)">
+                    📁 गैलरी / PDF चुनें<br><small>(3MB - 25MB+)</small>
+                    <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleCustomerFileSelect(this)">
                 </label>
             </div>
 
-            <button class="btn btn-outline" style="width:100%; justify-content:center; margin-bottom:10px;" onclick="openInAppCameraModal()">
-                📷 इन-ऐप लाइव कैमरा खोलें (Front / Back Flip के साथ)
-            </button>
-
-            <!-- Selected File Preview -->
             <div id="cust-file-preview" class="hidden" style="background:#f8f9fa; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #ddd;">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <img id="preview-img" src="" style="width:55px; height:55px; object-fit:cover; border-radius:6px;" class="hidden">
-                    <div style="flex:1;">
-                        <strong id="preview-name" style="font-size:13px; word-break:break-all;"></strong><br>
-                        <small id="preview-size" style="color:#666;"></small>
-                    </div>
-                </div>
+                <strong id="preview-name" style="font-size:13px;"></strong>
+                <small id="preview-size" style="color:#666; display:block;"></small>
                 <div class="progress-wrap"><div class="progress-bar" id="cust-progress-bar"></div></div>
-                <button class="btn btn-success" style="width:100%; justify-content:center; margin-top:10px; padding:12px;" onclick="sendSelectedFileToShop()">
-                    🖨️ Send Document for Print Now
+                <button class="btn btn-success" style="width:100%; justify-content:center; margin-top:8px; padding:10px;" onclick="sendSelectedFileToShop()">
+                    🖨️ Send for Print Now
                 </button>
-            </div>
-
-            <!-- Live Call & Screen Share Bar for Customer -->
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:8px;">
-                <button class="btn" style="justify-content:center;" onclick="startPeerCall('audio')">📞 Audio Call</button>
-                <button class="btn btn-success" style="justify-content:center;" onclick="startPeerCall('video')">📹 Video Call</button>
-                <button class="btn btn-warning" style="justify-content:center;" onclick="startPeerCall('screen')">🖥️ Share Screen</button>
             </div>
         </div>
 
-        <!-- Customer Live Chat Card -->
-        <div class="card chat-container" style="height:380px;">
-            <h3>💬 दुकानदार से बात करें (Live Chat)</h3>
+        <!-- Customer Chat -->
+        <div class="card chat-container" style="height:360px;">
+            <h3>💬 दुकानदार से चैट करें</h3>
             <div class="chat-messages" id="cust-chat-box"></div>
             <div class="quick-replies">
                 <span class="quick-chip" onclick="sendQuickChat('customer', '1 Copy Color प्रिंट करना है 🎨')">1 Copy Color 🎨</span>
                 <span class="quick-chip" onclick="sendQuickChat('customer', 'Black & White प्रिंट निकालें ⚫⚪')">B&W Print ⚫⚪</span>
-                <span class="quick-chip" onclick="sendQuickChat('customer', 'आधार कार्ड आगे-पीछे एक पेज पर 🪪')">Aadhaar Front-Back 🪪</span>
+                <span class="quick-chip" onclick="sendQuickChat('customer', 'आधार कार्ड आगे-पीछे 🪪')">Aadhaar Print 🪪</span>
             </div>
             <div class="chat-input-row">
-                <label class="btn btn-outline" style="cursor:pointer;">
-                    📎 <input type="file" accept="image/*,application/pdf" class="hidden" onchange="handleCustomerFileSelect(this, true)">
-                </label>
                 <input type="text" id="cust-chat-input" placeholder="मैसेज लिखें..." onkeydown="if(event.key==='Enter') sendChatMessage('customer')">
                 <button class="btn" onclick="sendChatMessage('customer')">Send</button>
             </div>
@@ -355,104 +335,81 @@
     </div>
 </div>
 
-<!-- ================= LIVE CALL, CAMERA FLIP & SCREEN SHARE MODAL ================= -->
+<!-- ================= LIVE CALL & SCREEN SHARE MODAL ================= -->
 <div id="call-modal" class="modal-overlay hidden">
-    <div class="modal-card" style="max-width:760px;">
+    <div class="modal-card" style="max-width:780px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
-            <h3 style="margin:0;">📹 Live Call & Screen Share (HD Echo-Cancelled Audio)</h3>
+            <h3 style="margin:0;" id="call-header-title">📹 Live Call Connected</h3>
             <div style="display:flex; gap:6px; align-items:center;">
                 <select id="camera-select" style="padding:6px; border-radius:6px; font-size:12px;" onchange="switchCameraByDeviceId(this.value)"></select>
-                <button class="btn btn-danger" onclick="endActiveCall()">❌ End Call</button>
+                <button class="btn btn-danger" onclick="endActiveCall(true)">❌ Cut Call</button>
             </div>
         </div>
 
         <div class="video-stage">
-            <span class="call-badge" id="call-mode-badge">🟢 Camera Active (Back/Environment)</span>
+            <span class="call-badge" id="call-mode-badge">🟢 Connecting Stream...</span>
+
+            <!-- Audio-Only Avatar View -->
+            <div id="audio-only-overlay" class="audio-avatar-overlay hidden">
+                <div style="font-size:56px; margin-bottom:10px;">🎙️</div>
+                <h3 style="margin:0;">HD Voice Call Active</h3>
+                <p style="font-size:13px; color:#aaa; margin-top:6px;">नीचे दिए गए बटन से कभी भी आगे या पीछे का कैमरा या स्क्रीन शेयर चालू करें</p>
+            </div>
+
+            <!-- Remote Video + Audio -->
             <video id="remote-video" autoplay playsinline></video>
+            <!-- Local Preview -->
             <video id="local-video" autoplay playsinline muted></video>
         </div>
 
-        <!-- Dedicated Front / Back / Flip / Screen Share Controls -->
+        <!-- Instant Camera & Screen Controls During Call -->
         <div class="call-controls">
-            <button class="btn" onclick="switchCameraFacing('user')">🤳 Front Camera (आगे का कैमरा)</button>
-            <button class="btn" onclick="switchCameraFacing('environment')">📷 Back Camera (पीछे का कैमरा)</button>
-            <button class="btn btn-warning" onclick="flipCameraToggle()">🔄 Flip Camera</button>
-            <button class="btn btn-success" id="btn-share-screen" onclick="toggleScreenSharing()">🖥️ Share Screen (स्क्रीन दिखाएं)</button>
+            <button class="btn btn-success" id="btn-cam-front" onclick="switchLiveCamera('user')">🤳 आगे का कैमरा (Front)</button>
+            <button class="btn btn-warning" id="btn-cam-back" onclick="switchLiveCamera('environment')">📷 पीछे का कैमरा (Back)</button>
+            <button class="btn" onclick="flipCameraToggle()">🔄 Flip Camera</button>
+            <button class="btn" style="background:#673ab7;" id="btn-share-screen" onclick="toggleScreenSharing()">🖥️ Share Screen (स्क्रीन दिखाएं)</button>
             <button class="btn btn-outline" id="btn-mute-mic" onclick="toggleMuteAudio()">🎤 Mic On</button>
-            <button class="btn" style="background:#673ab7;" onclick="snapVideoFrameToPrint()">📸 Snap Document to Print</button>
-        </div>
-
-        <!-- In-Call Quick Chat Bar -->
-        <div class="chat-input-row" style="margin-top:10px;">
-            <input type="text" id="incall-chat-input" placeholder="कॉल के दौरान तुरंत मैसेज/OTP/लिंक भेजें..." onkeydown="if(event.key==='Enter') sendInCallText()">
-            <button class="btn" onclick="sendInCallText()">💬 Send in Call</button>
+            <button class="btn btn-outline" onclick="snapVideoFrameToPrint()">📸 Snap to Print</button>
         </div>
     </div>
 </div>
 
-<!-- ================= IN-APP CAMERA CAPTURE MODAL ================= -->
-<div id="inapp-cam-modal" class="modal-overlay hidden">
-    <div class="modal-card" style="max-width:520px; text-align:center;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <h3 style="margin:0;">📷 Live Document Camera</h3>
-            <button class="btn btn-danger" onclick="closeInAppCameraModal()">✖ बंद करें</button>
-        </div>
-        <div class="video-stage" style="height:340px;">
-            <video id="inapp-video" autoplay playsinline style="width:100%; height:100%; object-fit:contain;"></video>
-        </div>
-        <div class="call-controls">
-            <button class="btn" onclick="switchInAppCamera('user')">🤳 Front</button>
-            <button class="btn" onclick="switchInAppCamera('environment')">📷 Back</button>
-            <button class="btn btn-warning" onclick="flipInAppCamera()">🔄 Flip</button>
-            <button class="btn btn-success" onclick="capturePhotoFromInAppCam()">📸 फोटो खींचें (Capture)</button>
-        </div>
-    </div>
-</div>
-
-<!-- ================= 4-POINT PERSPECTIVE CROP & PRINT STUDIO MODAL ================= -->
+<!-- ================= 4-POINT PERSPECTIVE CROP STUDIO MODAL ================= -->
 <div id="studio-modal" class="modal-overlay hidden">
     <div class="modal-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <h3 style="margin:0;">📐 4-Point Perspective Crop & Smart Print Studio</h3>
+            <h3 style="margin:0;">📐 4-Point Perspective Crop & Print Studio</h3>
             <button class="btn btn-danger" onclick="closeStudioModal()">✖ Close</button>
         </div>
-
         <div class="studio-layout">
-            <div class="canvas-stage" id="canvas-container">
+            <div class="canvas-stage">
                 <canvas id="studio-canvas"></canvas>
-                <canvas id="loupe-canvas" width="110" height="110"></canvas>
+                <canvas id="loupe-canvas" width="105" height="105"></canvas>
             </div>
-
             <div style="display:flex; flex-direction:column; gap:10px;">
                 <div style="background:#eef4ff; padding:10px; border-radius:8px; border:1px solid #c2dbff;">
-                    <strong style="font-size:13px;">1. 4-Point Perspective Straighten:</strong>
-                    <p style="font-size:11px; margin:4px 0 8px 0; color:#444;">चारों नीले कोनों को डॉक्यूमेंट के कोनों पर रखें और सीधा करें दबाएं:</p>
-                    <button class="btn btn-success" style="width:100%; justify-content:center;" onclick="applyPerspectiveWarp()">✅ Apply Perspective Straighten (सीधा करें)</button>
-                    <button class="btn btn-outline" style="width:100%; justify-content:center; margin-top:6px;" onclick="resetStudioImage()">🔄 Reset Original</button>
+                    <strong style="font-size:13px;">1. 4-Point Straighten:</strong>
+                    <button class="btn btn-success" style="width:100%; justify-content:center; margin-top:6px;" onclick="applyPerspectiveWarp()">✅ सीधा करें (Straighten)</button>
+                    <button class="btn btn-outline" style="width:100%; justify-content:center; margin-top:6px;" onclick="resetStudioImage()">🔄 Reset</button>
                 </div>
-
                 <div style="background:#f8f9fa; padding:10px; border-radius:8px; border:1px solid #ddd;">
-                    <strong style="font-size:13px;">2. Rotate & B&W Magic Scan:</strong>
+                    <strong style="font-size:13px;">2. Rotate & Clean Scan:</strong>
                     <div style="display:flex; gap:6px; margin-top:6px;">
                         <button class="btn btn-outline" style="flex:1;" onclick="rotateStudioImage(-90)">↺ 90°</button>
                         <button class="btn btn-outline" style="flex:1;" onclick="rotateStudioImage(90)">↻ 90°</button>
                         <button class="btn btn-warning" style="flex:1;" onclick="toggleCleanScanFilter()">✨ B&W Scan</button>
                     </div>
-                    <label style="font-size:11px; display:block; margin-top:8px;">Brightness / Contrast:</label>
-                    <input type="range" id="filter-contrast" min="80" max="180" value="100" style="width:100%;" oninput="renderStudioCanvas()">
+                    <input type="range" id="filter-contrast" min="80" max="180" value="100" style="width:100%; margin-top:8px;" oninput="renderStudioCanvas()">
                 </div>
-
                 <div style="background:#f8f9fa; padding:10px; border-radius:8px; border:1px solid #ddd;">
-                    <strong style="font-size:13px;">3. Choose Print Layout:</strong>
-                    <select id="print-layout-select" style="width:100%; padding:8px; margin-top:6px; border-radius:6px; border:1px solid #ccc;">
-                        <option value="full">📄 Full Page A4 Fit</option>
-                        <option value="half">📄 Half A4 (Top Half)</option>
-                        <option value="idcard">🪪 Aadhaar / ID Card Size (8.6cm × 5.4cm)</option>
-                        <option value="passport">👤 6 Passport Size Photos (3.5cm × 4.5cm)</option>
+                    <strong style="font-size:13px;">3. Print Size:</strong>
+                    <select id="print-layout-select" style="width:100%; padding:8px; margin-top:6px; border-radius:6px;">
+                        <option value="full">📄 Full A4 Page</option>
+                        <option value="half">📄 Half A4 Page</option>
+                        <option value="idcard">🪪 Aadhaar / ID Card (8.6cm × 5.4cm)</option>
+                        <option value="passport">👤 6 Passport Photos</option>
                     </select>
-                    <button class="btn btn-success" style="width:100%; justify-content:center; margin-top:10px; padding:12px; font-size:15px;" onclick="printEditedStudioImage()">
-                        🖨️ Direct Print Now
-                    </button>
+                    <button class="btn btn-success" style="width:100%; justify-content:center; margin-top:10px; padding:12px;" onclick="printEditedStudioImage()">🖨️ Direct Print</button>
                 </div>
             </div>
         </div>
@@ -461,30 +418,47 @@
 
 <script>
 /* ============================================================================
-   GLOBAL STATE & PEERJS P2P ENGINE
+   WEBRTC ICE STUN SERVERS & GLOBAL STATE (FIXES MOBILE-TO-PC CALLING)
 ============================================================================ */
+const PEER_CONFIG = {
+    config: {
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun2.l.google.com:19302' },
+            { urls: 'stun:stun3.l.google.com:19302' }
+        ]
+    }
+};
+
 let peer = null;
+let myPeerId = null;
+let remotePeerId = null; // Guaranteed target Peer ID for 2-way calling
 let activeDataConn = null;
 let activeMediaCall = null;
+let pendingIncomingCall = null;
+
+let localMediaStream = null;
+let currentCallMode = 'video'; // 'audio', 'video', 'screen'
+let currentFacingMode = 'user'; // 'user' (Front) or 'environment' (Back)
+let isScreenSharing = false;
+let isAudioMuted = false;
+let isDemoCall = false;
+
 let globalTTLMinutes = 10;
 let printJobs = [];
 let chatMessages = [];
 let selectedFileToUpload = null;
 let incomingFileChunks = {};
 
-// Camera & Call State
-let localMediaStream = null;
-let currentFacingMode = 'environment'; // 'user' (Front) or 'environment' (Back)
-let isScreenSharing = false;
-let isAudioMuted = false;
-
 const urlParams = new URLSearchParams(window.location.search);
 const shopParam = urlParams.get('shop');
-let currentShopId = shopParam || 'cyber-shop-india-101';
+let currentShopId = shopParam || 'amit-cyber-shop-101';
 
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('shop-id-input').value = currentShopId;
     if (shopParam) {
+        remotePeerId = shopParam;
         switchViewMode('customer');
         initCustomerPeer(shopParam);
     } else {
@@ -494,15 +468,15 @@ window.addEventListener('DOMContentLoaded', () => {
     setInterval(tickAutoDeleteTimers, 1000);
 });
 
-function playBeep() {
+function playSound(freq = 880, duration = 0.25) {
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = ctx.createOscillator();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
         osc.connect(ctx.destination);
         osc.start();
-        osc.stop(ctx.currentTime + 0.22);
+        osc.stop(ctx.currentTime + duration);
     } catch (e) {}
 }
 
@@ -514,10 +488,10 @@ function switchViewMode(mode) {
 }
 
 function generateShopQR(shopId) {
-    const qrContainer = document.getElementById('qrcode');
-    qrContainer.innerHTML = '';
+    const qrBox = document.getElementById('qrcode');
+    qrBox.innerHTML = '';
     const link = window.location.origin + window.location.pathname + '?shop=' + encodeURIComponent(shopId);
-    new QRCode(qrContainer, { text: link, width: 150, height: 150 });
+    new QRCode(qrBox, { text: link, width: 150, height: 150 });
 }
 
 function updateShopId() {
@@ -536,308 +510,369 @@ function copyCustomerLink() {
 }
 
 /* ============================================================================
-   PEERJS CONNECTION & 64KB CHUNKED LARGE FILE TRANSFER (3MB - 20MB+)
+   PEERJS AUTO-HANDSHAKE & SIGNALING
 ============================================================================ */
 function initAdminPeer(shopId) {
-    peer = new Peer(shopId);
+    peer = new Peer(shopId, PEER_CONFIG);
     peer.on('open', (id) => {
-        document.getElementById('conn-status').innerText = '🟢 Online (Shop ID: ' + id + ')';
+        myPeerId = id;
+        document.getElementById('conn-status').innerText = '🟢 Shop Online (ID: ' + id + ')';
     });
     peer.on('connection', (conn) => {
         activeDataConn = conn;
-        setupDataListeners(conn);
+        remotePeerId = conn.peer; // Store customer Peer ID immediately!
+        document.getElementById('connected-peer-badge').style.color = '#1e8e3e';
+        document.getElementById('connected-peer-badge').innerText = '🟢 Connected (' + conn.peer.slice(0, 8) + ')';
+        setupDataChannel(conn);
     });
     peer.on('call', (call) => {
-        handleIncomingMediaCall(call);
-    });
-    peer.on('error', () => {
-        document.getElementById('conn-status').innerText = '🟡 Ready (Local / Fallback Mode)';
+        onIncomingPeerCall(call);
     });
 }
 
 function initCustomerPeer(targetShopId) {
-    peer = new Peer();
-    peer.on('open', () => {
+    peer = new Peer(PEER_CONFIG);
+    peer.on('open', (id) => {
+        myPeerId = id;
+        remotePeerId = targetShopId;
         document.getElementById('conn-status').innerText = '🟢 Connected to Shop (' + targetShopId + ')';
-        const conn = peer.connect(targetShopId, { reliable: true });
-        conn.on('open', () => {
-            activeDataConn = conn;
-            setupDataListeners(conn);
-        });
+        connectDataToShop(targetShopId);
     });
     peer.on('call', (call) => {
-        handleIncomingMediaCall(call);
+        onIncomingPeerCall(call);
     });
 }
 
-function setupDataListeners(conn) {
-    conn.on('data', (payload) => {
-        if (payload.type === 'chat') {
-            appendChatMessage(payload.sender, payload.text, payload.fileUrl, payload.fileType);
-        } else if (payload.type === 'file-start') {
-            incomingFileChunks[payload.fileId] = {
-                meta: payload,
-                chunks: [],
-                receivedBytes: 0
-            };
+function connectDataToShop(targetShopId) {
+    const conn = peer.connect(targetShopId, { reliable: true });
+    conn.on('open', () => {
+        activeDataConn = conn;
+        remotePeerId = targetShopId;
+        conn.send({
+            type: 'handshake',
+            peerId: myPeerId,
+            customerName: document.getElementById('cust-name').value.trim() || 'Customer'
+        });
+        setupDataChannel(conn);
+    });
+}
+
+function setupDataChannel(conn) {
+    conn.on('data', (data) => {
+        if (data.type === 'handshake') {
+            remotePeerId = data.peerId || conn.peer;
+            document.getElementById('connected-peer-badge').style.color = '#1e8e3e';
+            document.getElementById('connected-peer-badge').innerText = '🟢 ' + data.customerName + ' Online';
+            playSound(980, 0.15);
+        } else if (data.type === 'call-meta') {
+            currentCallMode = data.callMode || 'video';
+            document.getElementById('incoming-caller-title').innerText =
+                data.callMode === 'audio' ? '📞 Incoming Audio Call...' :
+                data.callMode === 'screen' ? '🖥️ Incoming Screen Share...' : '📹 Incoming Video Call...';
+        } else if (data.type === 'call-ended') {
+            endActiveCall(false);
+        } else if (data.type === 'chat') {
+            appendChatMessage(data.sender, data.text, data.fileUrl, data.fileType);
+        } else if (data.type === 'file-start') {
+            incomingFileChunks[data.fileId] = { meta: data, chunks: [], received: 0 };
             document.getElementById('admin-upload-progress').classList.remove('hidden');
-        } else if (payload.type === 'file-chunk') {
-            const entry = incomingFileChunks[payload.fileId];
-            if (!entry) return;
-            entry.chunks.push(payload.chunk);
-            entry.receivedBytes += payload.chunk.byteLength;
-            const pct = Math.min(100, Math.round((entry.receivedBytes / entry.meta.fileSize) * 100));
+        } else if (data.type === 'file-chunk') {
+            const f = incomingFileChunks[data.fileId];
+            if (!f) return;
+            f.chunks.push(data.chunk);
+            f.received += data.chunk.byteLength;
+            const pct = Math.min(100, Math.round((f.received / f.meta.fileSize) * 100));
             document.getElementById('admin-progress-bar').style.width = pct + '%';
-            document.getElementById('admin-progress-text').innerText = `Receiving ${entry.meta.fileName} (${pct}%)...`;
-        } else if (payload.type === 'file-end') {
-            const entry = incomingFileChunks[payload.fileId];
-            if (!entry) return;
-            const blob = new Blob(entry.chunks, { type: entry.meta.fileType });
+            document.getElementById('admin-progress-text').innerText = `Receiving ${f.meta.fileName} (${pct}%)`;
+        } else if (data.type === 'file-end') {
+            const f = incomingFileChunks[data.fileId];
+            if (!f) return;
+            const blob = new Blob(f.chunks, { type: f.meta.fileType });
             const url = URL.createObjectURL(blob);
             document.getElementById('admin-upload-progress').classList.add('hidden');
-            addPrintJobCard(entry.meta.customerName, entry.meta.fileName, entry.meta.fileType, entry.meta.fileSize, url);
-            if (entry.meta.fromChat) {
-                appendChatMessage('customer', '📎 ' + entry.meta.fileName, url, entry.meta.fileType);
-            }
-            delete incomingFileChunks[payload.fileId];
+            addPrintJobCard(f.meta.customerName, f.meta.fileName, f.meta.fileType, f.meta.fileSize, url);
+            delete incomingFileChunks[data.fileId];
         }
     });
 }
 
 /* ============================================================================
-   CUSTOMER FILE / CAMERA UPLOAD HANDLER
+   FIXED VIDEO CALL, AUDIO CALL, SCREEN SHARE & FRONT/BACK CAMERA SWITCHING
 ============================================================================ */
-function handleCustomerFileSelect(input, autoSendFromChat = false) {
-    if (!input.files || !input.files.length) return;
-    selectedFileToUpload = input.files[0];
-    document.getElementById('cust-file-preview').classList.remove('hidden');
-    document.getElementById('preview-name').innerText = selectedFileToUpload.name;
-    document.getElementById('preview-size').innerText = (selectedFileToUpload.size / (1024 * 1024)).toFixed(2) + ' MB';
-
-    const previewImg = document.getElementById('preview-img');
-    if (selectedFileToUpload.type.startsWith('image/')) {
-        previewImg.src = URL.createObjectURL(selectedFileToUpload);
-        previewImg.classList.remove('hidden');
-    } else {
-        previewImg.classList.add('hidden');
-    }
-
-    if (autoSendFromChat) {
-        sendSelectedFileToShop(true);
-    }
-}
-
-async function sendSelectedFileToShop(fromChat = false) {
-    if (!selectedFileToUpload) return;
-    const customerName = document.getElementById('cust-name').value.trim() || 'Customer';
-    const file = selectedFileToUpload;
-    const fileId = 'f_' + Date.now();
-    const buffer = await file.arrayBuffer();
-    const CHUNK_SIZE = 64 * 1024; // 64KB chunks for reliable 3-20MB transfer
-
-    if (activeDataConn && activeDataConn.open) {
-        activeDataConn.send({
-            type: 'file-start',
-            fileId,
-            customerName,
-            fileName: file.name,
-            fileType: file.type || 'application/octet-stream',
-            fileSize: file.size,
-            fromChat
-        });
-
-        let offset = 0;
-        while (offset < buffer.byteLength) {
-            const slice = buffer.slice(offset, offset + CHUNK_SIZE);
-            activeDataConn.send({ type: 'file-chunk', fileId, chunk: slice });
-            offset += CHUNK_SIZE;
-            const pct = Math.min(100, Math.round((offset / buffer.byteLength) * 100));
-            document.getElementById('cust-progress-bar').style.width = pct + '%';
-            await new Promise(r => setTimeout(r, 8));
-        }
-
-        activeDataConn.send({ type: 'file-end', fileId });
-    } else {
-        // Local same-device test fallback
-        const localUrl = URL.createObjectURL(file);
-        addPrintJobCard(customerName, file.name, file.type, file.size, localUrl);
-        if (fromChat) appendChatMessage('customer', '📎 ' + file.name, localUrl, file.type);
-        document.getElementById('cust-progress-bar').style.width = '100%';
-    }
-
-    setTimeout(() => {
-        document.getElementById('cust-file-preview').classList.add('hidden');
-        document.getElementById('cust-progress-bar').style.width = '0%';
-    }, 900);
-}
-
-/* ============================================================================
-   100% RELIABLE CAMERA FLIP (FRONT <-> BACK) & LIVE SCREEN SHARE
-============================================================================ */
-async function acquireCameraStream(facingMode = 'environment', exactDeviceId = null) {
-    // CRITICAL ANDROID FIX: Stop existing video tracks BEFORE requesting the opposite camera sensor
+async function getMediaStreamForCall(mode, facingMode = 'user', exactDeviceId = null) {
+    // Keep existing audio track alive if switching cameras during an active call
+    let existingAudioTrack = null;
     if (localMediaStream) {
-        localMediaStream.getVideoTracks().forEach(track => track.stop());
+        const audioTracks = localMediaStream.getAudioTracks();
+        if (audioTracks.length > 0) existingAudioTrack = audioTracks[0];
+        // Stop old video tracks FIRST so Android releases camera hardware sensor
+        localMediaStream.getVideoTracks().forEach(t => t.stop());
     }
-    await new Promise(r => setTimeout(r, 150)); // Allow Android hardware sensor release
+    await new Promise(r => setTimeout(r, 180));
 
-    const audioConstraints = { echoCancellation: true, noiseSuppression: true, autoGainControl: true };
-    let videoConstraints = exactDeviceId
-        ? { deviceId: { exact: exactDeviceId } }
-        : { facingMode: { ideal: facingMode }, width: { ideal: 1280 }, height: { ideal: 720 } };
+    const audioConfig = { echoCancellation: true, noiseSuppression: true, autoGainControl: true };
 
-    let newStream = null;
-    try {
-        newStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: audioConstraints });
-    } catch (err1) {
-        try {
-            newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode }, audio: true });
-        } catch (err2) {
-            newStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    if (mode === 'audio') {
+        const audioStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: audioConfig });
+        isScreenSharing = false;
+        return audioStream;
+    }
+
+    if (mode === 'screen') {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+            alert('⚠️ आपके मोबाइल ब्राउज़र में Screen Share सपोर्ट नहीं है। हम पीछे का कैमरा (Back Camera) चालू कर रहे हैं जिससे आप स्क्रीन या डॉक्यूमेंट दिखा सकते हैं।');
+            return await getMediaStreamForCall('video', 'environment');
         }
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { cursor: 'always' }, audio: false });
+        if (existingAudioTrack && existingAudioTrack.readyState === 'live') {
+            screenStream.addTrack(existingAudioTrack);
+        } else {
+            try {
+                const micStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: audioConfig });
+                micStream.getAudioTracks().forEach(t => screenStream.addTrack(t));
+            } catch (e) {}
+        }
+        isScreenSharing = true;
+        screenStream.getVideoTracks()[0].onended = () => {
+            switchLiveCamera(currentFacingMode);
+        };
+        return screenStream;
+    }
+
+    // Video Mode: Request desired camera ('user' = Front, 'environment' = Back)
+    let videoConstraints;
+    if (exactDeviceId) {
+        videoConstraints = { deviceId: { exact: exactDeviceId }, width: { ideal: 1280 }, height: { ideal: 720 } };
+    } else {
+        // Use exact first so Android forces the requested Front/Back sensor
+        videoConstraints = { facingMode: { exact: facingMode }, width: { ideal: 1280 }, height: { ideal: 720 } };
+    }
+
+    let camStream = null;
+    try {
+        camStream = await navigator.mediaDevices.getUserMedia({
+            video: videoConstraints,
+            audio: existingAudioTrack ? false : audioConfig
+        });
+    } catch (errExact) {
+        try {
+            camStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: facingMode },
+                audio: existingAudioTrack ? false : audioConfig
+            });
+        } catch (errFallback) {
+            camStream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: existingAudioTrack ? false : true
+            });
+        }
+    }
+
+    if (existingAudioTrack && existingAudioTrack.readyState === 'live') {
+        camStream.addTrack(existingAudioTrack);
     }
 
     currentFacingMode = facingMode;
     isScreenSharing = false;
-    await populateCameraDropdown();
-    return newStream;
+    await updateCameraSelectorList();
+    return camStream;
 }
 
-async function populateCameraDropdown() {
+async function updateCameraSelectorList() {
     try {
         const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(d => d.kind === 'videoinput');
-        const select = document.getElementById('camera-select');
-        select.innerHTML = '';
-        videoDevices.forEach((dev, idx) => {
+        const cams = devices.filter(d => d.kind === 'videoinput');
+        const sel = document.getElementById('camera-select');
+        sel.innerHTML = '';
+        cams.forEach((c, idx) => {
             const opt = document.createElement('option');
-            opt.value = dev.deviceId;
-            opt.text = dev.label || `Camera ${idx + 1}`;
-            select.appendChild(opt);
+            opt.value = c.deviceId;
+            opt.text = c.label || `Camera ${idx + 1}`;
+            sel.appendChild(opt);
         });
     } catch (e) {}
 }
 
-async function startPeerCall(mode = 'video') {
-    await openCallModal(mode, false);
-    if (peer && activeDataConn && activeDataConn.peer && localMediaStream) {
-        const call = peer.call(activeDataConn.peer, localMediaStream);
-        setupMediaCallEvents(call);
-    }
-}
+// Initiate Call (From Shopkeeper OR Customer)
+async function initiateCall(mode = 'video', preferredFacing = 'user', demoMode = false) {
+    isDemoCall = demoMode;
+    currentCallMode = mode;
+    currentFacingMode = preferredFacing;
 
-async function openCallModal(mode = 'video', isDemo = false) {
+    try {
+        localMediaStream = await getMediaStreamForCall(mode, preferredFacing);
+    } catch (err) {
+        alert('कैमरा या माइक चालू करने की अनुमति (Permission) दें! (नोट: वेबसाइट HTTPS पर होनी चाहिए)');
+        return;
+    }
+
     document.getElementById('call-modal').classList.remove('hidden');
-    if (mode === 'screen') {
-        await toggleScreenSharing();
-    } else {
-        localMediaStream = await acquireCameraStream(currentFacingMode);
-        attachLocalAndRemotePreview(isDemo);
+    updateCallStageUI();
+
+    if (demoMode) return;
+
+    const targetId = remotePeerId || (shopParam ? shopParam : null);
+    if (!targetId) {
+        alert('अभी ग्राहक कनेक्ट नहीं है! पहले ग्राहक के फोन में QR स्कैन करें या Customer Link खोलें।');
+        return;
+    }
+
+    if (activeDataConn && activeDataConn.open) {
+        activeDataConn.send({ type: 'call-meta', callMode: mode });
+    }
+
+    const call = peer.call(targetId, localMediaStream, { metadata: { callMode: mode } });
+    bindMediaCallEvents(call);
+}
+
+// Handle Incoming Call Ringing
+function onIncomingPeerCall(call) {
+    playSound(740, 0.4);
+    pendingIncomingCall = call;
+    remotePeerId = call.peer;
+
+    if (call.metadata && call.metadata.callMode) {
+        currentCallMode = call.metadata.callMode;
+    }
+
+    // If we are already inside an active call (e.g. seamless camera re-sync), auto-answer silently
+    if (!document.getElementById('call-modal').classList.contains('hidden') && localMediaStream) {
+        call.answer(localMediaStream);
+        bindMediaCallEvents(call);
+        return;
+    }
+
+    document.getElementById('incoming-call-banner').classList.remove('hidden');
+}
+
+async function acceptIncomingCall(chosenFacing = 'user') {
+    document.getElementById('incoming-call-banner').classList.add('hidden');
+    if (!pendingIncomingCall) return;
+
+    const call = pendingIncomingCall;
+    pendingIncomingCall = null;
+
+    try {
+        localMediaStream = await getMediaStreamForCall(currentCallMode === 'audio' ? 'audio' : 'video', chosenFacing);
+    } catch (e) {
+        localMediaStream = await getMediaStreamForCall('audio', chosenFacing);
+    }
+
+    document.getElementById('call-modal').classList.remove('hidden');
+    updateCallStageUI();
+
+    call.answer(localMediaStream);
+    bindMediaCallEvents(call);
+}
+
+function rejectIncomingCall() {
+    document.getElementById('incoming-call-banner').classList.add('hidden');
+    if (pendingIncomingCall) {
+        pendingIncomingCall.close();
+        pendingIncomingCall = null;
     }
 }
 
-function attachLocalAndRemotePreview(mirrorRemoteForDemo = false) {
+function bindMediaCallEvents(call) {
+    activeMediaCall = call;
+    call.on('stream', (remoteStream) => {
+        const remoteVid = document.getElementById('remote-video');
+        remoteVid.srcObject = remoteStream;
+        remoteVid.play().catch(() => {});
+
+        const hasVideo = remoteStream.getVideoTracks().length > 0;
+        document.getElementById('audio-only-overlay').classList.toggle('hidden', hasVideo);
+    });
+    call.on('close', () => {
+        endActiveCall(false);
+    });
+}
+
+// Switch Front / Back Camera Live During Any Call
+async function switchLiveCamera(targetFacing) {
+    currentCallMode = 'video';
+    isScreenSharing = false;
+    localMediaStream = await getMediaStreamForCall('video', targetFacing);
+    syncNewVideoTrackToPeer();
+    updateCallStageUI();
+}
+
+async function flipCameraToggle() {
+    const nextFacing = currentFacingMode === 'user' ? 'environment' : 'user';
+    await switchLiveCamera(nextFacing);
+}
+
+async function switchCameraByDeviceId(deviceId) {
+    if (!deviceId) return;
+    currentCallMode = 'video';
+    localMediaStream = await getMediaStreamForCall('video', currentFacingMode, deviceId);
+    syncNewVideoTrackToPeer();
+    updateCallStageUI();
+}
+
+async function toggleScreenSharing() {
+    if (isScreenSharing) {
+        await switchLiveCamera(currentFacingMode);
+        document.getElementById('btn-share-screen').innerText = '🖥️ Share Screen (स्क्रीन दिखाएं)';
+        return;
+    }
+    try {
+        localMediaStream = await getMediaStreamForCall('screen', currentFacingMode);
+        document.getElementById('btn-share-screen').innerText = '🛑 Stop Screen Share';
+        syncNewVideoTrackToPeer();
+        updateCallStageUI();
+    } catch (e) {}
+}
+
+// Pushes the newly selected camera or screen track to the other person immediately
+function syncNewVideoTrackToPeer() {
+    if (!localMediaStream) return;
+    const newVideoTrack = localMediaStream.getVideoTracks()[0];
+    if (!newVideoTrack) return;
+
+    if (activeMediaCall && activeMediaCall.peerConnection) {
+        const videoSender = activeMediaCall.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+        if (videoSender) {
+            videoSender.replaceTrack(newVideoTrack);
+        } else if (remotePeerId) {
+            // Upgraded from Audio-only call to Video/Screen call: redial seamlessly
+            const upgradedCall = peer.call(remotePeerId, localMediaStream, { metadata: { callMode: 'video' } });
+            bindMediaCallEvents(upgradedCall);
+        }
+    }
+}
+
+function updateCallStageUI() {
     const localVid = document.getElementById('local-video');
     const remoteVid = document.getElementById('remote-video');
-    localVid.srcObject = localMediaStream;
+    const badge = document.getElementById('call-mode-badge');
+    const audioOverlay = document.getElementById('audio-only-overlay');
 
-    // Mirror only for Front Camera ('user'), never mirror Back Camera or Screen Share
+    const hasLocalVideo = localMediaStream && localMediaStream.getVideoTracks().length > 0;
+    audioOverlay.classList.toggle('hidden', hasLocalVideo || (remoteVid.srcObject && remoteVid.srcObject.getVideoTracks().length > 0));
+
+    if (localMediaStream) {
+        localVid.srcObject = localMediaStream;
+        localVid.play().catch(() => {});
+    }
+
     const shouldMirror = (currentFacingMode === 'user' && !isScreenSharing);
     localVid.classList.toggle('mirror-video', shouldMirror);
 
-    if (!activeMediaCall || mirrorRemoteForDemo) {
+    if (isDemoCall && localMediaStream) {
         remoteVid.srcObject = localMediaStream;
         remoteVid.classList.toggle('mirror-video', shouldMirror);
     }
 
-    const badge = document.getElementById('call-mode-badge');
-    if (isScreenSharing) {
-        badge.innerText = '🟢 LIVE SCREEN SHARING ACTIVE';
+    if (currentCallMode === 'audio' && !hasLocalVideo) {
+        badge.innerText = '📞 HD Audio Call Active';
+    } else if (isScreenSharing) {
+        badge.innerText = '🖥️ LIVE SCREEN SHARING ACTIVE';
     } else {
         badge.innerText = currentFacingMode === 'user'
             ? '🤳 Front Camera Active (आगे का कैमरा)'
             : '📷 Back Camera Active (पीछे का कैमरा)';
     }
-}
-
-async function switchCameraFacing(targetFacing) {
-    localMediaStream = await acquireCameraStream(targetFacing);
-    replaceLivePeerVideoTrack(localMediaStream.getVideoTracks()[0]);
-    attachLocalAndRemotePreview();
-}
-
-async function flipCameraToggle() {
-    const nextFacing = currentFacingMode === 'user' ? 'environment' : 'user';
-    await switchCameraFacing(nextFacing);
-}
-
-async function switchCameraByDeviceId(deviceId) {
-    if (!deviceId) return;
-    localMediaStream = await acquireCameraStream(currentFacingMode, deviceId);
-    replaceLivePeerVideoTrack(localMediaStream.getVideoTracks()[0]);
-    attachLocalAndRemotePreview();
-}
-
-async function toggleScreenSharing() {
-    if (isScreenSharing) {
-        await switchCameraFacing('environment');
-        document.getElementById('btn-share-screen').innerText = '🖥️ Share Screen (स्क्रीन दिखाएं)';
-        return;
-    }
-    try {
-        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { cursor: 'always' }, audio: false });
-        const screenTrack = screenStream.getVideoTracks()[0];
-
-        if (localMediaStream) {
-            localMediaStream.getVideoTracks().forEach(t => t.stop());
-            localMediaStream.removeTrack(localMediaStream.getVideoTracks()[0]);
-            localMediaStream.addTrack(screenTrack);
-        } else {
-            localMediaStream = screenStream;
-        }
-
-        isScreenSharing = true;
-        document.getElementById('btn-share-screen').innerText = '🛑 Stop Screen Share';
-        replaceLivePeerVideoTrack(screenTrack);
-        attachLocalAndRemotePreview();
-
-        screenTrack.onended = () => {
-            switchCameraFacing('environment');
-            document.getElementById('btn-share-screen').innerText = '🖥️ Share Screen (स्क्रीन दिखाएं)';
-        };
-    } catch (err) {
-        alert('Screen share शुरू नहीं हो सका (कृपया ब्राउज़र में अनुमति दें या कैमरा मोड का उपयोग करें)।');
-    }
-}
-
-function replaceLivePeerVideoTrack(newVideoTrack) {
-    if (activeMediaCall && activeMediaCall.peerConnection) {
-        const sender = activeMediaCall.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
-        if (sender && newVideoTrack) {
-            sender.replaceTrack(newVideoTrack);
-        }
-    }
-}
-
-function handleIncomingMediaCall(call) {
-    playBeep();
-    document.getElementById('call-modal').classList.remove('hidden');
-    acquireCameraStream(currentFacingMode).then(stream => {
-        localMediaStream = stream;
-        call.answer(stream);
-        setupMediaCallEvents(call);
-        attachLocalAndRemotePreview(false);
-    });
-}
-
-function setupMediaCallEvents(call) {
-    activeMediaCall = call;
-    call.on('stream', (remoteStream) => {
-        const remoteVid = document.getElementById('remote-video');
-        remoteVid.srcObject = remoteStream;
-        remoteVid.classList.remove('mirror-video');
-    });
-    call.on('close', () => endActiveCall());
 }
 
 function toggleMuteAudio() {
@@ -847,14 +882,19 @@ function toggleMuteAudio() {
     document.getElementById('btn-mute-mic').innerText = isAudioMuted ? '🔇 Mic Muted' : '🎤 Mic On';
 }
 
-function endActiveCall() {
+function endActiveCall(notifyPeer = true) {
+    if (notifyPeer && activeDataConn && activeDataConn.open) {
+        activeDataConn.send({ type: 'call-ended' });
+    }
     if (activeMediaCall) { activeMediaCall.close(); activeMediaCall = null; }
     if (localMediaStream) {
         localMediaStream.getTracks().forEach(t => t.stop());
         localMediaStream = null;
     }
     isScreenSharing = false;
+    isDemoCall = false;
     document.getElementById('call-modal').classList.add('hidden');
+    document.getElementById('incoming-call-banner').classList.add('hidden');
 }
 
 function snapVideoFrameToPrint() {
@@ -866,184 +906,123 @@ function snapVideoFrameToPrint() {
     c.getContext('2d').drawImage(vid, 0, 0);
     c.toBlob(blob => {
         const url = URL.createObjectURL(blob);
-        addPrintJobCard('Live Call Snap', 'call-capture-' + Date.now() + '.png', 'image/png', blob.size, url);
+        addPrintJobCard('Call Capture', 'Call_Snap_' + Date.now() + '.png', 'image/png', blob.size, url);
         openStudioWithImage(url);
     }, 'image/png');
 }
 
 /* ============================================================================
-   IN-APP DIRECT CAMERA MODAL (FOR CUSTOMER DOCUMENT CAPTURE)
+   FILE TRANSFER, CHAT & 10-MINUTE AUTO-DELETE
 ============================================================================ */
-let inAppCamStream = null;
-let inAppFacing = 'environment';
-
-async function openInAppCameraModal() {
-    document.getElementById('inapp-cam-modal').classList.remove('hidden');
-    await startInAppStream(inAppFacing);
+function handleCustomerFileSelect(input) {
+    if (!input.files || !input.files.length) return;
+    selectedFileToUpload = input.files[0];
+    document.getElementById('cust-file-preview').classList.remove('hidden');
+    document.getElementById('preview-name').innerText = selectedFileToUpload.name;
+    document.getElementById('preview-size').innerText = (selectedFileToUpload.size / (1024 * 1024)).toFixed(2) + ' MB';
 }
 
-async function startInAppStream(facing) {
-    if (inAppCamStream) inAppCamStream.getTracks().forEach(t => t.stop());
-    await new Promise(r => setTimeout(r, 150));
-    try {
-        inAppCamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: facing } }, audio: false });
-    } catch (e) {
-        inAppCamStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+async function sendSelectedFileToShop() {
+    if (!selectedFileToUpload) return;
+    const customerName = document.getElementById('cust-name').value.trim() || 'Customer';
+    const file = selectedFileToUpload;
+    const fileId = 'f_' + Date.now();
+    const buffer = await file.arrayBuffer();
+    const CHUNK = 64 * 1024;
+
+    if (activeDataConn && activeDataConn.open) {
+        activeDataConn.send({
+            type: 'file-start', fileId, customerName,
+            fileName: file.name, fileType: file.type || 'application/octet-stream', fileSize: file.size
+        });
+        let offset = 0;
+        while (offset < buffer.byteLength) {
+            activeDataConn.send({ type: 'file-chunk', fileId, chunk: buffer.slice(offset, offset + CHUNK) });
+            offset += CHUNK;
+            document.getElementById('cust-progress-bar').style.width = Math.min(100, Math.round((offset / buffer.byteLength) * 100)) + '%';
+            await new Promise(r => setTimeout(r, 8));
+        }
+        activeDataConn.send({ type: 'file-end', fileId });
+    } else {
+        const url = URL.createObjectURL(file);
+        addPrintJobCard(customerName, file.name, file.type, file.size, url);
     }
-    inAppFacing = facing;
-    const v = document.getElementById('inapp-video');
-    v.srcObject = inAppCamStream;
-    v.classList.toggle('mirror-video', facing === 'user');
+
+    setTimeout(() => {
+        document.getElementById('cust-file-preview').classList.add('hidden');
+        document.getElementById('cust-progress-bar').style.width = '0%';
+    }, 800);
 }
 
-function switchInAppCamera(facing) { startInAppStream(facing); }
-function flipInAppCamera() { startInAppStream(inAppFacing === 'user' ? 'environment' : 'user'); }
-
-function capturePhotoFromInAppCam() {
-    const v = document.getElementById('inapp-video');
-    if (!v.videoWidth) return;
-    const c = document.createElement('canvas');
-    c.width = v.videoWidth;
-    c.height = v.videoHeight;
-    c.getContext('2d').drawImage(v, 0, 0);
-    c.toBlob(blob => {
-        const file = new File([blob], 'Camera_Doc_' + Date.now() + '.jpg', { type: 'image/jpeg' });
-        selectedFileToUpload = file;
-        closeInAppCameraModal();
-        document.getElementById('cust-file-preview').classList.remove('hidden');
-        document.getElementById('preview-name').innerText = file.name;
-        document.getElementById('preview-size').innerText = (file.size / 1024).toFixed(1) + ' KB';
-        const previewImg = document.getElementById('preview-img');
-        previewImg.src = URL.createObjectURL(file);
-        previewImg.classList.remove('hidden');
-    }, 'image/jpeg', 0.92);
-}
-
-function closeInAppCameraModal() {
-    if (inAppCamStream) { inAppCamStream.getTracks().forEach(t => t.stop()); inAppCamStream = null; }
-    document.getElementById('inapp-cam-modal').classList.add('hidden');
-}
-
-/* ============================================================================
-   PRINT QUEUE, CHAT & 10-MINUTE AUTO-DELETE TIMER
-============================================================================ */
 function setGlobalTTL(mins) {
     globalTTLMinutes = parseInt(mins, 10) || 10;
     document.getElementById('current-ttl-label').innerText = globalTTLMinutes + ' Minutes';
-    document.querySelectorAll('.pill').forEach(p => {
-        p.classList.toggle('active', p.innerText.startsWith(globalTTLMinutes + ' '));
-    });
 }
 
 function addPrintJobCard(customerName, fileName, fileType, fileSize, fileUrl) {
-    playBeep();
+    playSound(880, 0.25);
     document.getElementById('empty-queue').classList.add('hidden');
-    const id = 'job_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-    const expiresAt = Date.now() + globalTTLMinutes * 60 * 1000;
-
-    printJobs.unshift({ id, customerName, fileName, fileType, fileSize, fileUrl, expiresAt });
+    const id = 'job_' + Date.now();
+    printJobs.unshift({ id, customerName, fileName, fileType, fileSize, fileUrl, expiresAt: Date.now() + globalTTLMinutes * 60000 });
     renderPrintQueue();
 }
 
 function renderPrintQueue() {
     const q = document.getElementById('print-queue');
     document.getElementById('job-count').innerText = printJobs.length;
-    q.querySelectorAll('.job-card').forEach(el => el.remove());
-
-    if (printJobs.length === 0) {
+    q.querySelectorAll('.job-card').forEach(e => e.remove());
+    if (!printJobs.length) {
         document.getElementById('empty-queue').classList.remove('hidden');
         return;
     }
-
     printJobs.forEach(job => {
-        const isImg = job.fileType.startsWith('image/');
-        const card = document.createElement('div');
-        card.className = 'job-card';
-        card.id = job.id;
-        card.innerHTML = `
+        const isImg = job.fileType && job.fileType.startsWith('image/');
+        const div = document.createElement('div');
+        div.className = 'job-card';
+        div.innerHTML = `
             <div style="display:flex; gap:10px; align-items:center;">
-                ${isImg ? `<img src="${job.fileUrl}" class="job-thumb" onclick="openStudioWithImage('${job.fileUrl}')">` : `<div class="job-thumb" style="display:flex;align-items:center;justify-content:center;font-size:26px;">📄</div>`}
+                ${isImg ? `<img src="${job.fileUrl}" class="job-thumb" onclick="openStudioWithImage('${job.fileUrl}')">` : `<div class="job-thumb" style="display:flex;align-items:center;justify-content:center;font-size:24px;">📄</div>`}
                 <div>
                     <strong>👤 ${job.customerName}</strong><br>
-                    <small>${job.fileName} (${(job.fileSize / 1024).toFixed(1)} KB)</small><br>
+                    <small>${job.fileName}</small><br>
                     <span class="timer-badge" id="timer_${job.id}">⏱️ ${globalTTLMinutes}:00</span>
-                    <button class="btn btn-outline" style="padding:2px 6px; font-size:10px;" onclick="extendJobTime('${job.id}')">+5m</button>
                 </div>
             </div>
-            <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                ${isImg ? `<button class="btn btn-warning" onclick="openStudioWithImage('${job.fileUrl}')">📐 Perspective / Crop</button>` : ''}
+            <div style="display:flex; gap:6px;">
+                ${isImg ? `<button class="btn btn-warning" onclick="openStudioWithImage('${job.fileUrl}')">📐 Crop</button>` : ''}
                 <button class="btn btn-success" onclick="directPrintUrl('${job.fileUrl}', '${job.fileType}')">🖨️ Print</button>
-                <button class="btn btn-danger" onclick="removeJob('${job.id}')">✖</button>
             </div>
         `;
-        q.appendChild(card);
+        q.appendChild(div);
     });
 }
 
-function extendJobTime(id) {
-    const job = printJobs.find(j => j.id === id);
-    if (job) job.expiresAt += 5 * 60 * 1000;
-}
-
-function removeJob(id) {
-    const idx = printJobs.findIndex(j => j.id === id);
-    if (idx !== -1) {
-        URL.revokeObjectURL(printJobs[idx].fileUrl);
-        printJobs.splice(idx, 1);
-        renderPrintQueue();
-    }
-}
-
 function sendChatMessage(sender) {
-    const inputId = sender === 'shop' ? 'admin-chat-input' : 'cust-chat-input';
-    const text = document.getElementById(inputId).value.trim();
-    if (!text) return;
-    document.getElementById(inputId).value = '';
-    dispatchChat(sender, text);
-}
-
-function sendInCallText() {
-    const input = document.getElementById('incall-chat-input');
+    const input = document.getElementById(sender === 'shop' ? 'admin-chat-input' : 'cust-chat-input');
     const text = input.value.trim();
     if (!text) return;
     input.value = '';
-    dispatchChat('shop', '📞 [In-Call]: ' + text);
+    sendQuickChat(sender, text);
 }
 
 function sendQuickChat(sender, text) {
-    dispatchChat(sender, text);
-}
-
-function dispatchChat(sender, text, fileUrl = null, fileType = null) {
-    appendChatMessage(sender, text, fileUrl, fileType);
+    appendChatMessage(sender, text);
     if (activeDataConn && activeDataConn.open) {
-        activeDataConn.send({ type: 'chat', sender, text, fileUrl, fileType });
+        activeDataConn.send({ type: 'chat', sender, text });
     }
 }
 
-function appendChatMessage(sender, text, fileUrl = null, fileType = null) {
-    playBeep();
-    const id = 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5);
-    const expiresAt = Date.now() + globalTTLMinutes * 60 * 1000;
-    chatMessages.push({ id, sender, text, fileUrl, fileType, expiresAt });
-    renderChatBoxes();
-}
-
-function renderChatBoxes() {
-    ['admin-chat-box', 'cust-chat-box'].forEach(boxId => {
-        const box = document.getElementById(boxId);
+function appendChatMessage(sender, text) {
+    playSound(660, 0.12);
+    chatMessages.push({ id: 'm_' + Date.now(), sender, text, expiresAt: Date.now() + globalTTLMinutes * 60000 });
+    ['admin-chat-box', 'cust-chat-box'].forEach(id => {
+        const box = document.getElementById(id);
         box.innerHTML = '';
         chatMessages.forEach(m => {
-            const div = document.createElement('div');
-            div.className = 'msg ' + (m.sender === 'shop' ? 'shop' : 'customer');
-            div.innerHTML = `
-                <div><strong>${m.sender === 'shop' ? '🏪 Shopkeeper' : '👤 Customer'}:</strong> ${m.text}</div>
-                ${m.fileUrl && m.fileType && m.fileType.startsWith('image/') ? `<img src="${m.fileUrl}" onclick="openStudioWithImage('${m.fileUrl}')">` : ''}
-                <div class="msg-meta">
-                    <span class="chat-timer" data-id="${m.id}">⏱️ Auto-delete</span>
-                </div>
-            `;
-            box.appendChild(div);
+            const d = document.createElement('div');
+            d.className = 'msg ' + (m.sender === 'shop' ? 'shop' : 'customer');
+            d.innerHTML = `<strong>${m.sender === 'shop' ? '🏪 Shop' : '👤 Customer'}:</strong> ${m.text}`;
+            box.appendChild(d);
         });
         box.scrollTop = box.scrollHeight;
     });
@@ -1051,80 +1030,53 @@ function renderChatBoxes() {
 
 function tickAutoDeleteTimers() {
     const now = Date.now();
-    let jobsChanged = false;
-    printJobs.forEach(job => {
-        const rem = Math.max(0, Math.floor((job.expiresAt - now) / 1000));
-        const badge = document.getElementById('timer_' + job.id);
-        if (badge) {
-            const m = String(Math.floor(rem / 60)).padStart(2, '0');
-            const s = String(rem % 60).padStart(2, '0');
-            badge.innerText = `⏱️ ${m}:${s}`;
-            badge.classList.toggle('urgent', rem < 120);
-        }
-        if (rem <= 0) {
-            URL.revokeObjectURL(job.fileUrl);
-            jobsChanged = true;
-        }
+    printJobs.forEach(j => {
+        const rem = Math.max(0, Math.floor((j.expiresAt - now) / 1000));
+        const el = document.getElementById('timer_' + j.id);
+        if (el) el.innerText = `⏱️ ${String(Math.floor(rem / 60)).padStart(2, '0')}:${String(rem % 60).padStart(2, '0')}`;
     });
-    if (jobsChanged) {
-        printJobs = printJobs.filter(j => j.expiresAt > now);
-        renderPrintQueue();
-    }
-
-    const prevChatLen = chatMessages.length;
+    const before = printJobs.length;
+    printJobs = printJobs.filter(j => j.expiresAt > now);
+    if (printJobs.length !== before) renderPrintQueue();
     chatMessages = chatMessages.filter(m => m.expiresAt > now);
-    if (chatMessages.length !== prevChatLen) renderChatBoxes();
 }
 
 function panicWipeAll() {
-    printJobs.forEach(j => URL.revokeObjectURL(j.fileUrl));
     printJobs = [];
     chatMessages = [];
     renderPrintQueue();
-    renderChatBoxes();
-    endActiveCall();
+    endActiveCall(true);
 }
 
 /* ============================================================================
-   4-POINT PERSPECTIVE CROP (HOMOGRAPHY WARP) & SMART PRINT STUDIO
+   4-POINT PERSPECTIVE CROP & PRINT STUDIO
 ============================================================================ */
 let studioOrigImg = new Image();
 let studioWorkingCanvas = document.createElement('canvas');
-let cornerPts = []; // [{x,y}, {x,y}, {x,y}, {x,y}] in canvas coordinates
+let cornerPts = [];
 let draggingPtIndex = -1;
 let isCleanScanBMode = false;
 
 function openStudioWithImage(url) {
     document.getElementById('studio-modal').classList.remove('hidden');
     isCleanScanBMode = false;
-    document.getElementById('filter-contrast').value = 100;
-
     studioOrigImg = new Image();
     studioOrigImg.crossOrigin = 'anonymous';
-    studioOrigImg.onload = () => {
-        resetStudioImage();
-    };
+    studioOrigImg.onload = () => resetStudioImage();
     studioOrigImg.src = url;
 }
 
 function resetStudioImage() {
     const c = document.getElementById('studio-canvas');
-    const maxW = 620, maxH = 440;
-    const ratio = Math.min(maxW / studioOrigImg.width, maxH / studioOrigImg.height, 1);
+    const ratio = Math.min(600 / studioOrigImg.width, 420 / studioOrigImg.height, 1);
     c.width = Math.round(studioOrigImg.width * ratio);
     c.height = Math.round(studioOrigImg.height * ratio);
-
     studioWorkingCanvas.width = c.width;
     studioWorkingCanvas.height = c.height;
     studioWorkingCanvas.getContext('2d').drawImage(studioOrigImg, 0, 0, c.width, c.height);
 
-    const padX = c.width * 0.12, padY = c.height * 0.12;
-    cornerPts = [
-        { x: padX, y: padY },
-        { x: c.width - padX, y: padY },
-        { x: c.width - padX, y: c.height - padY },
-        { x: padX, y: c.height - padY }
-    ];
+    const px = c.width * 0.12, py = c.height * 0.12;
+    cornerPts = [{ x: px, y: py }, { x: c.width - px, y: py }, { x: c.width - px, y: c.height - py }, { x: px, y: c.height - py }];
     renderStudioCanvas();
 }
 
@@ -1132,18 +1084,12 @@ function renderStudioCanvas(showHandles = true) {
     const c = document.getElementById('studio-canvas');
     const ctx = c.getContext('2d');
     ctx.clearRect(0, 0, c.width, c.height);
-
     const contrast = document.getElementById('filter-contrast').value;
-    ctx.filter = isCleanScanBMode
-        ? `grayscale(100%) contrast(${Number(contrast) + 45}%) brightness(112%)`
-        : `contrast(${contrast}%)`;
-
+    ctx.filter = isCleanScanBMode ? `grayscale(100%) contrast(${Number(contrast) + 45}%) brightness(112%)` : `contrast(${contrast}%)`;
     ctx.drawImage(studioWorkingCanvas, 0, 0);
     ctx.filter = 'none';
 
     if (!showHandles || cornerPts.length !== 4) return;
-
-    // Draw 4-point polygon & grid
     ctx.strokeStyle = '#00e5ff';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
@@ -1152,119 +1098,67 @@ function renderStudioCanvas(showHandles = true) {
     ctx.closePath();
     ctx.stroke();
 
-    cornerPts.forEach((pt, idx) => {
-        ctx.fillStyle = idx === draggingPtIndex ? '#ffeb3b' : '#1a73e8';
+    cornerPts.forEach(pt => {
+        ctx.fillStyle = '#1a73e8';
         ctx.beginPath();
         ctx.arc(pt.x, pt.y, 10, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2;
         ctx.stroke();
     });
 }
 
-// Pointer events for 4-Point Drag + Magnifier Loupe
 const studioCanvasEl = document.getElementById('studio-canvas');
 studioCanvasEl.addEventListener('pointerdown', (e) => {
-    const pos = getCanvasCoords(e);
-    draggingPtIndex = cornerPts.findIndex(p => Math.hypot(p.x - pos.x, p.y - pos.y) < 24);
-    if (draggingPtIndex !== -1) {
-        studioCanvasEl.setPointerCapture(e.pointerId);
-        updateLoupe(pos.x, pos.y);
-    }
+    const rect = studioCanvasEl.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * (studioCanvasEl.width / rect.width);
+    const y = (e.clientY - rect.top) * (studioCanvasEl.height / rect.height);
+    draggingPtIndex = cornerPts.findIndex(p => Math.hypot(p.x - x, p.y - y) < 24);
+    if (draggingPtIndex !== -1) studioCanvasEl.setPointerCapture(e.pointerId);
 });
-
 studioCanvasEl.addEventListener('pointermove', (e) => {
     if (draggingPtIndex === -1) return;
-    const pos = getCanvasCoords(e);
-    cornerPts[draggingPtIndex] = {
-        x: Math.max(0, Math.min(studioCanvasEl.width, pos.x)),
-        y: Math.max(0, Math.min(studioCanvasEl.height, pos.y))
-    };
-    renderStudioCanvas();
-    updateLoupe(pos.x, pos.y);
-});
-
-studioCanvasEl.addEventListener('pointerup', () => {
-    draggingPtIndex = -1;
-    document.getElementById('loupe-canvas').style.display = 'none';
-    renderStudioCanvas();
-});
-
-function getCanvasCoords(e) {
     const rect = studioCanvasEl.getBoundingClientRect();
-    return {
-        x: (e.clientX - rect.left) * (studioCanvasEl.width / rect.width),
-        y: (e.clientY - rect.top) * (studioCanvasEl.height / rect.height)
+    cornerPts[draggingPtIndex] = {
+        x: Math.max(0, Math.min(studioCanvasEl.width, (e.clientX - rect.left) * (studioCanvasEl.width / rect.width))),
+        y: Math.max(0, Math.min(studioCanvasEl.height, (e.clientY - rect.top) * (studioCanvasEl.height / rect.height)))
     };
-}
+    renderStudioCanvas();
+});
+studioCanvasEl.addEventListener('pointerup', () => { draggingPtIndex = -1; });
 
-function updateLoupe(x, y) {
-    const loupe = document.getElementById('loupe-canvas');
-    loupe.style.display = 'block';
-    const lctx = loupe.getContext('2d');
-    lctx.clearRect(0, 0, 110, 110);
-    lctx.drawImage(studioWorkingCanvas, x - 25, y - 25, 50, 50, 0, 0, 110, 110);
-    lctx.strokeStyle = '#ff1744';
-    lctx.beginPath();
-    lctx.moveTo(55, 0); lctx.lineTo(55, 110);
-    lctx.moveTo(0, 55); lctx.lineTo(110, 55);
-    lctx.stroke();
-}
-
-// Bilinear / Homography 4-Point Perspective Straightening
 function applyPerspectiveWarp() {
     const srcCanvas = studioWorkingCanvas;
-    const srcCtx = srcCanvas.getContext('2d');
-    const srcData = srcCtx.getImageData(0, 0, srcCanvas.width, srcCanvas.height);
-
-    const topW = Math.hypot(cornerPts[1].x - cornerPts[0].x, cornerPts[1].y - cornerPts[0].y);
-    const botW = Math.hypot(cornerPts[2].x - cornerPts[3].x, cornerPts[2].y - cornerPts[3].y);
-    const leftH = Math.hypot(cornerPts[3].x - cornerPts[0].x, cornerPts[3].y - cornerPts[0].y);
-    const rightH = Math.hypot(cornerPts[2].x - cornerPts[1].x, cornerPts[2].y - cornerPts[1].y);
-
-    const dstW = Math.max(200, Math.round(Math.max(topW, botW)));
-    const dstH = Math.max(140, Math.round(Math.max(leftH, rightH)));
-
+    const srcData = srcCanvas.getContext('2d').getImageData(0, 0, srcCanvas.width, srcCanvas.height);
+    const dstW = Math.round(Math.hypot(cornerPts[1].x - cornerPts[0].x, cornerPts[1].y - cornerPts[0].y));
+    const dstH = Math.round(Math.hypot(cornerPts[3].x - cornerPts[0].x, cornerPts[3].y - cornerPts[0].y));
     const dstCanvas = document.createElement('canvas');
-    dstCanvas.width = dstW;
-    dstCanvas.height = dstH;
+    dstCanvas.width = dstW; dstCanvas.height = dstH;
     const dstCtx = dstCanvas.getContext('2d');
-    const dstImgData = dstCtx.createImageData(dstW, dstH);
-
+    const dstImg = dstCtx.createImageData(dstW, dstH);
     const [p0, p1, p2, p3] = cornerPts;
+
     for (let y = 0; y < dstH; y++) {
         const v = y / dstH;
         for (let x = 0; x < dstW; x++) {
             const u = x / dstW;
             const sx = Math.round((1 - u) * (1 - v) * p0.x + u * (1 - v) * p1.x + u * v * p2.x + (1 - u) * v * p3.x);
             const sy = Math.round((1 - u) * (1 - v) * p0.y + u * (1 - v) * p1.y + u * v * p2.y + (1 - u) * v * p3.y);
-
             if (sx >= 0 && sx < srcCanvas.width && sy >= 0 && sy < srcCanvas.height) {
                 const sIdx = (sy * srcCanvas.width + sx) * 4;
                 const dIdx = (y * dstW + x) * 4;
-                dstImgData.data[dIdx] = srcData.data[sIdx];
-                dstImgData.data[dIdx + 1] = srcData.data[sIdx + 1];
-                dstImgData.data[dIdx + 2] = srcData.data[sIdx + 2];
-                dstImgData.data[dIdx + 3] = 255;
+                dstImg.data[dIdx] = srcData.data[sIdx];
+                dstImg.data[dIdx + 1] = srcData.data[sIdx + 1];
+                dstImg.data[dIdx + 2] = srcData.data[sIdx + 2];
+                dstImg.data[dIdx + 3] = 255;
             }
         }
     }
-    dstCtx.putImageData(dstImgData, 0, 0);
-
-    const mainC = document.getElementById('studio-canvas');
-    mainC.width = dstW;
-    mainC.height = dstH;
-    studioWorkingCanvas.width = dstW;
-    studioWorkingCanvas.height = dstH;
+    dstCtx.putImageData(dstImg, 0, 0);
+    const c = document.getElementById('studio-canvas');
+    c.width = dstW; c.height = dstH;
+    studioWorkingCanvas.width = dstW; studioWorkingCanvas.height = dstH;
     studioWorkingCanvas.getContext('2d').drawImage(dstCanvas, 0, 0);
-
-    cornerPts = [
-        { x: 10, y: 10 },
-        { x: dstW - 10, y: 10 },
-        { x: dstW - 10, y: dstH - 10 },
-        { x: 10, y: dstH - 10 }
-    ];
     renderStudioCanvas(false);
 }
 
@@ -1276,43 +1170,21 @@ function rotateStudioImage(deg) {
     tctx.translate(tmp.width / 2, tmp.height / 2);
     tctx.rotate((deg * Math.PI) / 180);
     tctx.drawImage(studioWorkingCanvas, -studioWorkingCanvas.width / 2, -studioWorkingCanvas.height / 2);
-
     const c = document.getElementById('studio-canvas');
-    c.width = tmp.width;
-    c.height = tmp.height;
-    studioWorkingCanvas.width = tmp.width;
-    studioWorkingCanvas.height = tmp.height;
+    c.width = tmp.width; c.height = tmp.height;
+    studioWorkingCanvas.width = tmp.width; studioWorkingCanvas.height = tmp.height;
     studioWorkingCanvas.getContext('2d').drawImage(tmp, 0, 0);
     renderStudioCanvas(false);
 }
 
-function toggleCleanScanFilter() {
-    isCleanScanBMode = !isCleanScanBMode;
-    renderStudioCanvas(false);
-}
-
-function closeStudioModal() {
-    document.getElementById('studio-modal').classList.add('hidden');
-}
+function toggleCleanScanFilter() { isCleanScanBMode = !isCleanScanBMode; renderStudioCanvas(false); }
+function closeStudioModal() { document.getElementById('studio-modal').classList.add('hidden'); }
 
 function printEditedStudioImage() {
     renderStudioCanvas(false);
     const dataUrl = document.getElementById('studio-canvas').toDataURL('image/png');
-    const layout = document.getElementById('print-layout-select').value;
     const win = window.open('', '_blank');
-
-    let bodyHtml = `<img src="${dataUrl}" style="max-width:100%;">`;
-    if (layout === 'half') {
-        bodyHtml = `<img src="${dataUrl}" style="width:100%; max-height:13.5cm; object-fit:contain;">`;
-    } else if (layout === 'idcard') {
-        bodyHtml = `<img src="${dataUrl}" style="width:8.6cm; height:5.4cm; object-fit:fill; border:1px solid #999;">`;
-    } else if (layout === 'passport') {
-        bodyHtml = `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
-            Array(6).fill(`<img src="${dataUrl}" style="width:3.5cm; height:4.5cm; object-fit:cover; border:1px solid #000;">`).join('') +
-            `</div>`;
-    }
-
-    win.document.write(`<html><head><title>Print Document</title></head><body style="margin:10mm;" onload="window.print();window.close();">${bodyHtml}</body></html>`);
+    win.document.write(`<img src="${dataUrl}" style="max-width:100%;" onload="window.print();window.close();">`);
     win.document.close();
 }
 
@@ -1326,55 +1198,22 @@ function directPrintUrl(url, type) {
     }
 }
 
-/* ============================================================================
-   DEMO SKEWED ID CARD GENERATOR (FOR INSTANT TESTING)
-============================================================================ */
 function loadSampleSkewedCard() {
     const c = document.createElement('canvas');
-    c.width = 520; c.height = 360;
+    c.width = 500; c.height = 340;
     const ctx = c.getContext('2d');
-    ctx.fillStyle = '#2c2c2c';
-    ctx.fillRect(0, 0, 520, 360);
-
-    // Draw skewed quadrilateral ID card
-    ctx.save();
+    ctx.fillStyle = '#333'; ctx.fillRect(0, 0, 500, 340);
     ctx.beginPath();
-    ctx.moveTo(85, 55);
-    ctx.lineTo(445, 35);
-    ctx.lineTo(475, 305);
-    ctx.lineTo(50, 320);
+    ctx.moveTo(80, 50); ctx.lineTo(430, 30); ctx.lineTo(460, 290); ctx.lineTo(45, 305);
     ctx.closePath();
-    ctx.fillStyle = '#ffffff';
-    ctx.fill();
-    ctx.strokeStyle = '#ff9933';
-    ctx.lineWidth = 6;
-    ctx.stroke();
-
-    ctx.fillStyle = '#138808';
-    ctx.font = 'bold 20px sans-serif';
-    ctx.fillText('🇮🇳 भारत सरकार | GOVT OF INDIA', 110, 100);
-    ctx.fillStyle = '#111';
-    ctx.font = 'bold 17px sans-serif';
-    ctx.fillText('नाम / Name: AMIT KUMAR', 110, 150);
-    ctx.fillText('DOB: 02/04/2001 | Gender: MALE', 110, 185);
-    ctx.font = 'bold 24px monospace';
-    ctx.fillStyle = '#d93025';
-    ctx.fillText('XXXX - XXXX - 8492', 120, 250);
-    ctx.restore();
-
+    ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.fillStyle = '#138808'; ctx.font = 'bold 20px sans-serif';
+    ctx.fillText('🇮🇳 GOVT OF INDIA | AADHAAR', 105, 100);
+    ctx.fillStyle = '#000'; ctx.fillText('Name: AMIT KUMAR', 105, 150);
     c.toBlob(blob => {
         const url = URL.createObjectURL(blob);
-        addPrintJobCard('Demo Customer', 'Skewed_Aadhaar_Card.png', 'image/png', blob.size, url);
+        addPrintJobCard('Demo Customer', 'Skewed_ID.png', 'image/png', blob.size, url);
         openStudioWithImage(url);
-        setTimeout(() => {
-            cornerPts = [
-                { x: 85, y: 55 },
-                { x: 445, y: 35 },
-                { x: 475, y: 305 },
-                { x: 50, y: 320 }
-            ];
-            renderStudioCanvas(true);
-        }, 200);
     });
 }
 </script>
