@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Scan-to-Print Pro v3.0 | Cyber Cafe & CSC Portal</title>
+    <title>Smart Scan-to-Print Pro v4.0 | Made in India • Safe Your Data</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -99,6 +99,16 @@
             background: rgba(34, 211, 238, 0.5);
         }
 
+        /* Call Ringing Wave Animation */
+        @keyframes ringPulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 18px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .ring-pulse {
+            animation: ringPulse 1.5s infinite;
+        }
+
         /* Dedicated Print Media Styling */
         @media print {
             body * {
@@ -129,32 +139,50 @@
 <body class="text-slate-800 min-h-screen flex flex-col">
 
     <!-- ================= TOP BAR & MODE SWITCHER ================= -->
-    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40 no-print">
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40 no-print border-b border-slate-800">
+        <!-- Made in India & Safe Your Data Top Ribbon -->
+        <div class="bg-gradient-to-r from-orange-600 via-slate-900 to-emerald-700 text-white text-[11px] py-1 px-4 border-b border-white/10">
+            <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2 font-semibold">
+                    <span class="bg-white/15 px-2 py-0.5 rounded-full text-amber-200 font-bold tracking-wide">🇮🇳 MADE IN INDIA</span>
+                    <span>🛡️ <strong>Safe Your Data:</strong> 100% Zero-Server P2P Encrypted • कोई भी डॉक्यूमेंट या चैट किसी क्लाउड सर्वर पर सेव नहीं होता</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-emerald-300 font-mono text-[10px] sm:text-[11px]"><i class="fa-solid fa-user-shield mr-1"></i>Auto-Wipe RAM Protection Active</span>
+                    <button onclick="executePanicWipeAllData()" class="bg-red-600 hover:bg-red-500 text-white font-bold px-2.5 py-0.5 rounded-md shadow transition flex items-center gap-1 text-[11px]" title="तुरंत सारा डेटा और चैट डिलीट करें">
+                        <i class="fa-solid fa-fire-burner"></i> 🧹 Instant Panic Wipe
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
             <!-- Brand Title -->
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-xl shadow-inner">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-xl shadow-inner border border-blue-400/30">
                     <i class="fa-solid fa-print"></i>
                 </div>
                 <div>
                     <div class="flex items-center gap-2 flex-wrap">
                         <h1 class="font-bold text-lg tracking-tight leading-none">Smart Scan-to-Print Pro</h1>
-                        <span class="text-[11px] bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 px-2 py-0.5 rounded-full font-semibold">v3.0 • 4-Point Perspective + 10m Auto-Delete</span>
+                        <span class="text-[11px] bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2 py-0.5 rounded-full font-semibold">v4.0 • Live Chat + Video/Audio Call + Custom Auto-Delete</span>
                     </div>
-                    <p class="text-xs text-slate-400 mt-0.5">15MB+ Chunked अपलोड • डायरेक्ट कैमरा • पर्सपेक्टिव क्रॉप • 10 मिनट ऑटो-डिलीट</p>
+                    <p class="text-xs text-slate-400 mt-0.5">🇮🇳 स्वदेशी प्राइवेसी पोर्टल • लाइव चैट व कॉल • पर्सपेक्टिव क्रॉप • कस्टम ऑटो-डिलीट टाइमर</p>
                 </div>
             </div>
 
-            <!-- Mode Toggle Switch (For Testing & Dual Use) -->
-            <div class="flex items-center gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
-                <button id="tab-admin-btn" onclick="switchViewMode('admin')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 bg-blue-600 text-white shadow">
-                    <i class="fa-solid fa-store"></i>
-                    <span>🏪 Shop Admin (दुकानदार)</span>
-                </button>
-                <button id="tab-customer-btn" onclick="switchViewMode('customer')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 text-slate-300 hover:text-white">
-                    <i class="fa-solid fa-mobile-screen-button"></i>
-                    <span>📱 Customer Mobile (ग्राहक)</span>
-                </button>
+            <!-- Mode Toggle Switch & Quick Call / Chat Status -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <div class="flex items-center gap-1.5 bg-slate-800 p-1 rounded-xl border border-slate-700">
+                    <button id="tab-admin-btn" onclick="switchViewMode('admin')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 bg-blue-600 text-white shadow">
+                        <i class="fa-solid fa-store"></i>
+                        <span>🏪 Shop Admin (दुकानदार)</span>
+                    </button>
+                    <button id="tab-customer-btn" onclick="switchViewMode('customer')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 text-slate-300 hover:text-white">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                        <span>📱 Customer Mobile (ग्राहक)</span>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -163,19 +191,19 @@
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
     <!-- ================= MAIN CONTENT CONTAINER ================= -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 no-print">
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-5 no-print">
 
         <!-- ========================================================= -->
         <!-- 1. ADMIN DASHBOARD VIEW (SHOPKEEPER PC)                   -->
         <!-- ========================================================= -->
         <section id="admin-section" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <!-- Left Column: Shop QR Card & Connection Settings (4 Cols) -->
+            <!-- Left Column: Shop QR Card, Custom Privacy Timer & Demo Controls (4 Cols) -->
             <div class="lg:col-span-4 space-y-5">
                 
                 <!-- Live Status & Shop ID Card -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-                    <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center justify-between mb-3">
                         <div class="flex items-center gap-2.5">
                             <span id="peer-status-dot" class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
                             <span id="peer-status-text" class="text-sm font-semibold text-slate-700">Connecting Server...</span>
@@ -186,7 +214,7 @@
                     </div>
 
                     <!-- Permanent Shop ID Customizer -->
-                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 mb-3">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80 mb-3">
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
                             आपकी स्थायी दुकान आईडी (Permanent Shop ID)
                         </label>
@@ -198,62 +226,84 @@
                         </div>
                     </div>
 
-                    <!-- Global Auto-Delete Timer Setting -->
-                    <div class="bg-amber-50/70 p-3 rounded-xl border border-amber-200/80 mb-4 flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-clock-rotate-left text-amber-600"></i>
-                            <div>
-                                <span class="text-xs font-bold text-slate-800 block">Auto-Delete Timer (प्राइवेसी)</span>
-                                <span class="text-[11px] text-slate-500">फाइल अपने-आप डिलीट होने का समय</span>
+                    <!-- Customizable Auto-Delete Timer (Preset + Custom Slider 1-60 Mins) -->
+                    <div class="bg-amber-50/90 p-3.5 rounded-xl border border-amber-200 mb-4 space-y-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-shield-halved text-amber-600 text-base"></i>
+                                <div>
+                                    <span class="text-xs font-bold text-slate-800 block">Safe Your Data: Auto-Delete Timer</span>
+                                    <span class="text-[11px] text-slate-600">चैट और डॉक्यूमेंट अपने-आप डिलीट होने का समय</span>
+                                </div>
                             </div>
+                            <select id="auto-delete-minutes-select" onchange="updateGlobalAutoDeleteSetting(this.value)" class="bg-white border border-amber-300 text-slate-800 text-xs font-bold rounded-lg px-2 py-1.5 focus:outline-none">
+                                <option value="2">2 Mins</option>
+                                <option value="5">5 Mins</option>
+                                <option value="10" selected>10 Mins (Default)</option>
+                                <option value="15">15 Mins</option>
+                                <option value="30">30 Mins</option>
+                                <option value="custom">Custom...</option>
+                            </select>
                         </div>
-                        <select id="auto-delete-minutes-select" onchange="updateGlobalAutoDeleteSetting()" class="bg-white border border-amber-300 text-slate-800 text-xs font-bold rounded-lg px-2.5 py-1.5 focus:outline-none">
-                            <option value="5">5 Minutes</option>
-                            <option value="10" selected>10 Minutes</option>
-                            <option value="15">15 Minutes</option>
-                            <option value="30">30 Minutes</option>
-                        </select>
+                        <div class="flex items-center gap-2 pt-1 border-t border-amber-200/70">
+                            <span class="text-[11px] font-semibold text-slate-700 whitespace-nowrap">कस्टम समय:</span>
+                            <input type="range" id="custom-ttl-slider" min="1" max="60" value="10" oninput="syncCustomTtlMinutes(this.value)" class="w-full accent-amber-600 cursor-pointer">
+                            <span id="custom-ttl-badge" class="text-xs font-mono font-bold bg-amber-600 text-white px-2 py-0.5 rounded-md min-w-[56px] text-center">10 Min</span>
+                        </div>
                     </div>
 
                     <!-- QR Code Display Box -->
                     <div class="text-center bg-gradient-to-b from-blue-50/70 to-white border-2 border-dashed border-blue-300 rounded-2xl p-4">
-                        <span class="inline-block bg-blue-600 text-white text-[11px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wide mb-2">
-                            Scan to Send Document
-                        </span>
-                        <h3 class="font-bold text-slate-800 text-base">प्रिंट के लिए QR स्कैन करें</h3>
-                        <p class="text-xs text-slate-500 mb-3">मोबाइल कैमरे या Google Lens से स्कैन करें</p>
+                        <div class="flex items-center justify-center gap-1.5 mb-1.5">
+                            <span class="inline-block bg-blue-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide">
+                                Scan for Print • Chat • Call
+                            </span>
+                            <span class="inline-block bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                🇮🇳 Safe P2P
+                            </span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-base">प्रिंट, चैट या कॉल के लिए स्कैन करें</h3>
+                        <p class="text-xs text-slate-500 mb-2">मोबाइल कैमरे या Google Lens से स्कैन करें</p>
                         
-                        <div id="qrcode-box" class="bg-white p-3 rounded-xl shadow-sm border border-slate-200 inline-flex items-center justify-center my-1 min-h-[184px] min-w-[184px]"></div>
+                        <div id="qrcode-box" class="bg-white p-3 rounded-xl shadow-sm border border-slate-200 inline-flex items-center justify-center my-1 min-h-[176px] min-w-[176px]"></div>
                         
-                        <p id="customer-url-display" class="text-[11px] font-mono text-slate-500 break-all mt-2 px-2 select-all"></p>
+                        <p id="customer-url-display" class="text-[11px] font-mono text-slate-500 break-all mt-1.5 px-2 select-all"></p>
 
                         <!-- QR Action Buttons -->
-                        <div class="grid grid-cols-2 gap-2 mt-4">
-                            <button onclick="copyCustomerLink()" class="flex items-center justify-center gap-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-semibold py-2.5 px-3 rounded-xl transition">
+                        <div class="grid grid-cols-2 gap-2 mt-3">
+                            <button onclick="copyCustomerLink()" class="flex items-center justify-center gap-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-semibold py-2 px-3 rounded-xl transition">
                                 <i class="fa-regular fa-copy text-blue-600"></i> Copy Link
                             </button>
-                            <button onclick="printQrStandee()" class="flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2.5 px-3 rounded-xl transition shadow-sm">
-                                <i class="fa-solid fa-print"></i> Print QR Standee
+                            <button onclick="printQrStandee()" class="flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 px-3 rounded-xl transition shadow-sm">
+                                <i class="fa-solid fa-print"></i> Print Standee
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Quick Demo / Self Test Card -->
-                <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white rounded-2xl p-5 shadow-sm">
+                <div class="bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-900 text-white rounded-2xl p-5 shadow-sm border border-indigo-500/20">
                     <div class="flex items-start justify-between gap-3">
                         <div>
                             <span class="text-[11px] uppercase tracking-wider font-bold text-cyan-300">Instant Demo & Verification</span>
-                            <h3 class="font-bold text-base mt-0.5">पर्सपेक्टिव क्रॉप और 4MB ट्रांसफर टेस्ट करें</h3>
-                            <p class="text-xs text-slate-300 mt-1">तिरछा (Skewed) सैंपल आधार कार्ड मंगाकर 4-कोनों वाला पर्सपेक्टिव क्रॉप और 10-मिनट टाइमर अभी चेक करें।</p>
+                            <h3 class="font-bold text-base mt-0.5">चैट, वीडियो कॉल और पर्सपेक्टिव क्रॉप टेस्ट करें</h3>
+                            <p class="text-xs text-slate-300 mt-1">बिना दूसरे फोन के एक क्लिक में सैंपल कस्टमर चैट, लाइव कॉल और तिरछा आधार कार्ड टेस्ट करें:</p>
                         </div>
                         <i class="fa-solid fa-bolt text-2xl text-amber-400"></i>
                     </div>
-                    <div class="mt-4 flex flex-col gap-2">
+                    <div class="mt-3.5 grid grid-cols-1 gap-2">
                         <button onclick="triggerSampleIncomingJob()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-2 shadow">
                             <i class="fa-solid fa-crop-simple"></i> ⚡ Test Skewed ID Card (पर्सपेक्टिव क्रॉप डेमो)
                         </button>
-                        <button onclick="simulateLargeChunkedTransfer()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-2 shadow">
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="simulateSampleCustomerChat()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs py-2.5 px-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow">
+                                <i class="fa-solid fa-comments"></i> 💬 Test Chat + Photo
+                            </button>
+                            <button onclick="simulateIncomingCallDemo('video')" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs py-2.5 px-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow">
+                                <i class="fa-solid fa-video"></i> 📞 Test Video Call
+                            </button>
+                        </div>
+                        <button onclick="simulateLargeChunkedTransfer()" class="w-full bg-indigo-500/30 hover:bg-indigo-500/40 text-indigo-200 border border-indigo-400/30 font-semibold text-xs py-2 px-3 rounded-xl transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-gauge-high"></i> ⚡ Test 4.2 MB Chunked Transfer (0-100%)
                         </button>
                         <label class="w-full bg-white/10 hover:bg-white/20 text-white font-semibold text-xs py-2 px-4 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer border border-white/15">
@@ -265,29 +315,30 @@
 
             </div>
 
-            <!-- Right Column: Live Incoming Print Queue (8 Cols) -->
-            <div class="lg:col-span-8 flex flex-col">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex-grow flex flex-col overflow-hidden">
-                    
+            <!-- Right Column: Live Print Queue + Integrated Live Customer Chat & Call Hub (8 Cols) -->
+            <div class="lg:col-span-8 flex flex-col gap-6">
+                
+                <!-- A. INCOMING PRINT QUEUE CARD -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
                     <!-- Queue Header -->
-                    <div class="px-5 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-slate-50/60">
+                    <div class="px-5 py-3.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-slate-50/60">
                         <div class="flex items-center gap-2.5">
                             <div class="relative flex items-center justify-center w-9 h-9 rounded-xl bg-blue-100 text-blue-600">
                                 <i class="fa-solid fa-bell text-lg"></i>
                                 <span id="queue-count-badge" class="-top-1 -right-1 absolute bg-red-600 text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
                             </div>
                             <div>
-                                <h2 class="font-bold text-slate-800 text-base sm:text-lg">Incoming Print Queue (आए हुए डॉक्यूमेंट)</h2>
-                                <p class="text-xs text-slate-500">हर डॉक्यूमेंट 10 मिनट बाद सुरक्षा के लिए अपने-आप डिलीट हो जाएगा</p>
+                                <h2 class="font-bold text-slate-800 text-base">Incoming Print Queue (आए हुए डॉक्यूमेंट)</h2>
+                                <p class="text-xs text-slate-500">सेट किए गए समय (<span class="ttl-display-label font-bold text-amber-700">10 Min</span>) के बाद डॉक्यूमेंट अपने-आप डिलीट हो जाएंगे</p>
                             </div>
                         </div>
 
                         <div class="flex items-center gap-2">
                             <button onclick="playNotificationChime()" class="text-xs bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5" title="Test Sound">
-                                <i class="fa-solid fa-volume-high text-blue-600"></i> Sound Test
+                                <i class="fa-solid fa-volume-high text-blue-600"></i> Sound
                             </button>
                             <button onclick="clearAllJobs()" class="text-xs bg-white hover:bg-red-50 text-red-600 border border-slate-200 px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5">
-                                <i class="fa-regular fa-trash-can"></i> Clear All
+                                <i class="fa-regular fa-trash-can"></i> Clear Queue
                             </button>
                         </div>
                     </div>
@@ -296,197 +347,422 @@
                     <div id="admin-incoming-progress-list" class="px-5 pt-3 space-y-2.5 empty:hidden"></div>
 
                     <!-- Empty State -->
-                    <div id="empty-queue-state" class="flex-grow flex flex-col items-center justify-center text-center p-10 my-6">
-                        <div class="w-20 h-20 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-3xl mb-4 border border-blue-100">
+                    <div id="empty-queue-state" class="flex flex-col items-center justify-center text-center p-8">
+                        <div class="w-16 h-16 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-2xl mb-3 border border-blue-100">
                             <i class="fa-solid fa-cloud-arrow-down"></i>
                         </div>
-                        <h3 class="font-bold text-slate-700 text-lg">अभी कोई प्रिंट जॉब कतार में नहीं है</h3>
-                        <p class="text-sm text-slate-500 max-w-md mt-1">
-                            जब कोई ग्राहक QR कोड स्कैन करके कैमरे से फोटो खींचेगा या 4MB-15MB की PDF भेजेगा, तो वह लाइव प्रोग्रेस और 10-मिनट टाइमर के साथ यहाँ दिखेगा।
+                        <h3 class="font-bold text-slate-700 text-base">अभी कोई प्रिंट जॉब कतार में नहीं है</h3>
+                        <p class="text-xs text-slate-500 max-w-md mt-1">
+                            ग्राहक द्वारा QR स्कैन करके भेजे गए डॉक्यूमेंट या चैट में भेजी गई फोटो लाइव टाइमर के साथ यहाँ दिखेंगी।
                         </p>
-                        <div class="flex flex-wrap justify-center gap-2 mt-5">
-                            <button onclick="triggerSampleIncomingJob()" class="text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl transition">
-                                + तिरछा सैंपल आधार मंगाएं (Perspective Crop Test)
+                    </div>
+
+                    <!-- Live Jobs Container -->
+                    <div id="print-jobs-list" class="p-4 space-y-3 overflow-y-auto max-h-[42vh] hidden"></div>
+                </div>
+
+                <!-- B. LIVE 2-WAY CHAT & AUDIO/VIDEO CALL HUB (SHOPKEEPER CONSOLE) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+                    <!-- Chat & Call Hub Header -->
+                    <div class="px-5 py-3.5 bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="relative w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-comments"></i>
+                                <span id="admin-unread-chat-badge" class="hidden -top-1.5 -right-1.5 absolute bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-sm sm:text-base">Live Customer Chat & Audio/Video Call</h3>
+                                    <span id="connected-customer-status" class="text-[11px] bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-700">Waiting for Customer...</span>
+                                </div>
+                                <p class="text-[11px] text-slate-300">ग्राहक से बात करें, चैट में डॉक्यूमेंट मंगाएं या वीडियो कॉल पर डॉक्यूमेंट कैप्चर करें • <span class="text-amber-300 font-semibold">Auto-Delete: <span class="ttl-display-label">10 Min</span></span></p>
+                            </div>
+                        </div>
+
+                        <!-- Direct Audio / Video Call Action Buttons for Shopkeeper -->
+                        <div class="flex items-center gap-2">
+                            <button onclick="initiatePeerCall('audio', 'admin')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm" title="ग्राहक को ऑडियो कॉल करें">
+                                <i class="fa-solid fa-phone"></i> 📞 Audio Call
                             </button>
-                            <button onclick="simulateLargeChunkedTransfer()" class="text-xs font-semibold text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-xl transition">
-                                + 4.2 MB फाइल ट्रांसफर टेस्ट करें
+                            <button onclick="initiatePeerCall('video', 'admin')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm" title="ग्राहक को वीडियो कॉल करें">
+                                <i class="fa-solid fa-video"></i> 📹 Video Call
+                            </button>
+                            <button onclick="clearAllChatMessages()" class="bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white text-xs px-2.5 py-2 rounded-xl transition" title="चैट हिस्ट्री डिलीट करें">
+                                <i class="fa-solid fa-broom"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Live Jobs Container -->
-                    <div id="print-jobs-list" class="p-5 space-y-4 overflow-y-auto max-h-[72vh] hidden"></div>
+                    <!-- Shopkeeper Quick Reply Chips -->
+                    <div class="px-4 py-2 bg-slate-100 border-b border-slate-200 flex items-center gap-1.5 overflow-x-auto text-xs whitespace-nowrap">
+                        <span class="text-[11px] font-bold text-slate-500 mr-1"><i class="fa-solid fa-bolt text-amber-500"></i> तुरंत जवाब:</span>
+                        <button onclick="sendQuickReply('admin', 'फाइल मिल गई है, प्रिंट हो रहा है 👍🖨️')" class="bg-white hover:bg-blue-50 text-slate-700 border border-slate-300 px-2.5 py-1 rounded-full text-[11px] font-medium transition">फाइल मिल गई है 👍🖨️</button>
+                        <button onclick="sendQuickReply('admin', 'कृपया डॉक्यूमेंट की साफ फोटो दोबारा भेजें 📸')" class="bg-white hover:bg-blue-50 text-slate-700 border border-slate-300 px-2.5 py-1 rounded-full text-[11px] font-medium transition">साफ फोटो दोबारा भेजें 📸</button>
+                        <button onclick="sendQuickReply('admin', 'रंगीन (Color) निकालना है या Black & White?')" class="bg-white hover:bg-blue-50 text-slate-700 border border-slate-300 px-2.5 py-1 rounded-full text-[11px] font-medium transition">Color या B&W?</button>
+                        <button onclick="sendQuickReply('admin', 'आपका प्रिंट तैयार है, काउंटर पर आ जाएं ✅')" class="bg-white hover:bg-blue-50 text-slate-700 border border-slate-300 px-2.5 py-1 rounded-full text-[11px] font-medium transition">प्रिंट तैयार है ✅</button>
+                    </div>
+
+                    <!-- Admin Chat Messages Stream -->
+                    <div id="admin-chat-messages" class="p-4 space-y-3 overflow-y-auto h-64 bg-slate-50/70"></div>
+
+                    <!-- Admin Chat Input Bar (Text + Photo/File Attach) -->
+                    <div class="p-3 bg-white border-t border-slate-200 flex items-center gap-2">
+                        <label class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-700 flex items-center justify-center cursor-pointer transition shrink-0 border border-slate-200" title="चैट में फोटो या डॉक्यूमेंट भेजें">
+                            <i class="fa-solid fa-paperclip text-base"></i>
+                            <input type="file" accept="image/*,application/pdf" class="hidden" onchange="sendChatAttachment(this, 'admin')">
+                        </label>
+                        <input type="text" id="admin-chat-input" onkeydown="if(event.key==='Enter') sendChatMessage('admin')" placeholder="ग्राहक को संदेश लिखें (10 मिनट में ऑटो-डिलीट)..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button onclick="sendChatMessage('admin')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0 shadow-sm">
+                            <i class="fa-solid fa-paper-plane"></i> Send
+                        </button>
+                    </div>
                 </div>
+
             </div>
 
         </section>
 
         <!-- ========================================================= -->
-        <!-- 2. CUSTOMER UPLOAD VIEW (MOBILE SCREEN)                   -->
+        <!-- 2. CUSTOMER UPLOAD, CHAT & CALL VIEW (MOBILE SCREEN)      -->
         <!-- ========================================================= -->
-        <section id="customer-section" class="hidden max-w-lg mx-auto">
-            <div class="bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden">
+        <section id="customer-section" class="hidden max-w-4xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
-                <!-- Customer Header Banner -->
-                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6">
-                    <div class="flex items-center justify-between">
-                        <span class="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-sm">
-                            <i class="fa-solid fa-qrcode mr-1"></i> Instant Shop Print
-                        </span>
-                        <span id="cust-shop-badge" class="text-xs font-mono bg-slate-900/40 px-2.5 py-1 rounded-lg"></span>
-                    </div>
-                    <h2 class="text-xl sm:text-2xl font-bold mt-3">डॉक्यूमेंट प्रिंट के लिए भेजें</h2>
-                    <p class="text-xs sm:text-sm text-blue-100 mt-1">कैमरे से फोटो खींचें या बड़ी PDF चुनें • 10 मिनट बाद फाइल अपने-आप डिलीट हो जाती है</p>
-                </div>
-
-                <!-- Upload Form Body -->
-                <div class="p-6 space-y-5">
-                    
-                    <!-- Customer Name -->
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                            1. आपका नाम (Your Name) <span class="text-red-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <i class="fa-regular fa-user absolute left-3.5 top-3 text-slate-400"></i>
-                            <input type="text" id="cust-name-input" placeholder="जैसे: राहुल शर्मा" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                <!-- Left Column: Document Upload & Print Settings (7 Cols) -->
+                <div class="lg:col-span-7 bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden">
+                    <!-- Customer Header Banner -->
+                    <div class="bg-gradient-to-r from-blue-600 via-indigo-700 to-slate-900 text-white p-5">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <span class="bg-white/20 text-white text-[11px] font-semibold px-3 py-0.5 rounded-full backdrop-blur-sm">
+                                🇮🇳 Made in India • Safe Your Data
+                            </span>
+                            <span id="cust-shop-badge" class="text-xs font-mono bg-slate-900/50 px-2.5 py-1 rounded-lg border border-white/10"></span>
                         </div>
+                        <h2 class="text-xl font-bold mt-2.5">डॉक्यूमेंट भेजें, चैट करें या कॉल करें</h2>
+                        <p class="text-xs text-blue-100 mt-0.5">100% प्राइवेट P2P ट्रांसफर • आपके डॉक्यूमेंट और चैट सेट किए गए समय में अपने-आप डिलीट हो जाते हैं</p>
                     </div>
 
-                    <!-- Print Preferences Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- Color Mode Selection -->
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                                2. प्रिंट का रंग (Color Mode)
-                            </label>
-                            <div class="grid grid-cols-2 gap-2">
-                                <label class="cursor-pointer">
-                                    <input type="radio" name="cust-color-mode" value="B&W" class="peer hidden" checked>
-                                    <div class="border-2 border-slate-200 peer-checked:border-slate-900 peer-checked:bg-slate-900 peer-checked:text-white rounded-xl p-2.5 text-center transition">
-                                        <i class="fa-solid fa-file-lines block text-base mb-0.5"></i>
-                                        <span class="text-xs font-bold block">B&W (सादा)</span>
-                                    </div>
+                    <!-- Upload Form Body -->
+                    <div class="p-5 space-y-4">
+                        
+                        <!-- Customer Name & Custom Auto-Delete Timer Row -->
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                            <div class="sm:col-span-7">
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                                    1. आपका नाम (Your Name) <span class="text-red-500">*</span>
                                 </label>
-                                <label class="cursor-pointer">
-                                    <input type="radio" name="cust-color-mode" value="Color" class="peer hidden">
-                                    <div class="border-2 border-slate-200 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-700 rounded-xl p-2.5 text-center transition">
-                                        <i class="fa-solid fa-palette block text-base mb-0.5 text-pink-500"></i>
-                                        <span class="text-xs font-bold block">Color (रंगीन)</span>
-                                    </div>
+                                <div class="relative">
+                                    <i class="fa-regular fa-user absolute left-3.5 top-3 text-slate-400"></i>
+                                    <input type="text" id="cust-name-input" placeholder="जैसे: राहुल शर्मा" class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                                </div>
+                            </div>
+
+                            <!-- Customer Self-Destruct Timer Control -->
+                            <div class="sm:col-span-5">
+                                <label class="block text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">
+                                    🛡️ ऑटो-डिलीट समय (Privacy)
                                 </label>
+                                <select id="cust-ttl-select" onchange="updateGlobalAutoDeleteSetting(this.value)" class="w-full px-3 py-2 bg-amber-50 border border-amber-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                    <option value="2">⏱️ 2 मिनट में डिलीट</option>
+                                    <option value="5">⏱️ 5 मिनट में डिलीट</option>
+                                    <option value="10" selected>⏱️ 10 मिनट (Default)</option>
+                                    <option value="15">⏱️ 15 मिनट में डिलीट</option>
+                                    <option value="30">⏱️ 30 मिनट में डिलीट</option>
+                                </select>
                             </div>
                         </div>
 
-                        <!-- Number of Copies -->
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                                3. कितनी कॉपी? (Copies)
-                            </label>
-                            <div class="flex items-center border-2 border-slate-200 rounded-xl overflow-hidden bg-slate-50 h-[58px]">
-                                <button type="button" onclick="adjustCopies(-1)" class="w-12 h-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-lg transition">-</button>
-                                <input type="number" id="cust-copies-input" value="1" min="1" max="20" readonly class="w-full text-center font-bold text-base bg-transparent focus:outline-none">
-                                <button type="button" onclick="adjustCopies(1)" class="w-12 h-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-lg transition">+</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Print Size / Layout Type -->
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                            4. पेज साइज (Print Layout Type)
-                        </label>
-                        <select id="cust-layout-select" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="Full A4 Page">📄 Full A4 Page (पूरा A4 पेज)</option>
-                            <option value="ID Card / Aadhaar Size">🪪 ID Card / Aadhaar Size (आधार/कार्ड साइज)</option>
-                            <option value="Passport Photo">🖼️ Passport Size Photo (पासपोर्ट फोटो)</option>
-                        </select>
-                    </div>
-
-                    <!-- DEDICATED CAMERA & FILE PICKER BUTTONS -->
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
-                            5. डॉक्यूमेंट कैसे अपलोड करना है? (Choose Option) <span class="text-red-500">*</span>
-                        </label>
-
+                        <!-- Print Preferences Grid -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <!-- Option A: Direct Camera Capture (Native Mobile Rear Camera + Fallback) -->
-                            <div class="flex flex-col gap-1.5">
-                                <label for="camera-input" class="border-2 border-emerald-500 bg-emerald-50/80 hover:bg-emerald-100 active:scale-[0.98] rounded-2xl p-4 flex flex-col items-center justify-center text-center cursor-pointer transition shadow-sm h-full">
-                                    <div class="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xl mb-2 shadow">
-                                        <i class="fa-solid fa-camera"></i>
-                                    </div>
-                                    <span class="font-bold text-sm text-emerald-950">📸 Take Photo with Camera</span>
-                                    <span class="text-[11px] text-emerald-700 mt-0.5 font-medium">कैमरे से सीधे फोटो खींचें</span>
-                                    <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleCustomerFileInput(this, 'camera')">
+                            <!-- Color Mode Selection -->
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                                    2. प्रिंट का रंग (Color Mode)
                                 </label>
-                                <button type="button" onclick="openLiveCameraModal()" class="py-1.5 px-2.5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 text-emerald-900 text-[11px] font-bold transition flex items-center justify-center gap-1 border border-emerald-500/30">
-                                    <i class="fa-solid fa-video text-emerald-600"></i> इन-ऐप लाइव कैमरा खोलें (Fallback)
-                                </button>
-                            </div>
-
-                            <!-- Option B: File / PDF Picker from Gallery or Storage -->
-                            <div class="flex flex-col gap-1.5">
-                                <label for="file-input" class="border-2 border-blue-500 bg-blue-50/80 hover:bg-blue-100 active:scale-[0.98] rounded-2xl p-4 flex flex-col items-center justify-center text-center cursor-pointer transition shadow-sm h-full">
-                                    <div class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl mb-2 shadow">
-                                        <i class="fa-solid fa-folder-open"></i>
-                                    </div>
-                                    <span class="font-bold text-sm text-blue-950">📁 Choose File / PDF</span>
-                                    <span class="text-[11px] text-blue-700 mt-0.5 font-medium">गैलरी फोटो या बड़ी PDF चुनें (15MB+)</span>
-                                    <input type="file" id="file-input" accept="image/*,application/pdf,.pdf,.jpg,.jpeg,.png" multiple class="hidden" onchange="handleCustomerFileInput(this, 'gallery')">
-                                </label>
-                                <div class="py-1.5 px-2.5 rounded-xl bg-blue-900/5 text-blue-900 text-[11px] font-medium text-center border border-blue-500/20">
-                                    <i class="fa-solid fa-shield-halved text-blue-600"></i> 64KB Chunked 100% Safe Transfer
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Smart Auto-Compression Toggle for Heavy Camera Photos -->
-                        <div class="mt-3 bg-amber-50/90 border border-amber-200 rounded-xl p-3 flex items-center justify-between gap-3">
-                            <div class="flex items-start gap-2">
-                                <i class="fa-solid fa-bolt text-amber-500 mt-0.5"></i>
-                                <div>
-                                    <label for="auto-optimize-toggle" class="text-xs font-bold text-slate-800 cursor-pointer block">
-                                        ⚡ Smart Image Optimizer (2400px Crisp Print HD)
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="cust-color-mode" value="B&W" class="peer hidden" checked>
+                                        <div class="border-2 border-slate-200 peer-checked:border-slate-900 peer-checked:bg-slate-900 peer-checked:text-white rounded-xl p-2 text-center transition">
+                                            <i class="fa-solid fa-file-lines block text-sm mb-0.5"></i>
+                                            <span class="text-xs font-bold block">B&W (सादा)</span>
+                                        </div>
                                     </label>
-                                    <p class="text-[11px] text-slate-600">8MB-12MB कैमरा फोटो को ~800KB HD में बदलें या ऑफ करके ओरिजिनल फाइल भेजें</p>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="cust-color-mode" value="Color" class="peer hidden">
+                                        <div class="border-2 border-slate-200 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-700 rounded-xl p-2 text-center transition">
+                                            <i class="fa-solid fa-palette block text-sm mb-0.5 text-pink-500"></i>
+                                            <span class="text-xs font-bold block">Color (रंगीन)</span>
+                                        </div>
+                                    </label>
                                 </div>
                             </div>
-                            <input type="checkbox" id="auto-optimize-toggle" checked class="w-5 h-5 accent-blue-600 rounded cursor-pointer shrink-0">
+
+                            <!-- Number of Copies -->
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                                    3. कितनी कॉपी? (Copies)
+                                </label>
+                                <div class="flex items-center border-2 border-slate-200 rounded-xl overflow-hidden bg-slate-50 h-[52px]">
+                                    <button type="button" onclick="adjustCopies(-1)" class="w-12 h-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-lg transition">-</button>
+                                    <input type="number" id="cust-copies-input" value="1" min="1" max="20" readonly class="w-full text-center font-bold text-base bg-transparent focus:outline-none">
+                                    <button type="button" onclick="adjustCopies(1)" class="w-12 h-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-lg transition">+</button>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Instant Thumbnail / PDF Preview Cards Before Sending -->
-                        <div id="cust-selected-files" class="mt-3 space-y-2.5 hidden"></div>
+                        <!-- Print Size / Layout Type -->
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                                4. पेज साइज (Print Layout Type)
+                            </label>
+                            <select id="cust-layout-select" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="Full A4 Page">📄 Full A4 Page (पूरा A4 पेज)</option>
+                                <option value="ID Card / Aadhaar Size">🪪 ID Card / Aadhaar Size (आधार/कार्ड साइज)</option>
+                                <option value="Passport Photo">🖼️ Passport Size Photo (पासपोर्ट फोटो)</option>
+                            </select>
+                        </div>
+
+                        <!-- DEDICATED CAMERA & FILE PICKER BUTTONS -->
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                5. डॉक्यूमेंट या फोटो चुनें (Choose Option) <span class="text-red-500">*</span>
+                            </label>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <!-- Option A: Direct Camera Capture -->
+                                <div class="flex flex-col gap-1.5">
+                                    <label for="camera-input" class="border-2 border-emerald-500 bg-emerald-50/80 hover:bg-emerald-100 active:scale-[0.98] rounded-2xl p-3.5 flex flex-col items-center justify-center text-center cursor-pointer transition shadow-sm h-full">
+                                        <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg mb-1.5 shadow">
+                                            <i class="fa-solid fa-camera"></i>
+                                        </div>
+                                        <span class="font-bold text-xs sm:text-sm text-emerald-950">📸 Take Photo with Camera</span>
+                                        <span class="text-[11px] text-emerald-700 mt-0.5 font-medium">कैमरे से सीधे फोटो खींचें</span>
+                                        <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleCustomerFileInput(this, 'camera')">
+                                    </label>
+                                    <button type="button" onclick="openLiveCameraModal()" class="py-1.5 px-2.5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 text-emerald-900 text-[11px] font-bold transition flex items-center justify-center gap-1 border border-emerald-500/30">
+                                        <i class="fa-solid fa-video text-emerald-600"></i> इन-ऐप लाइव कैमरा खोलें
+                                    </button>
+                                </div>
+
+                                <!-- Option B: File / PDF Picker -->
+                                <div class="flex flex-col gap-1.5">
+                                    <label for="file-input" class="border-2 border-blue-500 bg-blue-50/80 hover:bg-blue-100 active:scale-[0.98] rounded-2xl p-3.5 flex flex-col items-center justify-center text-center cursor-pointer transition shadow-sm h-full">
+                                        <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg mb-1.5 shadow">
+                                            <i class="fa-solid fa-folder-open"></i>
+                                        </div>
+                                        <span class="font-bold text-xs sm:text-sm text-blue-950">📁 Choose File / PDF</span>
+                                        <span class="text-[11px] text-blue-700 mt-0.5 font-medium">गैलरी फोटो या बड़ी PDF चुनें (15MB+)</span>
+                                        <input type="file" id="file-input" accept="image/*,application/pdf,.pdf,.jpg,.jpeg,.png" multiple class="hidden" onchange="handleCustomerFileInput(this, 'gallery')">
+                                    </label>
+                                    <div class="py-1.5 px-2.5 rounded-xl bg-blue-900/5 text-blue-900 text-[11px] font-medium text-center border border-blue-500/20">
+                                        <i class="fa-solid fa-shield-halved text-blue-600"></i> 64KB Chunked Safe Transfer
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Smart Auto-Compression Toggle -->
+                            <div class="mt-2.5 bg-amber-50/90 border border-amber-200 rounded-xl p-2.5 flex items-center justify-between gap-3">
+                                <div class="flex items-start gap-2">
+                                    <i class="fa-solid fa-bolt text-amber-500 mt-0.5"></i>
+                                    <div>
+                                        <label for="auto-optimize-toggle" class="text-xs font-bold text-slate-800 cursor-pointer block">
+                                            ⚡ Smart Image Optimizer (2400px Crisp Print HD)
+                                        </label>
+                                        <p class="text-[10px] text-slate-600">8MB-12MB कैमरा फोटो को ~800KB HD में बदलें</p>
+                                    </div>
+                                </div>
+                                <input type="checkbox" id="auto-optimize-toggle" checked class="w-5 h-5 accent-blue-600 rounded cursor-pointer shrink-0">
+                            </div>
+
+                            <!-- Instant Thumbnail / PDF Preview Cards Before Sending -->
+                            <div id="cust-selected-files" class="mt-3 space-y-2 hidden"></div>
+                        </div>
+
+                        <!-- Send Button -->
+                        <button id="cust-send-btn" onclick="sendFilesToShop()" class="w-full bg-green-600 hover:bg-green-700 active:scale-[0.99] text-white font-bold py-3 px-6 rounded-2xl shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 text-base">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Send for Print (प्रिंट के लिए भेजें)</span>
+                        </button>
+
+                        <!-- Real-Time Chunked Transfer Progress Bar Box -->
+                        <div id="cust-progress-box" class="hidden bg-slate-900 text-white rounded-2xl p-4 space-y-2 shadow-md">
+                            <div class="flex items-center justify-between text-xs font-semibold">
+                                <span id="cust-progress-title" class="truncate pr-2 text-blue-300">Sending file...</span>
+                                <span id="cust-progress-percent" class="font-mono text-emerald-400 font-bold">0%</span>
+                            </div>
+                            <div class="w-full h-3 bg-slate-700 rounded-full overflow-hidden">
+                                <div id="cust-progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-150" style="width: 0%"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                                <span id="cust-progress-bytes">0 KB / 0 KB</span>
+                                <span id="cust-progress-chunks">Chunk 0/0</span>
+                            </div>
+                        </div>
+
+                        <!-- Transfer Status Box -->
+                        <div id="cust-transfer-status" class="hidden rounded-xl p-3 text-center text-xs sm:text-sm font-semibold"></div>
                     </div>
-
-                    <!-- Send Button -->
-                    <button id="cust-send-btn" onclick="sendFilesToShop()" class="w-full bg-green-600 hover:bg-green-700 active:scale-[0.99] text-white font-bold py-3.5 px-6 rounded-2xl shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 text-base">
-                        <i class="fa-solid fa-paper-plane"></i>
-                        <span>Send for Print (प्रिंट के लिए भेजें)</span>
-                    </button>
-
-                    <!-- Real-Time Chunked Transfer Progress Bar Box -->
-                    <div id="cust-progress-box" class="hidden bg-slate-900 text-white rounded-2xl p-4 space-y-2 shadow-md">
-                        <div class="flex items-center justify-between text-xs font-semibold">
-                            <span id="cust-progress-title" class="truncate pr-2 text-blue-300">Sending file...</span>
-                            <span id="cust-progress-percent" class="font-mono text-emerald-400 font-bold">0%</span>
-                        </div>
-                        <div class="w-full h-3 bg-slate-700 rounded-full overflow-hidden">
-                            <div id="cust-progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-150" style="width: 0%"></div>
-                        </div>
-                        <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
-                            <span id="cust-progress-bytes">0 KB / 0 KB</span>
-                            <span id="cust-progress-chunks">Chunk 0/0</span>
-                        </div>
-                    </div>
-
-                    <!-- Transfer Status Box -->
-                    <div id="cust-transfer-status" class="hidden rounded-xl p-3.5 text-center text-sm font-semibold"></div>
                 </div>
+
+                <!-- Right Column: Customer Live Chat + Audio/Video Call with Shopkeeper (5 Cols) -->
+                <div class="lg:col-span-5 bg-white rounded-3xl shadow-lg border border-slate-200 flex flex-col overflow-hidden">
+                    <!-- Customer Chat & Call Top Bar -->
+                    <div class="p-4 bg-slate-900 text-white flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 flex items-center justify-center">
+                                <i class="fa-solid fa-headset text-base"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-sm leading-tight">दुकानदार से चैट और कॉल करें</h3>
+                                <p class="text-[11px] text-emerald-300">Auto-Deletes in <span class="ttl-display-label font-bold">10 Min</span></p>
+                            </div>
+                        </div>
+
+                        <!-- Customer Call Buttons -->
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="initiatePeerCall('audio', 'customer')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-2.5 py-2 rounded-xl transition flex items-center gap-1 shadow" title="दुकानदार को ऑडियो कॉल करें">
+                                <i class="fa-solid fa-phone"></i> Call
+                            </button>
+                            <button onclick="initiatePeerCall('video', 'customer')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-2.5 py-2 rounded-xl transition flex items-center gap-1 shadow" title="दुकानदार को वीडियो कॉल करें">
+                                <i class="fa-solid fa-video"></i> Video
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Customer Quick Message Chips -->
+                    <div class="px-3 py-2 bg-slate-100 border-b border-slate-200 flex items-center gap-1.5 overflow-x-auto text-xs whitespace-nowrap">
+                        <button onclick="sendQuickReply('customer', 'भैया 1 कॉपी Color प्रिंट निकाल दीजिए 🎨')" class="bg-white hover:bg-blue-50 text-slate-700 border border-slate-300 px-2.5 py-1 rounded-full text-[11px] font-medium">1 Copy Color 🎨</button>
+                        <button onclick="sendQuickReply('customer', '2 कॉपी Black & White निकाल दीजिए 📄')" class="bg-white hover:bg-blue-50 text-slate-700 border border-slate-300 px-2.5 py-1 rounded-full text-[11px] font-medium">2 Copy B&W 📄</button>
+                        <button onclick="sendQuickReply('customer', 'आधार कार्ड आगे-पीछे (Front & Back) एक पेज पर 🪪')" class="bg-white hover:bg-blue-50 text-slate-700 border border-slate-300 px-2.5 py-1 rounded-full text-[11px] font-medium">Aadhaar Front-Back 🪪</button>
+                        <button onclick="sendQuickReply('customer', 'जल्दी प्रिंट कर दीजिए, मैं दुकान पर हूँ 🙏')" class="bg-white hover:bg-blue-50 text-slate-700 border border-slate-300 px-2.5 py-1 rounded-full text-[11px] font-medium">जल्दी प्रिंट कर दीजिए 🙏</button>
+                    </div>
+
+                    <!-- Customer Chat Messages Container -->
+                    <div id="cust-chat-messages" class="p-3.5 space-y-2.5 overflow-y-auto flex-grow min-h-[280px] max-h-[380px] bg-slate-50"></div>
+
+                    <!-- Customer Chat Input + Direct Photo/File Send -->
+                    <div class="p-3 bg-white border-t border-slate-200 flex items-center gap-2">
+                        <label class="w-9 h-9 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center cursor-pointer transition shrink-0 border border-emerald-200" title="चैट में सीधे कैमरे से फोटो भेजें">
+                            <i class="fa-solid fa-camera"></i>
+                            <input type="file" accept="image/*" capture="environment" class="hidden" onchange="sendChatAttachment(this, 'customer')">
+                        </label>
+                        <label class="w-9 h-9 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 flex items-center justify-center cursor-pointer transition shrink-0 border border-blue-200" title="चैट में PDF या डॉक्यूमेंट भेजें">
+                            <i class="fa-solid fa-paperclip"></i>
+                            <input type="file" accept="image/*,application/pdf" class="hidden" onchange="sendChatAttachment(this, 'customer')">
+                        </label>
+                        <input type="text" id="cust-chat-input" onkeydown="if(event.key==='Enter') sendChatMessage('customer')" placeholder="दुकानदार को मैसेज लिखें..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button onclick="sendChatMessage('customer')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs sm:text-sm transition shrink-0">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+
             </div>
         </section>
 
     </main>
+
+    <!-- ================= MADE IN INDIA & PRIVACY SHIELD FOOTER ================= -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-4 px-4 border-t border-slate-800 no-print mt-auto">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+                <span class="bg-orange-500/20 text-orange-300 border border-orange-400/30 px-2.5 py-0.5 rounded-full font-bold text-[11px]">🇮🇳 Made in India</span>
+                <span class="font-semibold text-slate-200">Safe Your Data Architecture</span>
+                <span>— ग्राहक की प्राइवेसी और सुरक्षा के लिए निर्मित</span>
+            </div>
+            <div class="flex items-center gap-4 text-[11px]">
+                <span><i class="fa-solid fa-lock text-emerald-400 mr-1"></i>P2P WebRTC Encrypted</span>
+                <span><i class="fa-solid fa-clock-rotate-left text-amber-400 mr-1"></i>Auto Self-Destruct Timer</span>
+                <button onclick="executePanicWipeAllData()" class="text-red-400 hover:text-red-300 underline font-semibold">Wipe RAM Now</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================================= -->
+    <!-- 2B. WEBRTC AUDIO & VIDEO CALL MODAL + RINGING BANNER      -->
+    <!-- ========================================================= -->
+    <!-- Incoming Call Ringing Alert Banner -->
+    <div id="incoming-call-banner" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-900 text-white border-2 border-emerald-400 rounded-3xl shadow-2xl p-4 w-[92%] max-w-md no-print">
+        <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-xl ring-pulse">
+                    <i id="incoming-call-icon" class="fa-solid fa-video"></i>
+                </div>
+                <div>
+                    <span id="incoming-call-type-badge" class="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">Incoming Video Call</span>
+                    <h4 id="incoming-caller-name" class="font-bold text-base mt-0.5">ग्राहक (Customer)</h4>
+                    <p class="text-xs text-slate-400">Encrypted P2P Direct Call...</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="acceptIncomingCall()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3.5 py-2.5 rounded-2xl text-xs flex items-center gap-1.5 shadow-lg">
+                    <i class="fa-solid fa-phone"></i> Accept
+                </button>
+                <button onclick="declineIncomingCall()" class="bg-red-600 hover:bg-red-500 text-white font-bold px-3 py-2.5 rounded-2xl text-xs">
+                    <i class="fa-solid fa-phone-slash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Audio/Video Call Studio Modal -->
+    <div id="active-call-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex items-center justify-center p-3 no-print">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl flex flex-col">
+            <!-- Call Top Info Bar -->
+            <div class="px-5 py-3.5 bg-slate-800/90 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-3 h-3 rounded-full bg-emerald-400 live-dot"></span>
+                    <div>
+                        <h4 id="call-partner-title" class="font-bold text-sm">Live P2P Call Connected</h4>
+                        <p class="text-[11px] text-slate-400">🇮🇳 Safe Your Data • Zero-Server Encrypted Stream</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="call-duration-timer" class="font-mono text-xs font-bold bg-slate-900 text-emerald-400 px-3 py-1 rounded-full border border-slate-700">00:00</span>
+                </div>
+            </div>
+
+            <!-- Video Stage (Remote Stream + PIP Local Stream + Audio Waveform Fallback) -->
+            <div class="relative bg-black aspect-video max-h-[60vh] w-full flex items-center justify-center overflow-hidden">
+                <!-- Remote Video -->
+                <video id="remote-call-video" autoplay playsinline class="w-full h-full object-contain"></video>
+
+                <!-- Audio-Only Avatar Overlay -->
+                <div id="audio-call-avatar-view" class="hidden absolute inset-0 bg-gradient-to-b from-slate-900 to-indigo-950 flex flex-col items-center justify-center text-center p-6">
+                    <div class="w-24 h-24 rounded-full bg-emerald-500/20 border-2 border-emerald-400 text-emerald-300 flex items-center justify-center text-4xl mb-4 ring-pulse">
+                        <i class="fa-solid fa-microphone-lines"></i>
+                    </div>
+                    <h3 id="audio-call-partner-name" class="text-white font-bold text-lg">Audio Call Active</h3>
+                    <p class="text-xs text-emerald-300 mt-1">आवाज साफ आ रही है • Encrypted Voice Channel</p>
+                </div>
+
+                <!-- Picture-in-Picture Local Video -->
+                <div class="absolute bottom-3 right-3 w-28 sm:w-36 aspect-[3/4] sm:aspect-video bg-slate-800 rounded-2xl overflow-hidden border-2 border-white/30 shadow-xl">
+                    <video id="local-call-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
+                    <span class="absolute bottom-1 left-1.5 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded">You</span>
+                </div>
+            </div>
+
+            <!-- Call Controls Bar (Mute, Camera, Flip, Snap Frame to Print Queue, End Call) -->
+            <div class="p-4 bg-slate-900 flex flex-wrap items-center justify-center gap-2.5">
+                <button id="call-mute-btn" onclick="toggleCallAudioMute()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold py-2.5 px-4 rounded-2xl border border-slate-700 flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-microphone"></i> <span>Mute Mic</span>
+                </button>
+                <button id="call-video-btn" onclick="toggleCallVideoTrack()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold py-2.5 px-4 rounded-2xl border border-slate-700 flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-video"></i> <span>Camera On/Off</span>
+                </button>
+                <button onclick="flipActiveCallCamera()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold py-2.5 px-4 rounded-2xl border border-slate-700 flex items-center gap-1.5 transition" title="पीछे के कैमरे से डॉक्यूमेंट दिखाएं">
+                    <i class="fa-solid fa-camera-rotate"></i> <span>Flip Camera</span>
+                </button>
+                <button onclick="captureVideoCallFrameToQueue()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-2.5 px-4 rounded-2xl shadow flex items-center gap-1.5 transition" title="वीडियो कॉल से सीधे डॉक्यूमेंट की फोटो प्रिंट कतार में लें">
+                    <i class="fa-solid fa-camera"></i> <span>📸 Snap Document to Print</span>
+                </button>
+                <button onclick="endActiveCall(true)" class="bg-red-600 hover:bg-red-500 text-white font-bold text-xs py-2.5 px-5 rounded-2xl shadow-lg flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-phone-slash"></i> <span>End Call</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ========================================================= -->
     <!-- 3. LIVE WEBRTC CAMERA CAPTURE MODAL (FALLBACK SCANNER)    -->
@@ -756,26 +1032,44 @@
     <!-- ================= APPLICATION JAVASCRIPT ================= -->
     <script>
         // =========================================================================
-        // GLOBAL STATE, CHUNKED TRANSFER & 10-MINUTE AUTO-DELETE CONFIGURATION
+        // GLOBAL STATE, CHUNKED TRANSFER, CHAT, CALL & CUSTOM AUTO-DELETE CONFIG
         // =========================================================================
         const urlParams = new URLSearchParams(window.location.search);
         const urlShopParam = urlParams.get('shop');
 
         let currentShopId = localStorage.getItem('permanent_csc_shop_id') || 'csc-quick-print-95';
         let adminPeer = null;
+        let customerPeer = null;
+        let activeCustomerConn = null; // Stores live data connection for 2-way chat & signaling
+        let latestCustomerPeerId = null;
+
         let printJobs = [];
+        let chatMessages = [];
+        let unreadAdminChatCount = 0;
+
         let cropperInstance = null;
         let activeStudioJob = null;
 
-        // Default Auto-Delete Duration: 10 Minutes (in milliseconds)
+        // Default Auto-Delete Duration: 10 Minutes (Adjustable 1 to 60 mins)
         let autoDeleteDurationMinutes = 10;
 
-        // Customer staging queue (supports multiple camera snaps + PDFs before hitting Send)
+        // Customer staging queue
         let stagedCustomerFiles = [];
 
         // Live WebRTC Camera stream state
         let liveCameraStream = null;
         let currentCameraFacing = 'environment';
+
+        // WebRTC Audio/Video Call State
+        let activeMediaCall = null;
+        let pendingIncomingCall = null;
+        let localCallStream = null;
+        let callTimerInterval = null;
+        let callSecondsElapsed = 0;
+        let ringtoneInterval = null;
+        let isCallAudioMuted = false;
+        let isCallVideoOff = false;
+        let isSimulatedCallMode = false;
 
         // 64KB Chunk size for rock-solid WebRTC DataChannel transfers (prevents 3MB-15MB+ drops)
         const CHUNK_SIZE_BYTES = 64 * 1024;
@@ -803,7 +1097,10 @@
             // Initialize 4-Point Perspective Drag Listeners
             initPerspectiveDragHandlers();
 
-            // Start 1-Second Interval for 10-Minute Auto-Delete Countdown Timers
+            // Render initial welcome system message in Chat
+            addSystemWelcomeChat();
+
+            // Start 1-Second Interval for Custom Auto-Delete Countdown Timers (Both Documents & Chat)
             setInterval(tickAutoDeleteCountdowns, 1000);
 
             // Automatically switch to Customer View if ?shop=... is present in URL
@@ -811,6 +1108,7 @@
                 currentShopId = urlShopParam;
                 document.getElementById('cust-shop-badge').innerText = `Shop ID: ${currentShopId}`;
                 switchViewMode('customer');
+                initCustomerLiveConnection();
             } else {
                 document.getElementById('cust-shop-badge').innerText = `Shop ID: ${currentShopId}`;
             }
@@ -899,16 +1197,61 @@
                 adminSec.classList.remove('hidden');
                 btnAdmin.className = 'px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 bg-blue-600 text-white shadow';
                 btnCust.className = 'px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 text-slate-300 hover:text-white';
+                unreadAdminChatCount = 0;
+                updateUnreadChatBadge();
             }
         }
 
         // =========================================================================
-        // 10-MINUTE AUTO-DELETE TIMER & MEMORY CLEANUP ENGINE
+        // CUSTOMIZABLE AUTO-DELETE TIMER (DOCS + CHAT) & PANIC WIPE ENGINE
         // =========================================================================
-        function updateGlobalAutoDeleteSetting() {
-            const selectEl = document.getElementById('auto-delete-minutes-select');
-            autoDeleteDurationMinutes = parseInt(selectEl.value, 10) || 10;
-            showToast(`⏱️ नए डॉक्यूमेंट अब ${autoDeleteDurationMinutes} मिनट बाद ऑटो-डिलीट होंगे।`, 'info');
+        function updateGlobalAutoDeleteSetting(val) {
+            if (val === 'custom') {
+                const sliderVal = document.getElementById('custom-ttl-slider').value;
+                syncCustomTtlMinutes(sliderVal);
+                return;
+            }
+            const mins = Math.max(1, Math.min(60, parseInt(val, 10) || 10));
+            applyNewAutoDeleteMinutes(mins, true);
+        }
+
+        function syncCustomTtlMinutes(val) {
+            const mins = Math.max(1, Math.min(60, parseInt(val, 10) || 10));
+            const adminSelect = document.getElementById('auto-delete-minutes-select');
+            if ([2, 5, 10, 15, 30].includes(mins)) {
+                adminSelect.value = String(mins);
+            } else {
+                adminSelect.value = 'custom';
+            }
+            applyNewAutoDeleteMinutes(mins, true);
+        }
+
+        function applyNewAutoDeleteMinutes(mins, broadcast = false) {
+            autoDeleteDurationMinutes = mins;
+
+            // Update UI Controls across Admin & Customer
+            const slider = document.getElementById('custom-ttl-slider');
+            if (slider) slider.value = mins;
+            const badge = document.getElementById('custom-ttl-badge');
+            if (badge) badge.innerText = `${mins} Min`;
+
+            const custSelect = document.getElementById('cust-ttl-select');
+            if (custSelect && [2, 5, 10, 15, 30].includes(mins)) {
+                custSelect.value = String(mins);
+            }
+
+            document.querySelectorAll('.ttl-display-label').forEach(el => {
+                el.innerText = `${mins} Min`;
+            });
+
+            if (broadcast && activeCustomerConn && activeCustomerConn.open) {
+                activeCustomerConn.send({
+                    type: 'TTL_SYNC',
+                    minutes: mins
+                });
+            }
+
+            showToast(`🛡️ Safe Your Data: ऑटो-डिलीट टाइमर ${mins} मिनट पर सेट किया गया।`, 'info');
         }
 
         function extendJobExpiry(jobId, extraMinutes = 5) {
@@ -919,51 +1262,123 @@
             showToast(`⏱️ "${job.customerName}" की फाइल का समय +${extraMinutes} मिनट बढ़ा दिया गया।`, 'success');
         }
 
-        function tickAutoDeleteCountdowns() {
-            if (printJobs.length === 0) return;
+        function extendChatExpiry(msgId, extraMinutes = 5) {
+            const msg = chatMessages.find(m => m.id === msgId);
+            if (!msg) return;
+            msg.expiresAt += extraMinutes * 60 * 1000;
+            tickAutoDeleteCountdowns();
+            showToast(`⏱️ चैट संदेश का समय +${extraMinutes} मिनट बढ़ा दिया गया।`, 'success');
+        }
 
-            const now = Date.now();
-            const expiredJobs = [];
-
-            printJobs.forEach((job) => {
-                const remainingMs = job.expiresAt - now;
-                if (remainingMs <= 0) {
-                    expiredJobs.push(job);
-                } else {
-                    // Update badge text & color in DOM without re-rendering full list
-                    const badgeEl = document.getElementById(`timer-badge-${job.id}`);
-                    if (badgeEl) {
-                        badgeEl.innerHTML = `<i class="fa-regular fa-hourglass-half mr-1"></i> Auto-deletes in ${formatCountdownTime(remainingMs)}`;
-                        if (remainingMs < 120 * 1000) {
-                            // Under 2 minutes: Urgent Red/Amber pulse
-                            badgeEl.className = 'text-[11px] font-mono font-bold bg-red-100 text-red-700 border border-red-300 px-2.5 py-0.5 rounded-full animate-pulse';
-                        } else {
-                            badgeEl.className = 'text-[11px] font-mono font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full';
-                        }
-                    }
+        function executePanicWipeAllData() {
+            // 1. Revoke all Print Job Blob URLs
+            printJobs.forEach(job => {
+                if (job.fileUrl && job.fileUrl.startsWith('blob:')) {
+                    try { URL.revokeObjectURL(job.fileUrl); } catch (e) {}
                 }
             });
+            printJobs = [];
 
-            if (expiredJobs.length > 0) {
-                expiredJobs.forEach((expJob) => {
-                    // Revoke Blob URL from RAM for privacy and memory cleanup
-                    if (expJob.fileUrl && expJob.fileUrl.startsWith('blob:')) {
-                        try { URL.revokeObjectURL(expJob.fileUrl); } catch (e) {}
+            // 2. Revoke all Chat Attachment Blob URLs
+            chatMessages.forEach(msg => {
+                if (msg.fileUrl && msg.fileUrl.startsWith('blob:')) {
+                    try { URL.revokeObjectURL(msg.fileUrl); } catch (e) {}
+                }
+            });
+            chatMessages = [];
+
+            // 3. Clear staged files
+            stagedCustomerFiles.forEach(item => {
+                if (item.previewUrl) {
+                    try { URL.revokeObjectURL(item.previewUrl); } catch (e) {}
+                }
+            });
+            stagedCustomerFiles = [];
+
+            closeStudioModal();
+            endActiveCall(false);
+            addSystemWelcomeChat();
+            renderPrintQueue();
+            renderChatMessages();
+            renderStagedCustomerFiles();
+
+            if (activeCustomerConn && activeCustomerConn.open) {
+                activeCustomerConn.send({ type: 'PANIC_WIPE' });
+            }
+
+            showToast('🧹 Safe Your Data: सभी डॉक्यूमेंट और चैट मेमोरी (RAM) से तुरंत मिटा दिए गए!', 'warning');
+        }
+
+        function tickAutoDeleteCountdowns() {
+            const now = Date.now();
+
+            // 1. Check Print Jobs Expiry
+            if (printJobs.length > 0) {
+                const expiredJobs = [];
+                printJobs.forEach((job) => {
+                    const remainingMs = job.expiresAt - now;
+                    if (remainingMs <= 0) {
+                        expiredJobs.push(job);
+                    } else {
+                        const badgeEl = document.getElementById(`timer-badge-${job.id}`);
+                        if (badgeEl) {
+                            badgeEl.innerHTML = `<i class="fa-regular fa-hourglass-half mr-1"></i> Auto-deletes in ${formatCountdownTime(remainingMs)}`;
+                            if (remainingMs < 120 * 1000) {
+                                badgeEl.className = 'text-[11px] font-mono font-bold bg-red-100 text-red-700 border border-red-300 px-2.5 py-0.5 rounded-full animate-pulse';
+                            } else {
+                                badgeEl.className = 'text-[11px] font-mono font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full';
+                            }
+                        }
                     }
-                    if (activeStudioJob && activeStudioJob.id === expJob.id) {
-                        closeStudioModal();
-                    }
-                    showToast(`🗑️ Document from "${expJob.customerName}" auto-deleted after ${autoDeleteDurationMinutes} mins`, 'warning');
                 });
 
-                const expiredIds = new Set(expiredJobs.map(j => j.id));
-                printJobs = printJobs.filter(j => !expiredIds.has(j.id));
-                renderPrintQueue();
+                if (expiredJobs.length > 0) {
+                    expiredJobs.forEach((expJob) => {
+                        if (expJob.fileUrl && expJob.fileUrl.startsWith('blob:')) {
+                            try { URL.revokeObjectURL(expJob.fileUrl); } catch (e) {}
+                        }
+                        if (activeStudioJob && activeStudioJob.id === expJob.id) {
+                            closeStudioModal();
+                        }
+                        showToast(`🗑️ "${expJob.customerName}" का डॉक्यूमेंट समय पूरा होने पर ऑटो-डिलीट हो गया।`, 'warning');
+                    });
+
+                    const expiredIds = new Set(expiredJobs.map(j => j.id));
+                    printJobs = printJobs.filter(j => !expiredIds.has(j.id));
+                    renderPrintQueue();
+                }
+            }
+
+            // 2. Check Chat Messages Expiry
+            const expirableChats = chatMessages.filter(m => !m.isSystem);
+            if (expirableChats.length > 0) {
+                const expiredChats = [];
+                expirableChats.forEach(msg => {
+                    const rem = msg.expiresAt - now;
+                    if (rem <= 0) {
+                        expiredChats.push(msg);
+                    } else {
+                        document.querySelectorAll(`.chat-timer-${msg.id}`).forEach(el => {
+                            el.innerText = `⏱️ ${formatCountdownTime(rem)}`;
+                        });
+                    }
+                });
+
+                if (expiredChats.length > 0) {
+                    expiredChats.forEach(m => {
+                        if (m.fileUrl && m.fileUrl.startsWith('blob:')) {
+                            try { URL.revokeObjectURL(m.fileUrl); } catch (e) {}
+                        }
+                    });
+                    const expChatIds = new Set(expiredChats.map(m => m.id));
+                    chatMessages = chatMessages.filter(m => !expChatIds.has(m.id));
+                    renderChatMessages();
+                }
             }
         }
 
         // =========================================================================
-        // ADMIN DASHBOARD: PEERJS RECEIVER & 64KB CHUNKED ASSEMBLER ENGINE
+        // ADMIN & CUSTOMER PEERJS CONNECTION + CALL LISTENER + CHUNKED RECEIVER
         // =========================================================================
         function getCustomerShareUrl() {
             const baseUrl = window.location.origin + window.location.pathname;
@@ -978,8 +1393,8 @@
 
             new QRCode(qrContainer, {
                 text: fullUrl,
-                width: 168,
-                height: 168,
+                width: 164,
+                height: 164,
                 colorDark: '#0f172a',
                 colorLight: '#ffffff',
                 correctLevel: QRCode.CorrectLevel.M
@@ -1011,9 +1426,22 @@
                 });
 
                 adminPeer.on('connection', (conn) => {
+                    activeCustomerConn = conn;
+                    latestCustomerPeerId = conn.peer;
+                    updateConnectedCustomerBadge(true, conn.peer);
+
                     conn.on('data', (packet) => {
                         processIncomingPeerPacket(packet, conn);
                     });
+
+                    conn.on('close', () => {
+                        updateConnectedCustomerBadge(false);
+                    });
+                });
+
+                // Listen for incoming WebRTC Audio / Video Calls from Customer
+                adminPeer.on('call', (mediaCall) => {
+                    handleIncomingWebRTCCall(mediaCall);
                 });
 
                 adminPeer.on('error', (err) => {
@@ -1030,11 +1458,83 @@
             }
         }
 
-        // Supports both { type: 'start'|'chunk'|'end', jobId } and { type: 'FILE_START'|'FILE_CHUNK'|'FILE_END', fileId }
+        // Persistent Customer Peer Connection for 2-Way Chat & Receiving Shopkeeper Calls
+        function initCustomerLiveConnection() {
+            if (!urlShopParam || customerPeer) return;
+            try {
+                customerPeer = new Peer();
+                customerPeer.on('open', (myPeerId) => {
+                    const conn = customerPeer.connect(currentShopId, { reliable: true });
+                    conn.on('open', () => {
+                        activeCustomerConn = conn;
+                        conn.send({
+                            type: 'CUSTOMER_HELLO',
+                            customerName: document.getElementById('cust-name-input').value.trim() || 'ग्राहक (Customer)',
+                            peerId: myPeerId
+                        });
+                    });
+                    conn.on('data', (packet) => {
+                        processIncomingPeerPacket(packet, conn);
+                    });
+                });
+
+                customerPeer.on('call', (mediaCall) => {
+                    handleIncomingWebRTCCall(mediaCall);
+                });
+            } catch (e) {
+                console.warn('Customer live peer init notice:', e);
+            }
+        }
+
+        function updateConnectedCustomerBadge(isOnline, peerId = '') {
+            const badge = document.getElementById('connected-customer-status');
+            if (!badge) return;
+            if (isOnline) {
+                badge.className = 'text-[11px] bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-400/40 font-semibold';
+                badge.innerHTML = `<i class="fa-solid fa-circle text-[8px] mr-1"></i>Customer Connected`;
+            } else {
+                badge.className = 'text-[11px] bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-700';
+                badge.innerText = 'Waiting for Customer...';
+            }
+        }
+
+        // Unified Packet Router: Handles File Chunks, Chat Messages, TTL Sync, and Call Signaling
         function processIncomingPeerPacket(packet, conn) {
             if (!packet) return;
 
+            if (conn && conn.peer) {
+                latestCustomerPeerId = conn.peer;
+            }
+
             const pType = packet.type;
+
+            if (pType === 'CUSTOMER_HELLO') {
+                latestCustomerPeerId = packet.peerId || (conn && conn.peer);
+                updateConnectedCustomerBadge(true, latestCustomerPeerId);
+                showToast(`👋 ${packet.customerName || 'ग्राहक'} लाइव चैट और प्रिंट से जुड़ गए हैं!`, 'info');
+                return;
+            }
+
+            if (pType === 'CHAT_MSG') {
+                receiveIncomingChatPacket(packet);
+                return;
+            }
+
+            if (pType === 'TTL_SYNC') {
+                applyNewAutoDeleteMinutes(packet.minutes, false);
+                return;
+            }
+
+            if (pType === 'PANIC_WIPE') {
+                executePanicWipeAllData();
+                return;
+            }
+
+            if (pType === 'CALL_END_SIGNAL') {
+                endActiveCall(false);
+                return;
+            }
+
             const transferId = packet.jobId || packet.fileId;
 
             if (pType === 'start' || pType === 'FILE_START') {
@@ -1071,7 +1571,8 @@
                 removeAdminIncomingProgress(transferId);
                 delete incomingTransfers[transferId];
 
-                handleIncomingPrintJob({
+                // Add to Print Queue
+                const createdJob = handleIncomingPrintJob({
                     customerName: transfer.meta.customerName,
                     fileName: transfer.meta.fileName,
                     fileType: transfer.meta.fileType,
@@ -1082,6 +1583,23 @@
                     blobUrl: blobUrl
                 });
 
+                // If sent inside Chat stream, also append visual bubble in Chat
+                if (transfer.meta.fromChat) {
+                    appendChatBubbleObject({
+                        id: 'chat-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+                        senderRole: transfer.meta.senderRole || 'customer',
+                        senderName: transfer.meta.customerName || 'ग्राहक',
+                        text: transfer.meta.chatCaption || `📎 डॉक्यूमेंट भेजा गया: ${transfer.meta.fileName}`,
+                        fileUrl: blobUrl,
+                        fileName: transfer.meta.fileName,
+                        fileType: transfer.meta.fileType,
+                        fileSizeFormatted: formatFileSize(transfer.meta.fileSize || completeBlob.size),
+                        linkedJobId: createdJob ? createdJob.id : null,
+                        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        expiresAt: Date.now() + (autoDeleteDurationMinutes * 60 * 1000)
+                    });
+                }
+
                 if (conn && conn.open) {
                     conn.send({ type: 'ack', jobId: transferId });
                 }
@@ -1089,6 +1607,558 @@
             else if (packet.fileName) {
                 handleIncomingPrintJob(packet);
             }
+        }
+
+        // =========================================================================
+        // REAL-TIME 2-WAY LIVE CHAT + IN-CHAT PHOTO/DOCUMENT SHARING
+        // =========================================================================
+        function addSystemWelcomeChat() {
+            chatMessages = [{
+                id: 'sys-welcome',
+                isSystem: true,
+                text: '🇮🇳 Safe Your Data P2P Chat: यहाँ भेजे गए सभी संदेश और डॉक्यूमेंट सीधे दुकानदार और ग्राहक के बीच रहते हैं और टाइमर खत्म होने पर अपने-आप डिलीट हो जाते हैं।'
+            }];
+            renderChatMessages();
+        }
+
+        function sendQuickReply(role, text) {
+            const inputId = role === 'admin' ? 'admin-chat-input' : 'cust-chat-input';
+            document.getElementById(inputId).value = text;
+            sendChatMessage(role);
+        }
+
+        function sendChatMessage(role) {
+            const inputId = role === 'admin' ? 'admin-chat-input' : 'cust-chat-input';
+            const inputEl = document.getElementById(inputId);
+            const text = inputEl.value.trim();
+            if (!text) return;
+
+            const customerName = document.getElementById('cust-name-input').value.trim() || 'ग्राहक (Customer)';
+            const senderName = role === 'admin' ? '🏪 दुकानदार (Shopkeeper)' : `👤 ${customerName}`;
+
+            const msgObj = {
+                id: 'msg-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+                senderRole: role,
+                senderName: senderName,
+                text: text,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                expiresAt: Date.now() + (autoDeleteDurationMinutes * 60 * 1000)
+            };
+
+            inputEl.value = '';
+            appendChatBubbleObject(msgObj);
+
+            // Transmit over WebRTC P2P connection if connected
+            if (activeCustomerConn && activeCustomerConn.open) {
+                activeCustomerConn.send({
+                    type: 'CHAT_MSG',
+                    msg: msgObj
+                });
+            }
+        }
+
+        function receiveIncomingChatPacket(packet) {
+            if (!packet || !packet.msg) return;
+            playNotificationChime();
+            const incomingMsg = {
+                ...packet.msg,
+                expiresAt: Date.now() + (autoDeleteDurationMinutes * 60 * 1000)
+            };
+            appendChatBubbleObject(incomingMsg);
+
+            const adminHidden = document.getElementById('admin-section').classList.contains('hidden');
+            if (incomingMsg.senderRole === 'customer' && adminHidden) {
+                unreadAdminChatCount++;
+                updateUnreadChatBadge();
+            }
+            showToast(`💬 नया संदेश: ${incomingMsg.senderName}`, 'info');
+        }
+
+        async function sendChatAttachment(inputEl, role) {
+            if (!inputEl.files || !inputEl.files.length) return;
+            const rawFile = inputEl.files[0];
+            inputEl.value = '';
+
+            const processedFile = await optimizeCameraImageIfNeeded(rawFile, 'chat');
+            const customerName = role === 'admin'
+                ? '🏪 दुकानदार (Shopkeeper)'
+                : (document.getElementById('cust-name-input').value.trim() || 'ग्राहक (Customer)');
+
+            showToast(`📎 चैट में "${processedFile.name}" भेजा जा रहा है...`, 'info');
+
+            if (urlShopParam && activeCustomerConn && activeCustomerConn.open) {
+                await sendSingleFileOverPeerChunks(activeCustomerConn, processedFile, {
+                    customerName: customerName,
+                    colorMode: 'Color',
+                    copies: 1,
+                    layoutType: 'Full A4 Page',
+                    fromChat: true,
+                    senderRole: role,
+                    chatCaption: `📎 ${processedFile.name}`
+                });
+                // Also display in sender's local chat window
+                const localUrl = URL.createObjectURL(processedFile);
+                appendChatBubbleObject({
+                    id: 'chat-' + Date.now(),
+                    senderRole: role,
+                    senderName: customerName,
+                    text: `📎 डॉक्यूमेंट भेजा गया: ${processedFile.name}`,
+                    fileUrl: localUrl,
+                    fileName: processedFile.name,
+                    fileType: processedFile.type || 'image/jpeg',
+                    fileSizeFormatted: formatFileSize(processedFile.size),
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    expiresAt: Date.now() + (autoDeleteDurationMinutes * 60 * 1000)
+                });
+            } else {
+                // Local same-device transfer (updates both Chat and Print Queue!)
+                await transferFileInChunksLocal(processedFile, {
+                    customerName: customerName,
+                    colorMode: 'Color',
+                    copies: 1,
+                    layoutType: 'Full A4 Page',
+                    fromChat: true,
+                    senderRole: role,
+                    chatCaption: `📎 ${processedFile.name}`
+                });
+            }
+        }
+
+        function appendChatBubbleObject(msgObj) {
+            chatMessages.push(msgObj);
+            renderChatMessages();
+        }
+
+        function deleteSingleChatMessage(msgId) {
+            const target = chatMessages.find(m => m.id === msgId);
+            if (target && target.fileUrl && target.fileUrl.startsWith('blob:')) {
+                try { URL.revokeObjectURL(target.fileUrl); } catch (e) {}
+            }
+            chatMessages = chatMessages.filter(m => m.id !== msgId);
+            renderChatMessages();
+        }
+
+        function clearAllChatMessages() {
+            chatMessages.forEach(m => {
+                if (m.fileUrl && m.fileUrl.startsWith('blob:')) {
+                    try { URL.revokeObjectURL(m.fileUrl); } catch (e) {}
+                }
+            });
+            addSystemWelcomeChat();
+            showToast('🧹 चैट हिस्ट्री साफ कर दी गई।', 'info');
+        }
+
+        function updateUnreadChatBadge() {
+            const badge = document.getElementById('admin-unread-chat-badge');
+            if (!badge) return;
+            if (unreadAdminChatCount > 0) {
+                badge.classList.remove('hidden');
+                badge.innerText = unreadAdminChatCount;
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function renderChatMessages() {
+            const adminBox = document.getElementById('admin-chat-messages');
+            const custBox = document.getElementById('cust-chat-messages');
+            if (!adminBox || !custBox) return;
+
+            const now = Date.now();
+
+            const buildHtmlForViewer = (viewerRole) => {
+                return chatMessages.map(msg => {
+                    if (msg.isSystem) {
+                        return `
+                            <div class="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-2.5 text-[11px] text-center font-medium">
+                                <i class="fa-solid fa-shield-halved text-amber-600 mr-1"></i>${escapeHtml(msg.text)}
+                            </div>
+                        `;
+                    }
+
+                    const isMe = msg.senderRole === viewerRole;
+                    const remMs = Math.max(0, msg.expiresAt - now);
+                    const alignClass = isMe ? 'items-end' : 'items-start';
+                    const bubbleColor = isMe
+                        ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none'
+                        : 'bg-white text-slate-800 border border-slate-200 rounded-2xl rounded-tl-none';
+
+                    const isImg = msg.fileUrl && (msg.fileType || '').startsWith('image/');
+
+                    let attachmentHtml = '';
+                    if (msg.fileUrl) {
+                        attachmentHtml = `
+                            <div class="mt-2 p-2 rounded-xl ${isMe ? 'bg-blue-700/80' : 'bg-slate-100'} border border-white/15">
+                                ${isImg
+                                    ? `<img src="${msg.fileUrl}" class="max-h-36 rounded-lg object-cover mb-1.5 cursor-pointer" onclick="${msg.linkedJobId ? `openStudioModal('${msg.linkedJobId}')` : ''}" />`
+                                    : `<div class="flex items-center gap-2 py-1"><i class="fa-solid fa-file-pdf text-red-400 text-xl"></i><span class="text-xs font-bold truncate">${escapeHtml(msg.fileName || 'Document.pdf')}</span></div>`
+                                }
+                                <div class="flex items-center justify-between gap-2 text-[10px] pt-1">
+                                    <span>${msg.fileSizeFormatted || ''}</span>
+                                    <div class="flex items-center gap-1.5">
+                                        ${msg.linkedJobId && isImg ? `<button onclick="openStudioModal('${msg.linkedJobId}')" class="bg-indigo-500 hover:bg-indigo-400 text-white px-2 py-0.5 rounded font-bold">📐 Crop & Print</button>` : ''}
+                                        <a href="${msg.fileUrl}" download="${escapeHtml(msg.fileName || 'File')}" class="underline font-bold">Download</a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    return `
+                        <div class="flex flex-col ${alignClass}">
+                            <div class="max-w-[85%] sm:max-w-[75%] p-3 shadow-sm ${bubbleColor}">
+                                <div class="flex items-center justify-between gap-3 text-[10px] ${isMe ? 'text-blue-100' : 'text-slate-400'} font-semibold mb-1">
+                                    <span>${escapeHtml(msg.senderName)}</span>
+                                    <span>${msg.timestamp || ''}</span>
+                                </div>
+                                <p class="text-xs sm:text-sm leading-snug break-words">${escapeHtml(msg.text)}</p>
+                                ${attachmentHtml}
+                                <div class="flex items-center justify-between gap-2 mt-2 pt-1 border-t ${isMe ? 'border-blue-500/50 text-blue-100' : 'border-slate-100 text-slate-500'} text-[10px] font-mono">
+                                    <span class="chat-timer-${msg.id}">⏱️ ${formatCountdownTime(remMs)}</span>
+                                    <div class="flex items-center gap-1.5">
+                                        <button onclick="extendChatExpiry('${msg.id}', 5)" class="hover:underline font-bold" title="Extend +5 Min">+5m</button>
+                                        <button onclick="deleteSingleChatMessage('${msg.id}')" class="hover:text-red-300 font-bold" title="Delete Now">✕</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            };
+
+            adminBox.innerHTML = buildHtmlForViewer('admin');
+            custBox.innerHTML = buildHtmlForViewer('customer');
+
+            adminBox.scrollTop = adminBox.scrollHeight;
+            custBox.scrollTop = custBox.scrollHeight;
+        }
+
+        function simulateSampleCustomerChat() {
+            const sample = createSkewedSampleDocumentData();
+            sample.canvas.toBlob((blob) => {
+                const blobUrl = URL.createObjectURL(blob);
+                window.lastSamplePresetCorners = sample.normalizedCorners;
+
+                const createdJob = handleIncomingPrintJob({
+                    customerName: 'नेहा गुप्ता (WhatsApp/Chat)',
+                    fileName: 'Aadhaar_Card_Chat.jpg',
+                    fileType: 'image/jpeg',
+                    fileSize: blob.size,
+                    colorMode: 'Color',
+                    copies: 2,
+                    layoutType: 'ID Card / Aadhaar Size',
+                    blobUrl: blobUrl
+                });
+
+                appendChatBubbleObject({
+                    id: 'chat-sim-' + Date.now(),
+                    senderRole: 'customer',
+                    senderName: '👤 नेहा गुप्ता (ग्राहक)',
+                    text: 'भैया नमस्ते! मैंने चैट में अपना आधार कार्ड भेजा है, इसकी 2 रंगीन (Color) कॉपी सीधा करके निकाल दीजिए 🙏',
+                    fileUrl: blobUrl,
+                    fileName: 'Aadhaar_Card_Chat.jpg',
+                    fileType: 'image/jpeg',
+                    fileSizeFormatted: formatFileSize(blob.size),
+                    linkedJobId: createdJob ? createdJob.id : null,
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    expiresAt: Date.now() + (autoDeleteDurationMinutes * 60 * 1000)
+                });
+            }, 'image/jpeg', 0.92);
+        }
+
+        // =========================================================================
+        // WEBRTC LIVE AUDIO & VIDEO CALL + SNAP VIDEO FRAME TO PRINT QUEUE
+        // =========================================================================
+        function startRingtoneSound() {
+            stopRingtoneSound();
+            const beep = () => {
+                try {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    const ctx = new AudioCtx();
+                    const now = ctx.currentTime;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(659.25, now); // E5
+                    osc.frequency.setValueAtTime(880, now + 0.18); // A5
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                } catch (e) {}
+            };
+            beep();
+            ringtoneInterval = setInterval(beep, 1400);
+        }
+
+        function stopRingtoneSound() {
+            if (ringtoneInterval) {
+                clearInterval(ringtoneInterval);
+                ringtoneInterval = null;
+            }
+        }
+
+        async function getLocalMediaStream(callType) {
+            const wantVideo = callType === 'video';
+            try {
+                return await navigator.mediaDevices.getUserMedia({
+                    video: wantVideo ? { facingMode: currentCameraFacing, width: { ideal: 1280 }, height: { ideal: 720 } } : false,
+                    audio: true
+                });
+            } catch (err) {
+                // Fallback: Generate synthetic live canvas stream so demo/testing works even without webcam permission
+                return createSyntheticDemoMediaStream(callType);
+            }
+        }
+
+        function createSyntheticDemoMediaStream(callType) {
+            const sample = createSkewedSampleDocumentData();
+            const canvas = sample.canvas;
+            const ctx = canvas.getContext('2d');
+
+            setInterval(() => {
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(20, 20, 460, 46);
+                ctx.fillStyle = '#22d3ee';
+                ctx.font = 'bold 22px monospace';
+                ctx.fillText('LIVE VIDEO CALL • ' + new Date().toLocaleTimeString(), 35, 50);
+            }, 1000);
+
+            const stream = canvas.captureStream ? canvas.captureStream(15) : new MediaStream();
+            return stream;
+        }
+
+        async function initiatePeerCall(callType, initiatorRole) {
+            const callerName = initiatorRole === 'admin'
+                ? '🏪 दुकानदार (Shopkeeper)'
+                : (document.getElementById('cust-name-input').value.trim() || 'ग्राहक (Customer)');
+
+            localCallStream = await getLocalMediaStream(callType);
+
+            // Check if remote peer is connected for real P2P WebRTC call
+            const targetPeerId = initiatorRole === 'customer' ? currentShopId : latestCustomerPeerId;
+            const activePeerObj = initiatorRole === 'customer' ? (customerPeer || new Peer()) : adminPeer;
+
+            if (urlShopParam && activePeerObj && targetPeerId) {
+                try {
+                    const mediaCall = activePeerObj.call(targetPeerId, localCallStream, {
+                        metadata: { callType, callerName }
+                    });
+                    if (mediaCall) {
+                        setupActiveCallUI(callType, callerName, localCallStream, null);
+                        mediaCall.on('stream', (remoteStream) => {
+                            attachRemoteCallStream(remoteStream, callType);
+                        });
+                        mediaCall.on('close', () => endActiveCall(false));
+                        activeMediaCall = mediaCall;
+                        return;
+                    }
+                } catch (e) {}
+            }
+
+            // Local / Single-device Interactive Call Mode
+            isSimulatedCallMode = true;
+            setupActiveCallUI(callType, `${callerName} (Live Preview)`, localCallStream, localCallStream);
+            showToast(`📞 ${callType === 'video' ? 'Video' : 'Audio'} Call शुरू! आप "Snap Document to Print" से लाइव फोटो भी खींच सकते हैं।`, 'success');
+        }
+
+        function simulateIncomingCallDemo(callType = 'video') {
+            isSimulatedCallMode = true;
+            pendingIncomingCall = {
+                isSimulated: true,
+                callType: callType,
+                callerName: 'राजेश शर्मा (ग्राहक - Live Document Call)'
+            };
+            showIncomingCallBanner(callType, pendingIncomingCall.callerName);
+        }
+
+        function handleIncomingWebRTCCall(mediaCall) {
+            const meta = mediaCall.metadata || {};
+            const callType = meta.callType || 'video';
+            const callerName = meta.callerName || 'ग्राहक (Customer)';
+
+            pendingIncomingCall = {
+                isSimulated: false,
+                mediaCall: mediaCall,
+                callType: callType,
+                callerName: callerName
+            };
+            showIncomingCallBanner(callType, callerName);
+        }
+
+        function showIncomingCallBanner(callType, callerName) {
+            const banner = document.getElementById('incoming-call-banner');
+            document.getElementById('incoming-caller-name').innerText = callerName;
+            document.getElementById('incoming-call-type-badge').innerText = callType === 'video' ? '📹 Incoming Video Call' : '📞 Incoming Audio Call';
+            document.getElementById('incoming-call-icon').className = callType === 'video' ? 'fa-solid fa-video' : 'fa-solid fa-phone-volume';
+            banner.classList.remove('hidden');
+            startRingtoneSound();
+        }
+
+        async function acceptIncomingCall() {
+            stopRingtoneSound();
+            document.getElementById('incoming-call-banner').classList.add('hidden');
+            if (!pendingIncomingCall) return;
+
+            const { isSimulated, mediaCall, callType, callerName } = pendingIncomingCall;
+            localCallStream = await getLocalMediaStream(callType);
+
+            if (isSimulated) {
+                const demoRemoteStream = createSyntheticDemoMediaStream('video');
+                setupActiveCallUI(callType, callerName, localCallStream, demoRemoteStream);
+            } else if (mediaCall) {
+                mediaCall.answer(localCallStream);
+                setupActiveCallUI(callType, callerName, localCallStream, null);
+                mediaCall.on('stream', (remoteStream) => {
+                    attachRemoteCallStream(remoteStream, callType);
+                });
+                mediaCall.on('close', () => endActiveCall(false));
+                activeMediaCall = mediaCall;
+            }
+            pendingIncomingCall = null;
+        }
+
+        function declineIncomingCall() {
+            stopRingtoneSound();
+            document.getElementById('incoming-call-banner').classList.add('hidden');
+            if (pendingIncomingCall && pendingIncomingCall.mediaCall) {
+                pendingIncomingCall.mediaCall.close();
+            }
+            pendingIncomingCall = null;
+            showToast('कॉल डिस्कनेक्ट कर दी गई।', 'info');
+        }
+
+        function setupActiveCallUI(callType, partnerName, localStream, remoteStream) {
+            const modal = document.getElementById('active-call-modal');
+            const localVideo = document.getElementById('local-call-video');
+            const remoteVideo = document.getElementById('remote-call-video');
+            const audioAvatar = document.getElementById('audio-call-avatar-view');
+
+            document.getElementById('call-partner-title').innerText = `${partnerName} • Live ${callType.toUpperCase()} Call`;
+            document.getElementById('audio-call-partner-name').innerText = partnerName;
+
+            modal.classList.remove('hidden');
+            localVideo.srcObject = localStream || null;
+
+            if (callType === 'audio') {
+                audioAvatar.classList.remove('hidden');
+            } else {
+                audioAvatar.classList.add('hidden');
+            }
+
+            if (remoteStream) {
+                attachRemoteCallStream(remoteStream, callType);
+            }
+
+            callSecondsElapsed = 0;
+            if (callTimerInterval) clearInterval(callTimerInterval);
+            callTimerInterval = setInterval(() => {
+                callSecondsElapsed++;
+                const mins = String(Math.floor(callSecondsElapsed / 60)).padStart(2, '0');
+                const secs = String(callSecondsElapsed % 60).padStart(2, '0');
+                document.getElementById('call-duration-timer').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function attachRemoteCallStream(remoteStream, callType) {
+            const remoteVideo = document.getElementById('remote-call-video');
+            remoteVideo.srcObject = remoteStream;
+        }
+
+        function toggleCallAudioMute() {
+            if (!localCallStream) return;
+            isCallAudioMuted = !isCallAudioMuted;
+            localCallStream.getAudioTracks().forEach(t => { t.enabled = !isCallAudioMuted; });
+            const btn = document.getElementById('call-mute-btn');
+            btn.innerHTML = isCallAudioMuted
+                ? '<i class="fa-solid fa-microphone-slash text-red-400"></i> <span>Unmute Mic</span>'
+                : '<i class="fa-solid fa-microphone"></i> <span>Mute Mic</span>';
+        }
+
+        function toggleCallVideoTrack() {
+            if (!localCallStream) return;
+            isCallVideoOff = !isCallVideoOff;
+            localCallStream.getVideoTracks().forEach(t => { t.enabled = !isCallVideoOff; });
+            const btn = document.getElementById('call-video-btn');
+            btn.innerHTML = isCallVideoOff
+                ? '<i class="fa-solid fa-video-slash text-red-400"></i> <span>Camera Off</span>'
+                : '<i class="fa-solid fa-video"></i> <span>Camera On</span>';
+        }
+
+        async function flipActiveCallCamera() {
+            currentCameraFacing = currentCameraFacing === 'environment' ? 'user' : 'environment';
+            if (localCallStream) {
+                localCallStream.getTracks().forEach(t => t.stop());
+            }
+            localCallStream = await getLocalMediaStream('video');
+            document.getElementById('local-call-video').srcObject = localCallStream;
+            if (isSimulatedCallMode) {
+                document.getElementById('remote-call-video').srcObject = localCallStream;
+            }
+            showToast('🔄 कैमरा फ्लिप किया गया!', 'info');
+        }
+
+        // Shopkeeper can snap a frame directly from the live video call into the Print Queue & 4-Point Perspective Studio!
+        function captureVideoCallFrameToQueue() {
+            const remoteVideo = document.getElementById('remote-call-video');
+            const localVideo = document.getElementById('local-call-video');
+            const targetVid = (remoteVideo && remoteVideo.videoWidth) ? remoteVideo : localVideo;
+
+            let snapCanvas;
+            if (targetVid && targetVid.videoWidth) {
+                snapCanvas = document.createElement('canvas');
+                snapCanvas.width = targetVid.videoWidth;
+                snapCanvas.height = targetVid.videoHeight;
+                snapCanvas.getContext('2d').drawImage(targetVid, 0, 0);
+            } else {
+                const sample = createSkewedSampleDocumentData();
+                snapCanvas = sample.canvas;
+                window.lastSamplePresetCorners = sample.normalizedCorners;
+            }
+
+            snapCanvas.toBlob((blob) => {
+                if (!blob) return;
+                const blobUrl = URL.createObjectURL(blob);
+                const job = handleIncomingPrintJob({
+                    customerName: '📹 Live Video Call Capture',
+                    fileName: `VideoCall_Snap_${Date.now()}.jpg`,
+                    fileType: 'image/jpeg',
+                    fileSize: blob.size,
+                    colorMode: 'Color',
+                    copies: 1,
+                    layoutType: 'ID Card / Aadhaar Size',
+                    blobUrl: blobUrl
+                });
+                showToast('📸 वीडियो कॉल से डॉक्यूमेंट कैप्चर कर लिया गया! अब आप इसे Perspective Crop कर सकते हैं।', 'success');
+                if (job) {
+                    openStudioModal(job.id);
+                }
+            }, 'image/jpeg', 0.92);
+        }
+
+        function endActiveCall(sendSignal = true) {
+            stopRingtoneSound();
+            document.getElementById('incoming-call-banner').classList.add('hidden');
+            document.getElementById('active-call-modal').classList.add('hidden');
+
+            if (callTimerInterval) {
+                clearInterval(callTimerInterval);
+                callTimerInterval = null;
+            }
+            if (activeMediaCall) {
+                try { activeMediaCall.close(); } catch (e) {}
+                activeMediaCall = null;
+            }
+            if (localCallStream) {
+                localCallStream.getTracks().forEach(t => t.stop());
+                localCallStream = null;
+            }
+            if (sendSignal && activeCustomerConn && activeCustomerConn.open) {
+                activeCustomerConn.send({ type: 'CALL_END_SIGNAL' });
+            }
+            isSimulatedCallMode = false;
         }
 
         function renderAdminIncomingProgress(transferId) {
@@ -1194,7 +2264,7 @@
         }
 
         // =========================================================================
-        // INCOMING JOB HANDLER & QUEUE RENDERING (WITH 10-MINUTE EXPIRY COUNTDOWN)
+        // INCOMING JOB HANDLER & QUEUE RENDERING (WITH CUSTOM AUTO-DELETE COUNTDOWN)
         // =========================================================================
         function handleIncomingPrintJob(data) {
             playNotificationChime();
@@ -1226,6 +2296,7 @@
             printJobs.unshift(newJob);
             renderPrintQueue();
             showToast(`🔔 नया डॉक्यूमेंट आया: ${newJob.customerName} (${newJob.fileSizeFormatted})`, 'success');
+            return newJob;
         }
 
         function renderPrintQueue() {
@@ -1683,7 +2754,10 @@
                 fileSize: totalBytes,
                 colorMode: meta.colorMode,
                 copies: meta.copies,
-                layoutType: meta.layoutType
+                layoutType: meta.layoutType,
+                fromChat: Boolean(meta.fromChat),
+                senderRole: meta.senderRole || 'customer',
+                chatCaption: meta.chatCaption || ''
             };
 
             // Step 1: Send start packet
@@ -1740,7 +2814,10 @@
                 fileSize: totalBytes,
                 colorMode: meta.colorMode,
                 copies: meta.copies,
-                layoutType: meta.layoutType
+                layoutType: meta.layoutType,
+                fromChat: Boolean(meta.fromChat),
+                senderRole: meta.senderRole || 'customer',
+                chatCaption: meta.chatCaption || ''
             };
 
             processIncomingPeerPacket({
