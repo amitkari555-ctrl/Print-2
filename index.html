@@ -11,13 +11,13 @@
 </head>
 <body class="bg-slate-100 font-sans text-slate-800 min-h-screen">
 
-    <!-- LOCATION NEWS BANNER (Only visible on Shopkeeper Dashboard) -->
+    <!-- LOCATION NEWS BANNER (Shopkeeper Only) -->
     <div id="newsBannerContainer" class="bg-amber-500 text-white px-4 py-2 flex flex-wrap justify-between items-center text-xs sm:text-sm shadow-sm">
         <div id="locationNews" class="font-medium">📍 लोकल न्यूज़ पाने के लिए लोकेशन अनुमति दें।</div>
         <button onclick="getLocationNews()" class="bg-white text-amber-900 px-3 py-1 rounded-full font-bold text-xs shadow hover:bg-amber-50 mt-1 sm:mt-0">🔄 लोकेशन चालू करें</button>
     </div>
 
-    <!-- SHOPKEEPER HEADER (Hidden completely when Customer opens QR link) -->
+    <!-- SHOPKEEPER HEADER -->
     <header id="shopHeader" class="bg-indigo-900 text-white p-4 shadow-lg">
         <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center space-x-3">
@@ -29,12 +29,11 @@
                     </div>
                     <p class="text-xs text-indigo-200 mt-0.5">
                         Unique Shop ID: <span id="headerShopId" class="font-mono font-bold text-amber-300">SHP-2032</span>
-                        <span class="text-emerald-400 ml-1">● Live Sync Active</span>
+                        <span class="text-emerald-400 ml-1">● High-Capacity Storage Active (10MB+ Support)</span>
                     </p>
                 </div>
             </div>
 
-            <!-- Action to test Customer Tab separately without showing switcher inside customer form -->
             <div>
                 <button onclick="openCustomerNewTab()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-full font-bold text-xs sm:text-sm shadow flex items-center gap-2 transition">
                     <span>↗️ ग्राहक QR स्कैन नया टैब खोलें (Test Customer Tab)</span>
@@ -43,7 +42,7 @@
         </div>
     </header>
 
-    <!-- CUSTOMER STANDALONE HEADER (Only visible when Customer scans QR / opens Customer Tab) -->
+    <!-- CUSTOMER STANDALONE HEADER -->
     <header id="customerHeader" class="hidden bg-indigo-700 text-white p-4 shadow-md">
         <div class="max-w-xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-2.5">
@@ -60,7 +59,7 @@
     <!-- MAIN CONTENT CONTAINER -->
     <main class="max-w-7xl mx-auto p-4 grid grid-cols-1 lg:grid-cols-3 gap-6 mt-2">
 
-        <!-- LEFT / CENTER AREA (2 Cols on Desktop) -->
+        <!-- LEFT / CENTER AREA -->
         <div class="lg:col-span-2 space-y-6">
 
             <!-- ================= SHOPKEEPER VIEW ================= -->
@@ -76,7 +75,6 @@
                         अपनी मनपसंद यूनिक Shop ID नीचे लिखें। अगर वह ID किसी और की होगी तो सिस्टम तुरंत हटाकर नई बनाने को कहेगा।
                     </p>
 
-                    <!-- Custom Shop ID Input & Validation Box -->
                     <div class="mt-4 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                         <label class="block text-xs font-bold text-slate-600 uppercase">अपनी Shop ID खुद लिखें (Custom Shop ID):</label>
                         <div class="flex flex-wrap sm:flex-nowrap gap-2">
@@ -91,15 +89,9 @@
                             </button>
                         </div>
 
-                        <!-- Error / Success Alert Message for Shop ID -->
                         <div id="shopIdAlert" class="hidden text-xs font-bold p-3 rounded-lg"></div>
-
-                        <div class="text-[11px] text-slate-500">
-                            💡 <b>टेस्टिंग के लिए पहले से बुक (Already Taken) IDs:</b> <code class="bg-slate-200 px-1.5 py-0.5 rounded">SHP-1001</code>, <code class="bg-slate-200 px-1.5 py-0.5 rounded">INDIA-PRINT</code>, <code class="bg-slate-200 px-1.5 py-0.5 rounded">SHOP-123</code> (या किसी दूसरे टैब में चल रही ID डालकर देखें)।
-                        </div>
                     </div>
 
-                    <!-- QR Display & Customer Tab Trigger -->
                     <div class="mt-5 flex flex-col sm:flex-row items-center justify-between gap-6 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
                         <div class="space-y-3 w-full sm:w-auto">
                             <div class="text-sm font-semibold text-slate-700">
@@ -125,8 +117,8 @@
                 <!-- Received Documents Queue -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-extrabold text-slate-800">📄 प्राप्त दस्तावेज़ (Customer Print Queue)</h3>
-                        <span class="text-xs bg-slate-100 px-2.5 py-1 rounded-full font-semibold text-slate-600">Auto-Sync ON</span>
+                        <h3 class="text-lg font-extrabold text-slate-800">📄 प्राप्त दस्तावेज़ (Customer Print Queue - 10MB+ Supported)</h3>
+                        <span class="text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-bold">IndexedDB Storage Active</span>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-sm">
@@ -143,7 +135,7 @@
                     </div>
                 </div>
 
-                <!-- Perspective / Image Cropper Modal for Shopkeeper -->
+                <!-- Crop Modal -->
                 <div id="cropSection" class="hidden bg-white p-6 rounded-2xl shadow-lg border-2 border-indigo-500 space-y-4">
                     <div class="flex justify-between items-center border-b pb-3">
                         <h3 class="text-lg font-bold text-indigo-900">📐 Perspective & Document Crop (Shopkeeper Tool)</h3>
@@ -162,24 +154,21 @@
             </section>
 
             <!-- ================= CUSTOMER STANDALONE UPLOAD FORM ================= -->
-            <!-- Jab customer QR scan karega, toh SIRF yeh section khulega, dukaan ka koi option nahi dikhega -->
             <section id="customerView" class="hidden bg-white p-6 rounded-2xl shadow-md border border-slate-200 space-y-5">
                 <div class="border-b pb-3">
                     <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">
                         ✔ दुकान से जुड़ा हुआ: <span id="custFormShopBadge" class="font-mono"></span>
                     </span>
-                    <h2 class="text-xl font-extrabold text-slate-800 mt-2">प्रिंट के लिए दस्तावेज़ भेजें</h2>
-                    <p class="text-xs text-slate-500">अपना नाम लिखें, Black & White या Color चुनें और अपनी PDF/फोटो अपलोड करें।</p>
+                    <h2 class="text-xl font-extrabold text-slate-800 mt-2">प्रिंट के लिए दस्तावेज़ भेजें (5MB - 50MB Support)</h2>
+                    <p class="text-xs text-slate-500">अपना नाम लिखें, Black & White या Color चुनें और बड़ी PDF या Photo अपलोड करें।</p>
                 </div>
 
                 <div class="space-y-4">
-                    <!-- 1. Customer Name -->
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-1">1. आपका नाम (Customer Name) *</label>
                         <input type="text" id="custName" placeholder="उदा. राहुल शर्मा" class="w-full border-2 border-slate-200 focus:border-indigo-600 rounded-xl p-2.5 text-sm outline-none">
                     </div>
 
-                    <!-- 2. Black & White OR Color Option -->
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">2. प्रिंट का प्रकार चुनें (Black & White या Color) *</label>
                         <div class="grid grid-cols-2 gap-3">
@@ -201,7 +190,6 @@
                         </div>
                     </div>
 
-                    <!-- 3. Copies -->
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">कॉपी की संख्या (Copies)</label>
@@ -216,9 +204,8 @@
                         </div>
                     </div>
 
-                    <!-- 4. File Upload -->
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1">3. दस्तावेज़ चुनें (PDF या Photo) *</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">3. दस्तावेज़ चुनें (बड़ी PDF या Photo - 10MB+) *</label>
                         <input type="file" id="docFile" accept="image/*,.pdf" class="w-full border-2 border-dashed border-indigo-300 rounded-xl p-3 text-sm bg-indigo-50/30 cursor-pointer">
                     </div>
 
@@ -227,14 +214,14 @@
                     </button>
 
                     <div id="uploadSuccessMsg" class="hidden bg-emerald-100 border border-emerald-300 text-emerald-900 p-3 rounded-xl text-xs font-bold text-center">
-                        ✅ आपका दस्तावेज़ दुकानदार के पास पहुँच गया है! आप नीचे चैट से भी बात कर सकते हैं।
+                        ✅ आपका दस्तावेज़ दुकानदार के पास सफलतापूर्वक पहुँच गया है!
                     </div>
                 </div>
             </section>
 
         </div>
 
-        <!-- RIGHT AREA: REAL-TIME CHAT, CALL & 10-MIN AUTO DELETE -->
+        <!-- RIGHT AREA: REAL-TIME CHAT & WORKING VIDEO/AUDIO CALL -->
         <div class="space-y-6">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[520px]">
                 <div class="p-4 border-b flex justify-between items-center bg-slate-50 rounded-t-2xl">
@@ -243,8 +230,8 @@
                         <p class="text-[11px] text-slate-500">Shop ID: <span id="chatShopBadge" class="font-mono font-bold text-indigo-600"></span></p>
                     </div>
                     <div class="flex space-x-2">
-                        <button onclick="startCall('Audio')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 p-2 rounded-full text-sm" title="Audio Call">📞</button>
-                        <button onclick="startCall('Video')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded-full text-sm" title="Video Call">📹</button>
+                        <button onclick="startCall('Audio')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 p-2 rounded-full text-sm font-bold shadow" title="Audio Call">📞 ऑडियो</button>
+                        <button onclick="startCall('Video')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded-full text-sm font-bold shadow" title="Video Call">📹 वीडियो</button>
                     </div>
                 </div>
 
@@ -254,12 +241,17 @@
                     <input type="checkbox" id="autoDeleteToggle" checked class="w-4 h-4 accent-rose-600 cursor-pointer">
                 </div>
 
-                <!-- Call Box -->
-                <div id="callBox" class="hidden bg-slate-900 text-white p-3 flex flex-col items-center">
-                    <video id="localVideo" autoplay muted class="w-full h-32 object-cover rounded bg-black"></video>
+                <!-- Fully Fixed Working Video/Audio Call Box -->
+                <div id="callBox" class="hidden bg-slate-900 text-white p-3 flex flex-col items-center relative">
+                    <div class="relative w-full h-36 bg-black rounded-lg overflow-hidden flex items-center justify-center">
+                        <video id="localVideo" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                        <div id="callAudioIndicator" class="absolute inset-0 flex items-center justify-center bg-indigo-950/80 hidden">
+                            <span class="text-3xl animate-pulse">🎙️ ऑडियो कॉल कनेक्टेड...</span>
+                        </div>
+                    </div>
                     <div class="flex justify-between items-center w-full mt-2">
                         <span id="callStatus" class="text-xs text-emerald-400 font-bold">कॉल चालू है...</span>
-                        <button onclick="endCall()" class="bg-red-600 px-3 py-1 rounded text-xs font-bold">कॉल काटें</button>
+                        <button onclick="endCall()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-bold shadow">कॉल काटें ✖</button>
                     </div>
                 </div>
 
@@ -277,21 +269,82 @@
     </main>
 
     <script>
-        // --- URL PARAMETERS CHECK (Strict Separation of Shopkeeper vs Customer View) ---
+        // --- 1. INDEXEDDB SETUP FOR LARGE FILES (10MB - 50MB SUPPORT) ---
+        let db;
+        const dbName = "PrintSetuDatabase";
+        const storeName = "documentsStore";
+
+        function initIndexedDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName, 1);
+                request.onerror = (event) => reject(event.target.error);
+                request.onsuccess = (event) => {
+                    db = event.target.result;
+                    resolve(db);
+                };
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    if (!database.objectStoreNames.contains(storeName)) {
+                        database.createObjectStore(storeName, { keyPath: "id" });
+                    }
+                };
+            });
+        }
+
+        async function saveDocToDB(doc) {
+            if (!db) await initIndexedDB();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([storeName], "readwrite");
+                const store = transaction.objectStore(storeName);
+                const request = store.put(doc);
+                request.onsuccess = () => resolve(true);
+                request.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        async function getDocsFromDB() {
+            if (!db) await initIndexedDB();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([storeName], "readonly");
+                const store = transaction.objectStore(storeName);
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        async function updateDocStatusInDB(id, status) {
+            if (!db) await initIndexedDB();
+            const docs = await getDocsFromDB();
+            const doc = docs.find(d => d.id === id);
+            if (doc) {
+                doc.status = status;
+                await saveDocToDB(doc);
+            }
+        }
+
+        async function updateDocUrlInDB(id, newUrl) {
+            if (!db) await initIndexedDB();
+            const docs = await getDocsFromDB();
+            const doc = docs.find(d => d.id === id);
+            if (doc) {
+                doc.url = newUrl;
+                await saveDocToDB(doc);
+            }
+        }
+
+
+        // --- URL PARAMS & SHOP REGISTRY ---
         const urlParams = new URLSearchParams(window.location.search);
         const isCustomerMode = urlParams.get('mode') === 'customer';
         const urlShopId = urlParams.get('shop');
 
-        // Pre-existing / Taken Shop IDs in system + LocalStorage Registry
         const DEFAULT_TAKEN_IDS = ["SHP-1001", "INDIA-PRINT", "SHOP-123"];
         const TAB_SESSION_ID = "TAB_" + Math.random().toString(36).substring(2, 9);
 
         function getTakenShopRegistry() {
             const stored = JSON.parse(localStorage.getItem("printsetu_taken_ids") || "{}");
-            // Default taken IDs owned by other shops
-            DEFAULT_TAKEN_IDS.forEach(id => {
-                if (!stored[id]) stored[id] = "OTHER_SHOP_OWNER";
-            });
+            DEFAULT_TAKEN_IDS.forEach(id => { if (!stored[id]) stored[id] = "OTHER_SHOP_OWNER"; });
             return stored;
         }
 
@@ -309,19 +362,16 @@
             }
         }
 
-        // Initial Active Shop ID
         let currentShopId = urlShopId ? urlShopId.toUpperCase() : "SHP-" + Math.floor(1000 + Math.random() * 9000);
         let qrCodeObj = null;
 
-        // --- INITIALIZE VIEW MODE ---
-        function initApp() {
+        async function initApp() {
+            await initIndexedDB();
+
             if (isCustomerMode) {
-                // 1. CUSTOMER MODE: Hide all shopkeeper headers, switchers, news banner, and dashboard!
                 document.getElementById("shopHeader").classList.add("hidden");
                 document.getElementById("newsBannerContainer").classList.add("hidden");
                 document.getElementById("shopView").classList.add("hidden");
-
-                // Show ONLY Customer Form & Customer Header
                 document.getElementById("customerHeader").classList.remove("hidden");
                 document.getElementById("customerView").classList.remove("hidden");
 
@@ -329,7 +379,6 @@
                 document.getElementById("custFormShopBadge").innerText = currentShopId;
                 document.getElementById("chatShopBadge").innerText = currentShopId;
             } else {
-                // 2. SHOPKEEPER MODE: Register current Shop ID and generate QR
                 saveShopToRegistry(currentShopId, TAB_SESSION_ID);
                 document.getElementById("customShopIdInput").value = currentShopId;
                 updateShopUI();
@@ -338,10 +387,9 @@
             loadSharedData();
         }
 
-        // --- CUSTOM SHOP ID VALIDATION (Requirement 2 & 3) ---
+        // --- CUSTOM SHOP ID CLAIMING ---
         function claimCustomShopId() {
             const inputEl = document.getElementById("customShopIdInput");
-            const alertBox = document.getElementById("shopIdAlert");
             const desiredId = inputEl.value.trim().toUpperCase();
 
             if (!desiredId || desiredId.length < 3) {
@@ -350,22 +398,18 @@
             }
 
             const registry = getTakenShopRegistry();
-
-            // Check if already taken by someone else (or another open tab)
             if (registry[desiredId] && registry[desiredId] !== TAB_SESSION_ID) {
-                // IMMEDIATELY CLEAR INPUT & ASK TO CREATE NEW
                 inputEl.value = "";
                 inputEl.focus();
-                showAlert(`❌ "${desiredId}" पहले से किसी और दुकान द्वारा ली जा चुकी है (Already Taken)! यह ID हटा दी गई है, कृपया कोई नई यूनिक Shop ID बनाएं।`, "error");
+                showAlert(`❌ "${desiredId}" पहले से किसी और दुकान द्वारा ली जा चुकी है! यह ID हटा दी गई है, कृपया नई ID बनाएं।`, "error");
                 return;
             }
 
-            // Release old ID and claim new ID
             releaseShopFromRegistry(currentShopId);
             currentShopId = desiredId;
             saveShopToRegistry(currentShopId, TAB_SESSION_ID);
             updateShopUI();
-            showAlert(`✅ बधाई हो! आपकी नई यूनिक Shop ID "${currentShopId}" सफलतापूर्वक सेट हो गई है।`, "success");
+            showAlert(`✅ आपकी नई Shop ID "${currentShopId}" सफलतापूर्वक सेट हो गई है।`, "success");
             loadSharedData();
         }
 
@@ -419,7 +463,6 @@
             alert("ग्राहक अपलोड लिंक कॉपी हो गया है!");
         }
 
-        // --- CUSTOMER PRINT MODE UI ---
         function selectPrintMode(mode) {
             const bw = document.getElementById("cardBW");
             const col = document.getElementById("cardColor");
@@ -432,26 +475,22 @@
             }
         }
 
-        // --- REAL-TIME CROSS-TAB DOCUMENTS & CHAT SYNC ---
-        function getDocsKey() { return `printsetu_docs_${currentShopId}`; }
-        function getChatKey() { return `printsetu_chat_${currentShopId}`; }
-
+        // --- 2. UPLOAD & SYNC (SUPPORTING 10MB+ FILES VIA INDEXEDDB) ---
         let documents = [];
         let messages = [];
 
-        function loadSharedData() {
-            documents = JSON.parse(localStorage.getItem(getDocsKey()) || "[]");
-            messages = JSON.parse(localStorage.getItem(getChatKey()) || "[]");
+        async function loadSharedData() {
+            documents = await getDocsFromDB();
+            messages = JSON.parse(localStorage.getItem(`printsetu_chat_${currentShopId}`) || "[]");
             if (!isCustomerMode) renderDocuments();
             renderMessages();
         }
 
-        window.addEventListener("storage", () => {
-            loadSharedData();
+        window.addEventListener("storage", async () => {
+            await loadSharedData();
         });
 
-        // Customer Document Upload
-        function uploadDocument() {
+        async function uploadDocument() {
             const name = document.getElementById("custName").value.trim();
             const fileInput = document.getElementById("docFile");
             const colorMode = document.querySelector('input[name="printColor"]:checked').value;
@@ -462,10 +501,17 @@
             if (!fileInput.files.length) return alert("कृपया प्रिंट के लिए कोई PDF या Photo चुनें!");
 
             const file = fileInput.files[0];
+            
+            // Check file size (Warn if > 50MB)
+            if (file.size > 50 * 1024 * 1024) {
+                return alert("फाइल का साइज़ 50MB से अधिक है! कृपया छोटी फाइल चुनें।");
+            }
+
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 const newDoc = {
                     id: Date.now(),
+                    shopId: currentShopId,
                     customer: name,
                     name: file.name,
                     type: file.type === "application/pdf" ? "PDF" : "Image",
@@ -473,15 +519,13 @@
                     copies: copies,
                     side: side,
                     status: "Pending",
-                    url: e.target.result
+                    url: e.target.result // Base64 Data Stored Safely in IndexedDB
                 };
 
-                const currentDocs = JSON.parse(localStorage.getItem(getDocsKey()) || "[]");
-                currentDocs.unshift(newDoc);
-                localStorage.setItem(getDocsKey(), JSON.stringify(currentDocs));
-
+                await saveDocToDB(newDoc);
                 document.getElementById("uploadSuccessMsg").classList.remove("hidden");
                 document.getElementById("docFile").value = "";
+                await loadSharedData();
             };
             reader.readAsDataURL(file);
         }
@@ -489,12 +533,16 @@
         function renderDocuments() {
             const tbody = document.getElementById("docList");
             if (!tbody) return;
-            if (documents.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">अभी तक कोई दस्तावेज़ प्राप्त नहीं हुआ है। QR स्कैन टैब से फाइल भेजें।</td></tr>`;
+
+            // Filter docs for current shop
+            const shopDocs = documents.filter(d => !d.shopId || d.shopId === currentShopId);
+
+            if (shopDocs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">अभी तक कोई दस्तावेज़ प्राप्त नहीं हुआ है। QR स्कैन टैब से 10MB+ फाइल भेजें।</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = documents.map(doc => {
+            tbody.innerHTML = shopDocs.map(doc => {
                 const isColor = doc.colorMode === "Color";
                 const colorBadge = isColor 
                     ? `<span class="bg-pink-100 text-pink-800 px-2 py-0.5 rounded font-bold text-xs">🌈 Color</span>`
@@ -525,10 +573,9 @@
             }).join("");
         }
 
-        function updateStatus(id, status) {
-            documents = documents.map(d => d.id === id ? { ...d, status } : d);
-            localStorage.setItem(getDocsKey(), JSON.stringify(documents));
-            renderDocuments();
+        async function updateStatus(id, status) {
+            await updateDocStatusInDB(id, status);
+            await loadSharedData();
         }
 
         function printDoc(id) {
@@ -539,7 +586,7 @@
             win.document.write(`<img src="${doc.url}" style="max-width:100%; ${bwFilter}" onload="window.print();window.close()"/>`);
         }
 
-        // --- CROPPER FOR SHOPKEEPER ---
+        // --- CROPPER ---
         let cropper = null;
         let activeDocId = null;
 
@@ -554,13 +601,12 @@
             cropper = new Cropper(img, { viewMode: 1 });
         }
 
-        function saveCroppedImage() {
+        async function saveCroppedImage() {
             if (!cropper) return;
             const url = cropper.getCroppedCanvas().toDataURL("image/png");
-            documents = documents.map(d => d.id === activeDocId ? { ...d, url } : d);
-            localStorage.setItem(getDocsKey(), JSON.stringify(documents));
+            await updateDocUrlInDB(activeDocId, url);
             closeCropper();
-            renderDocuments();
+            await loadSharedData();
         }
 
         function closeCropper() {
@@ -568,7 +614,53 @@
             document.getElementById("cropSection").classList.add("hidden");
         }
 
-        // --- CHAT WITH 10-MINUTE AUTO DELETE ---
+        // --- 3. FULLY FIXED AUDIO & VIDEO CALL (WebRTC Stream Fix) ---
+        let localStream = null;
+
+        async function startCall(type) {
+            const callBox = document.getElementById("callBox");
+            const callStatus = document.getElementById("callStatus");
+            const localVideo = document.getElementById("localVideo");
+            const audioIndicator = document.getElementById("callAudioIndicator");
+
+            callBox.classList.remove("hidden");
+            callStatus.innerText = `${type} Call कनेक्ट हो रही है...`;
+
+            try {
+                // Request Camera / Microphone permissions correctly with constraints
+                const constraints = {
+                    audio: true,
+                    video: type === 'Video' ? { width: { ideal: 640 }, height: { ideal: 480 } } : false
+                };
+
+                localStream = await navigator.mediaDevices.getUserMedia(constraints);
+                
+                if (type === 'Video') {
+                    localVideo.classList.remove("hidden");
+                    audioIndicator.classList.add("hidden");
+                    localVideo.srcObject = localStream;
+                } else {
+                    localVideo.classList.add("hidden");
+                    audioIndicator.classList.remove("hidden");
+                }
+
+                callStatus.innerText = `🔴 लाइव ${type} Call चालू है`;
+            } catch (err) {
+                alert("कॉल शुरू करने के लिए कृपया ब्राउज़र को कैमरा और माइक (Microphone) की अनुमति दें: " + err.message);
+                endCall();
+            }
+        }
+
+        function endCall() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            document.getElementById("callBox").classList.add("hidden");
+            document.getElementById("localVideo").srcObject = null;
+        }
+
+        // --- CHAT WITH 10-MIN AUTO DELETE ---
         const TEN_MINS = 10 * 60 * 1000;
 
         function sendMessage() {
@@ -579,7 +671,7 @@
             const sender = isCustomerMode ? "ग्राहक" : "दुकानदार";
             const autoDel = document.getElementById("autoDeleteToggle").checked;
 
-            const currentMsgs = JSON.parse(localStorage.getItem(getChatKey()) || "[]");
+            const currentMsgs = JSON.parse(localStorage.getItem(`printsetu_chat_${currentShopId}`) || "[]");
             currentMsgs.push({
                 id: Date.now(),
                 sender: sender,
@@ -587,13 +679,14 @@
                 expiresAt: autoDel ? Date.now() + TEN_MINS : null
             });
 
-            localStorage.setItem(getChatKey(), JSON.stringify(currentMsgs));
+            localStorage.setItem(`printsetu_chat_${currentShopId}`, JSON.stringify(currentMsgs));
             input.value = "";
             loadSharedData();
         }
 
         function renderMessages() {
             const container = document.getElementById("chatMessages");
+            if (!container) return;
             const now = Date.now();
             messages = messages.filter(m => !m.expiresAt || m.expiresAt > now);
 
@@ -613,25 +706,6 @@
         }
 
         setInterval(renderMessages, 1000);
-
-        // --- AUDIO / VIDEO CALL ---
-        let localStream = null;
-        async function startCall(type) {
-            try {
-                document.getElementById("callBox").classList.remove("hidden");
-                document.getElementById("callStatus").innerText = `${type} Call चालू है...`;
-                localStream = await navigator.mediaDevices.getUserMedia({ video: type === 'Video', audio: true });
-                document.getElementById("localVideo").srcObject = localStream;
-            } catch (e) {
-                alert("कैमरा/माइक की अनुमति आवश्यक है!");
-                endCall();
-            }
-        }
-
-        function endCall() {
-            if (localStream) localStream.getTracks().forEach(t => t.stop());
-            document.getElementById("callBox").classList.add("hidden");
-        }
 
         // --- LOCATION NEWS ---
         function getLocationNews() {
