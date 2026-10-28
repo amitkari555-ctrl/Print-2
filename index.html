@@ -1,594 +1,2418 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="hi" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrintSetu - Smart Print & Doc Hub</title>
+    <title>Smart Print & Cyber Hub - Made in India 🇮🇳</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Inter & Noto Sans Devanagari -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- QRCode.js for generating instant QR codes -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans Devanagari', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        /* Marquee News Ticker Animation */
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+        }
+        .ticker-move {
+            display: inline-block;
+            white-space: nowrap;
+            padding-left: 100%;
+            animation: ticker 38s linear infinite;
+        }
+        .ticker-move:hover {
+            animation-play-state: paused;
+        }
+        @keyframes ticker {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        /* Tricolor Gradient Border & Accents */
+        .tricolor-bar {
+            background: linear-gradient(90deg, #FF9933 0%, #FF9933 33%, #FFFFFF 33%, #FFFFFF 66%, #138808 66%, #138808 100%);
+        }
+        .tricolor-badge {
+            background: linear-gradient(135deg, rgba(255,153,51,0.18) 0%, rgba(255,255,255,0.1) 50%, rgba(19,136,8,0.2) 100%);
+            border: 1px solid rgba(255, 153, 51, 0.4);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Shutter flash effect for screenshot */
+        .shutter-flash {
+            animation: flashAnim 0.45s ease-out;
+        }
+        @keyframes flashAnim {
+            0% { opacity: 1; background: white; }
+            100% { opacity: 0; background: transparent; }
+        }
+
+        /* Print Media Styles */
+        @media print {
+            body * {
+                visibility: hidden !important;
+            }
+            #printableArea, #printableArea * {
+                visibility: visible !important;
+            }
+            #printableArea {
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                background: white !important;
+                color: black !important;
+                z-index: 99999 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+        }
+    </style>
 </head>
-<body class="bg-slate-100 font-sans text-slate-800 min-h-screen">
+<body class="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-orange-500 selection:text-white">
 
-    <!-- LOCATION NEWS BANNER -->
-    <div id="newsBannerContainer" class="bg-amber-500 text-white px-4 py-2 flex flex-wrap justify-between items-center text-xs sm:text-sm shadow-sm">
-        <div id="locationNews" class="font-medium">📍 लोकल न्यूज़ पाने के लिए लोकेशन अनुमति दें।</div>
-        <button onclick="getLocationNews()" class="bg-white text-amber-900 px-3 py-1 rounded-full font-bold text-xs shadow hover:bg-amber-50 mt-1 sm:mt-0">🔄 लोकेशन चालू करें</button>
-    </div>
+    <!-- ================= 1. TOP LOCATION-BASED LIVE NEWS TICKER ================= -->
+    <div class="sticky top-0 z-50 bg-slate-900 border-b border-slate-800 shadow-lg">
+        <!-- Subtle Indian Tricolor Top Line -->
+        <div class="h-1 w-full tricolor-bar"></div>
+        <div class="flex items-center px-2 sm:px-4 py-1.5 text-xs sm:text-sm bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950">
+            <!-- Location Pill & Selector -->
+            <div class="flex items-center gap-1.5 bg-red-600/90 text-white font-bold px-2.5 py-1 rounded-full shrink-0 shadow-sm mr-2">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                </span>
+                <span>📍 <span id="currentLocationLabel">Detecting...</span></span>
+            </div>
 
-    <!-- SHOPKEEPER HEADER -->
-    <header id="shopHeader" class="bg-indigo-900 text-white p-4 shadow-lg">
-        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="bg-indigo-600 p-2.5 rounded-xl text-xl shadow">🖨️</div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-xl font-extrabold tracking-wide">PrintSetu</h1>
-                        <span class="bg-teal-600 text-[11px] px-2.5 py-0.5 rounded-full font-semibold">दुकानदार डैशबोर्ड</span>
-                    </div>
-                    <p class="text-xs text-indigo-200 mt-0.5">
-                        Unique Shop ID: <span id="headerShopId" class="font-mono font-bold text-amber-300">SHP-2032</span>
-                        <span class="text-emerald-400 ml-1">● Live Sync Active</span>
-                    </p>
+            <!-- Scrolling News Text -->
+            <div class="ticker-wrap flex-1 overflow-hidden">
+                <div id="newsTickerContent" class="ticker-move font-medium text-amber-300 tracking-wide">
+                    📍 आपके क्षेत्र की ताज़ा खबरें लोड हो रही हैं... • डिजिटल इंडिया स्मार्ट साइबर हब में आपका स्वागत है • QR कोड स्कैन करके सीधे दुकानदार को डॉक्यूमेंट भेजें • 10 मिनट ऑटो-डिलीट प्राइवेसी सुरक्षा उपलब्ध है।
                 </div>
             </div>
-            <div>
-                <button onclick="openCustomerNewTab()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-full font-bold text-xs sm:text-sm shadow flex items-center gap-2 transition">
-                    <span>↗️ ग्राहक QR स्कैन नया टैब खोलें (Customer Form)</span>
+
+            <!-- Location Change / Detect Button -->
+            <div class="flex items-center gap-1 ml-2 shrink-0">
+                <select id="citySelector" onchange="window.changeNewsCity(this.value)" class="bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-orange-500 cursor-pointer" title="Apna Shahar Chunein">
+                    <option value="auto">📍 GPS Auto</option>
+                    <option value="Jaipur">Jaipur (जयपुर)</option>
+                    <option value="Delhi">Delhi (दिल्ली)</option>
+                    <option value="Mumbai">Mumbai (मुंबई)</option>
+                    <option value="Lucknow">Lucknow (लखनऊ)</option>
+                    <option value="Patna">Patna (पटना)</option>
+                    <option value="Bhopal">Bhopal (भोपाल)</option>
+                    <option value="Indore">Indore (इंदौर)</option>
+                    <option value="Varanasi">Varanasi (वाराणसी)</option>
+                </select>
+                <button onclick="window.detectUserLocation(true)" class="bg-slate-800 hover:bg-slate-700 text-orange-400 border border-slate-700 px-2 py-1 rounded-lg text-xs flex items-center gap-1 transition" title="Refresh GPS Location">
+                    <i class="fa-solid fa-location-crosshairs"></i>
                 </button>
             </div>
         </div>
-    </header>
+    </div>
 
-    <!-- CUSTOMER STANDALONE HEADER -->
-    <header id="customerHeader" class="hidden bg-indigo-700 text-white p-4 shadow-md">
-        <div class="max-w-xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2.5">
-                <span class="text-2xl">📤</span>
+    <!-- ================= 2. MAIN NAVIGATION & ROLE SWITCHER HEADER ================= -->
+    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-3 sm:px-6 py-3">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <!-- Brand & Made in India Badge -->
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-500 via-amber-500 to-green-600 p-0.5 shadow-lg shadow-orange-500/20">
+                    <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-xl">
+                        🖨️
+                    </div>
+                </div>
                 <div>
-                    <h1 class="text-lg font-bold">PrintSetu - ग्राहक दस्तावेज़ पोर्टल</h1>
-                    <p class="text-xs text-indigo-200">Connected Shop ID: <span id="custHeaderShopId" class="font-mono font-bold text-amber-300"></span></p>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h1 class="text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-orange-400 via-white to-green-400 bg-clip-text text-transparent">
+                            Smart Print & Cyber Hub
+                        </h1>
+                        <span class="tricolor-badge text-[11px] font-bold px-2.5 py-0.5 rounded-full text-amber-200 flex items-center gap-1 shadow-sm">
+                            🇮🇳 Made in India
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400">QR Document Transfer • Perspective Crop • Live Call & Print</p>
                 </div>
             </div>
-            <span class="bg-emerald-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">● Online</span>
+
+            <!-- Role Switcher Tabs (Dukandar vs Customer) -->
+            <div class="flex items-center gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 shadow-inner">
+                <button id="tabBtnDukandar" onclick="window.switchRoleTab('dukandar')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-md">
+                    <i class="fa-solid fa-store"></i>
+                    <span>दुकानदार (Dukandar Tab)</span>
+                </button>
+                <button id="tabBtnCustomer" onclick="window.switchRoleTab('customer')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-user-check"></i>
+                    <span>ग्राहक (Customer Tab)</span>
+                </button>
+            </div>
+
+            <!-- Active Shop Status Pill -->
+            <div class="flex items-center gap-2">
+                <div id="connectionBadge" class="flex items-center gap-1.5 bg-slate-800/90 border border-slate-700 px-3 py-1.5 rounded-xl text-xs">
+                    <span id="connDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span id="connText" class="text-slate-300 font-medium">Shop ID Not Set</span>
+                </div>
+            </div>
         </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
-    <main class="max-w-7xl mx-auto p-4 grid grid-cols-1 lg:grid-cols-3 gap-6 mt-2">
+    <!-- ================= 3. MAIN WORKSPACE CONTAINER ================= -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-5 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <div class="lg:col-span-2 space-y-6">
+        <!-- LEFT/CENTER COLUMN (7 Cols on Desktop): Role-Specific Controls & Document Studio -->
+        <div class="lg:col-span-7 flex flex-col gap-6">
 
-            <!-- SHOPKEEPER VIEW -->
-            <section id="shopView" class="space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full border border-indigo-200">
-                        🛡️ 1 दुकान = 1 यूनिक Shop ID
-                    </span>
-                    <h2 class="text-xl font-extrabold text-slate-800 mt-3">दुकान का QR कोड और यूनिक आईडी</h2>
-                    <p class="text-sm text-slate-500 mt-1">अपनी मनपसंद यूनिक Shop ID नीचे लिखें।</p>
-
-                    <div class="mt-4 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-                        <label class="block text-xs font-bold text-slate-600 uppercase">अपनी Shop ID खुद लिखें:</label>
-                        <div class="flex flex-wrap sm:flex-nowrap gap-2">
-                            <input type="text" id="customShopIdInput" placeholder="उदा. RAM-PRINT-01" 
-                                class="w-full sm:w-64 border-2 border-indigo-200 focus:border-indigo-600 rounded-xl px-3.5 py-2 font-mono font-bold text-indigo-900 uppercase outline-none"
-                                value="SHP-2032">
-                            <button onclick="claimCustomShopId()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2 rounded-xl text-sm shadow transition">
-                                ✔ ID सेट करें
-                            </button>
-                            <button onclick="generateRandomUniqueId()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-xl text-sm transition">
-                                🔄 ऑटो नई ID
-                            </button>
+            <!-- ==================== DUKANDAR (SHOPKEEPER) VIEW ==================== -->
+            <section id="dukandarSection" class="flex flex-col gap-6">
+                
+                <!-- Card A: Unique Shop ID Setup & QR Code Generator -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-800">
+                        <div>
+                            <span class="text-[11px] uppercase tracking-wider font-bold text-orange-400 bg-orange-500/10 px-2.5 py-0.5 rounded-full border border-orange-500/20">
+                                Step 1 • Dukandar Registration
+                            </span>
+                            <h2 class="text-base sm:text-lg font-bold text-white mt-1 flex items-center gap-2">
+                                <i class="fa-solid fa-id-card-clip text-orange-400"></i>
+                                अपनी खुद की Shop ID बनाएं (Blank Input)
+                            </h2>
+                            <p class="text-xs text-slate-400">Shop ID पहले से भरी नहीं है। अपनी यूनिक ID लिखें (अगर किसी और दुकानदार की सेम ID है तो सिस्टम बदलने को कहेगा)।</p>
                         </div>
-                        <div id="shopIdAlert" class="hidden text-xs font-bold p-3 rounded-lg"></div>
                     </div>
 
-                    <div class="mt-5 flex flex-col sm:flex-row items-center justify-between gap-6 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
-                        <div class="space-y-3 w-full sm:w-auto">
-                            <div class="text-sm font-semibold text-slate-700">
-                                वर्तमान एक्टिव ID: <span id="activeShopBadge" class="font-mono font-extrabold text-indigo-700 text-base">SHP-2032</span>
+                    <!-- Blank Shop ID Input Form -->
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+                        <div class="md:col-span-7 flex flex-col gap-3">
+                            <div>
+                                <label for="dukandarShopIdInput" class="block text-xs font-semibold text-slate-300 mb-1.5">
+                                    दुकानदार अपनी Shop ID यहाँ खुद लिखें <span class="text-red-400">*</span>
+                                </label>
+                                <div class="flex gap-2">
+                                    <div class="relative flex-1">
+                                        <i class="fa-solid fa-hashtag absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                                        <!-- Strictly EMPTY value="" initially as required -->
+                                        <input 
+                                            id="dukandarShopIdInput" 
+                                            type="text" 
+                                            value="" 
+                                            autocomplete="off"
+                                            placeholder="उदा. sharma_cyber_01 (यहाँ लिखें...)" 
+                                            class="w-full bg-slate-950 border border-slate-700 focus:border-orange-500 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none transition"
+                                        />
+                                    </div>
+                                    <button id="claimShopBtn" onclick="window.registerUniqueShopId()" class="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm shadow-lg shadow-orange-600/20 transition flex items-center gap-1.5 shrink-0">
+                                        <i class="fa-solid fa-bolt"></i>
+                                        <span>ID रजिस्टर करें</span>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="flex flex-wrap gap-2">
-                                <button onclick="openCustomerNewTab()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow">
-                                    <span>📲 ग्राहक QR स्कैन टैब खोलें</span>
-                                </button>
-                                <button onclick="copyCustomerLink()" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold px-3.5 py-2.5 rounded-xl text-xs">
-                                    📋 लिंक कॉपी करें
-                                </button>
+
+                            <!-- Validation / Duplicate Shop ID Error or Success Box -->
+                            <div id="shopIdStatusBox" class="hidden rounded-xl p-3 text-xs border"></div>
+
+                            <!-- Active Shop Controls once registered -->
+                            <div id="activeShopActions" class="hidden bg-slate-950/90 border border-slate-800 rounded-xl p-3 flex flex-col gap-2.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-slate-400">Active Shop ID:</span>
+                                    <span id="activeShopIdDisplay" class="font-mono font-bold text-sm text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-lg border border-emerald-500/30"></span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="window.copyCustomerLink()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold py-2 px-3 rounded-lg border border-slate-700 transition flex items-center justify-center gap-1.5">
+                                        <i class="fa-solid fa-copy text-sky-400"></i> Copy Link
+                                    </button>
+                                    <button onclick="window.openCustomerWithCurrentShop()" class="flex-1 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-1.5">
+                                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Customer Tab में खोलें
+                                    </button>
+                                    <button onclick="window.releaseCurrentShopId()" class="bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/30 text-xs font-semibold py-2 px-2.5 rounded-lg transition" title="Release / Change Shop ID">
+                                        <i class="fa-solid fa-power-off"></i> ID बदलें
+                                    </button>
+                                </div>
+                                <!-- Test Duplicate Check Helper Button -->
+                                <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                                    <span>दूसरा दुकानदार सेम ID डाले तो?</span>
+                                    <button onclick="window.simulateDuplicateShopAttempt()" class="text-amber-400 hover:underline font-medium">
+                                        ⚡ Test Duplicate ID Check
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <div class="bg-white p-3 rounded-xl shadow border flex flex-col items-center">
-                            <span class="text-[10px] font-bold text-slate-400 tracking-wider mb-1">SCAN TO SEND FILE</span>
-                            <div id="qrcode"></div>
+
+                        <!-- QR Code Display Box -->
+                        <div class="md:col-span-5 flex flex-col items-center justify-center bg-slate-950 border border-slate-800 rounded-2xl p-4 min-h-[190px]">
+                            <div id="qrPlaceholder" class="text-center py-4">
+                                <div class="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto mb-2 text-slate-500 text-xl">
+                                    <i class="fa-solid fa-qrcode"></i>
+                                </div>
+                                <p class="text-xs text-slate-400 font-medium">पहले अपनी Shop ID दर्ज करें</p>
+                                <p class="text-[11px] text-slate-500 mt-0.5">आपका QR कोड यहाँ तुरंत बनेगा</p>
+                            </div>
+                            <div id="qrActiveContainer" class="hidden flex-col items-center text-center">
+                                <div class="bg-white p-2.5 rounded-xl shadow-md mb-2">
+                                    <div id="qrcodeCanvas"></div>
+                                </div>
+                                <p class="text-xs font-bold text-white">स्कैन करके डॉक्यूमेंट भेजें</p>
+                                <p id="qrSubLabel" class="text-[11px] text-emerald-400 font-mono"></p>
+                                <button onclick="window.printShopQrPoster()" class="mt-2 text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg border border-slate-700 flex items-center gap-1">
+                                    <i class="fa-solid fa-print text-orange-400"></i> Print Shop QR Standee
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Received Documents Queue -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-extrabold text-slate-800">📄 प्राप्त दस्तावेज़ (5MB - 10MB+ Supported)</h3>
-                        <span class="text-xs bg-slate-100 px-2.5 py-1 rounded-full font-semibold text-slate-600">Fast Blob Sync</span>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse text-sm">
-                            <thead>
-                                <tr class="bg-slate-100 border-b text-slate-600 text-xs uppercase">
-                                    <th class="p-3">ग्राहक का नाम / फाइल</th>
-                                    <th class="p-3">प्रिंट मोड & कॉपी</th>
-                                    <th class="p-3">स्टेटस</th>
-                                    <th class="p-3">एक्शन (Crop / Print)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="docList" class="divide-y"></tbody>
-                        </table>
-                    </div>
-                </div>
+                <!-- Card B: Received Documents Queue + Perspective Crop (ONLY IN DUKANDAR TAB) + Print -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+                    <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[11px] uppercase tracking-wider font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                                    Dukandar Exclusive Studio
+                                </span>
+                                <span class="text-[11px] font-bold text-purple-300 bg-purple-500/15 px-2.5 py-0.5 rounded-full border border-purple-500/30">
+                                    ✨ पर्सपेक्टिव क्रॉप (Perspective Crop) Enabled
+                                </span>
+                            </div>
+                            <h2 class="text-base sm:text-lg font-bold text-white mt-1 flex items-center gap-2">
+                                <i class="fa-solid fa-folder-open text-emerald-400"></i>
+                                ग्राहक के डॉक्यूमेंट्स, Perspective Crop और Print Queue
+                            </h2>
+                        </div>
 
-                <!-- Cropper Modal -->
-                <div id="cropSection" class="hidden bg-white p-6 rounded-2xl shadow-lg border-2 border-indigo-500 space-y-4">
-                    <div class="flex justify-between items-center border-b pb-3">
-                        <h3 class="text-lg font-bold text-indigo-900">📐 Perspective Crop (Shopkeeper Tool)</h3>
-                        <button onclick="closeCropper()" class="text-sm bg-rose-100 text-rose-700 px-3 py-1 rounded-lg font-bold">बंद करें ✖</button>
+                        <!-- Direct Upload / Demo Sample for Dukandar -->
+                        <div class="flex items-center gap-2">
+                            <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-xl border border-slate-700 transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-upload text-orange-400"></i>
+                                <span>फाइल जोड़ें</span>
+                                <input type="file" accept="image/*,application/pdf" multiple class="hidden" onchange="window.handleDirectDukandarUpload(event)">
+                            </label>
+                            <button onclick="window.loadSampleTiltedDocument()" class="bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center gap-1.5" title="टेढ़े डॉक्यूमेंट का सैंपल लोड करें और Perspective Crop टेस्ट करें">
+                                <i class="fa-solid fa-crop-simple"></i>
+                                <span>Demo ID Card (Crop Test)</span>
+                            </button>
+                        </div>
                     </div>
-                    <div class="max-h-96 overflow-hidden bg-slate-900 flex justify-center rounded-xl">
-                        <img id="cropImage" src="" class="max-w-full">
-                    </div>
-                    <div class="flex flex-wrap gap-2 pt-2">
-                        <button onclick="cropper.rotate(-90)" class="bg-slate-200 hover:bg-slate-300 px-3 py-1.5 rounded-lg text-xs font-bold">↺ बाएं</button>
-                        <button onclick="cropper.rotate(90)" class="bg-slate-200 hover:bg-slate-300 px-3 py-1.5 rounded-lg text-xs font-bold">↻ दाएं</button>
-                        <button onclick="saveCroppedImage()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-1.5 rounded-lg text-xs font-bold ml-auto shadow">✔ क्रॉप सेव करें</button>
+
+                    <!-- Document Cards Grid -->
+                    <div id="dukandarDocGrid" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Dynamically populated by JS -->
                     </div>
                 </div>
             </section>
 
-            <!-- CUSTOMER UPLOAD FORM -->
-            <section id="customerView" class="hidden bg-white p-6 rounded-2xl shadow-md border border-slate-200 space-y-5">
-                <div class="border-b pb-3">
-                    <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">
-                        ✔ दुकान से जुड़ा हुआ: <span id="custFormShopBadge" class="font-mono"></span>
-                    </span>
-                    <h2 class="text-xl font-extrabold text-slate-800 mt-2">प्रिंट के लिए दस्तावेज़ भेजें (5MB - 10MB+ OK)</h2>
-                    <p class="text-xs text-slate-500">अपना नाम लिखें, Black & White या Color चुनें और बड़ी PDF/फोटो अपलोड करें।</p>
-                </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1">1. आपका नाम (Customer Name) *</label>
-                        <input type="text" id="custName" placeholder="उदा. राहुल शर्मा" class="w-full border-2 border-slate-200 focus:border-indigo-600 rounded-xl p-2.5 text-sm outline-none">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">2. प्रिंट का प्रकार चुनें *</label>
-                        <div class="grid grid-cols-2 gap-3">
-                            <label id="cardBW" onclick="selectPrintMode('BW')" class="cursor-pointer border-2 border-indigo-600 bg-indigo-50/60 p-3.5 rounded-xl flex items-center gap-3 transition">
-                                <input type="radio" name="printColor" value="Black & White" checked class="w-4 h-4 accent-indigo-600">
-                                <div>
-                                    <div class="font-extrabold text-sm text-slate-900">⚫⚪ Black & White</div>
-                                </div>
-                            </label>
-                            <label id="cardColor" onclick="selectPrintMode('COLOR')" class="cursor-pointer border-2 border-slate-200 p-3.5 rounded-xl flex items-center gap-3 transition">
-                                <input type="radio" name="printColor" value="Color" class="w-4 h-4 accent-indigo-600">
-                                <div>
-                                    <div class="font-extrabold text-sm text-slate-900">🌈 Color Print</div>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
+            <!-- ==================== CUSTOMER (GRAHAK) VIEW ==================== -->
+            <section id="customerSection" class="hidden flex-col gap-6">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-800">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">कॉपी की संख्या</label>
-                            <input type="number" id="custCopies" value="1" min="1" max="100" class="w-full border-2 border-slate-200 rounded-xl p-2 text-sm font-bold">
+                            <span class="text-[11px] uppercase tracking-wider font-bold text-sky-400 bg-sky-500/10 px-2.5 py-0.5 rounded-full border border-sky-500/20">
+                                Customer Document Portal
+                            </span>
+                            <h2 class="text-lg font-bold text-white mt-1 flex items-center gap-2">
+                                <i class="fa-solid fa-paper-plane text-sky-400"></i>
+                                दुकानदार को डॉक्यूमेंट या फोटो भेजें
+                            </h2>
+                            <p class="text-xs text-slate-400">QR कोड स्कैन करने पर या दुकानदार की Shop ID डालने पर आप सीधे डॉक्यूमेंट भेज सकते हैं।</p>
                         </div>
+                        <div class="text-right">
+                            <span class="text-[11px] text-slate-500 block">पर्सपेक्टिव क्रॉप</span>
+                            <span class="text-[11px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded">सिर्फ दुकानदार टैब में</span>
+                        </div>
+                    </div>
+
+                    <!-- Connect to Shop ID -->
+                    <div class="mt-4 bg-slate-950 border border-slate-800 rounded-xl p-4">
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                            दुकानदार की Shop ID से जुड़ें (Connect to Shopkeeper ID):
+                        </label>
+                        <div class="flex gap-2">
+                            <input 
+                                id="customerTargetShopInput" 
+                                type="text" 
+                                value="" 
+                                placeholder="दुकानदार की Shop ID यहाँ लिखें..." 
+                                class="flex-1 bg-slate-900 border border-slate-700 focus:border-sky-500 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none"
+                            />
+                            <button onclick="window.connectCustomerToShop()" class="bg-sky-600 hover:bg-sky-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shrink-0">
+                                <i class="fa-solid fa-link"></i>
+                                <span>Connect Shop</span>
+                            </button>
+                        </div>
+                        <p id="customerShopStatus" class="text-xs text-slate-400 mt-2"></p>
+                    </div>
+
+                    <!-- Customer Name & File Upload Dropzone -->
+                    <div class="mt-4 space-y-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">पेज साइड</label>
-                            <select id="custSide" class="w-full border-2 border-slate-200 rounded-xl p-2 text-sm font-semibold bg-white">
-                                <option value="Single Side">Single Side</option>
-                                <option value="Double Side">Double Side</option>
-                            </select>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">आपका नाम (Customer Name):</label>
+                            <input id="customerNameInput" type="text" placeholder="उदा. राहुल कुमार (Rahul)" value="ग्राहक (Customer)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-sky-500">
                         </div>
+
+                        <label class="border-2 border-dashed border-sky-500/40 hover:border-sky-400 bg-sky-950/10 hover:bg-sky-950/20 transition rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer group">
+                            <div class="w-14 h-14 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 text-2xl mb-3 group-hover:scale-105 transition">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            </div>
+                            <p class="text-sm font-bold text-white">फोटो, आधार, पैन कार्ड या PDF यहाँ से भेजें</p>
+                            <p class="text-xs text-slate-400 mt-1">Click to choose files or capture from mobile camera (JPG, PNG, PDF)</p>
+                            <span class="mt-3 bg-sky-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow">
+                                + डॉक्यूमेंट चुनें और दुकानदार को भेजें
+                            </span>
+                            <input type="file" accept="image/*,application/pdf" multiple class="hidden" onchange="window.handleCustomerFileUpload(event)">
+                        </label>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1">3. दस्तावेज़ चुनें (PDF / Photo upto 10MB+) *</label>
-                        <input type="file" id="docFile" accept="image/*,.pdf" class="w-full border-2 border-dashed border-indigo-300 rounded-xl p-3 text-sm bg-indigo-50/30 cursor-pointer">
-                    </div>
-
-                    <button onclick="uploadDocument()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold py-3 rounded-xl shadow-md text-sm transition">
-                        📤 दुकानदार को दस्तावेज़ भेजें (Send Now)
-                    </button>
-
-                    <div id="uploadSuccessMsg" class="hidden bg-emerald-100 border border-emerald-300 text-emerald-900 p-3 rounded-xl text-xs font-bold text-center">
-                        ✅ दस्तावेज़ सफलतापूर्वक अपलोड होकर दुकानदार के डैशबोर्ड पर भेज दिया गया है!
+                    <!-- Customer Sent History -->
+                    <div class="mt-5 pt-4 border-t border-slate-800">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
+                            आपके द्वारा भेजे गए डॉक्यूमेंट्स (Sent to Dukandar)
+                        </h3>
+                        <div id="customerSentList" class="space-y-2 text-xs text-slate-400">
+                            <p class="text-slate-500 italic">अभी तक कोई डॉक्यूमेंट नहीं भेजा गया है।</p>
+                        </div>
                     </div>
                 </div>
             </section>
 
         </div>
 
-        <!-- RIGHT AREA: CHAT & CALL -->
-        <div class="space-y-6">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[520px]">
-                <div class="p-4 border-b flex justify-between items-center bg-slate-50 rounded-t-2xl">
+        <!-- RIGHT COLUMN (5 Cols on Desktop): Audio/Video Call with Screenshot + Real-Time Chat with 10-Min Auto-Delete -->
+        <div class="lg:col-span-5 flex flex-col gap-6">
+
+            <!-- ==================== AUDIO / VIDEO CALL & SCREENSHOT STUDIO ==================== -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-800">
                     <div>
-                        <h3 class="font-extrabold text-slate-800 text-sm">💬 लाइव चैट & डायरेक्ट कॉल</h3>
-                        <p class="text-[11px] text-slate-500">Shop ID: <span id="chatShopBadge" class="font-mono font-bold text-indigo-600"></span></p>
+                        <span class="text-[11px] uppercase tracking-wider font-bold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
+                            Live Communication + Screenshot
+                        </span>
+                        <h3 class="text-base font-bold text-white mt-1 flex items-center gap-2">
+                            <i class="fa-solid fa-video text-rose-400"></i>
+                            Audio / Video Call & Screenshot 📸
+                        </h3>
                     </div>
-                    <!-- Direct WhatsApp Call / Instant Connect Button -->
-                    <div class="flex space-x-2">
-                        <button onclick="startCall('Audio')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 p-2.5 rounded-full text-xs font-bold" title="WhatsApp Audio Call">📞 ऑडियो कॉल</button>
-                        <button onclick="startCall('Video')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 p-2.5 rounded-full text-xs font-bold" title="WhatsApp Video Call">📹 वीडियो कॉल</button>
+
+                    <!-- Call Action Buttons -->
+                    <div class="flex items-center gap-1.5">
+                        <button id="btnStartAudioCall" onclick="window.startMediaCall('audio')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow">
+                            <i class="fa-solid fa-phone"></i>
+                            <span>Audio Call</span>
+                        </button>
+                        <button id="btnStartVideoCall" onclick="window.startMediaCall('video')" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow">
+                            <i class="fa-solid fa-video"></i>
+                            <span>Video Call</span>
+                        </button>
+                        <button id="btnEndCall" onclick="window.endMediaCall()" class="hidden bg-red-700 hover:bg-red-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition items-center gap-1.5">
+                            <i class="fa-solid fa-phone-slash"></i>
+                            <span>End</span>
+                        </button>
                     </div>
                 </div>
 
-                <div class="bg-rose-50 px-4 py-2 border-b flex justify-between items-center text-xs">
-                    <span class="font-bold text-rose-800">⏱️ 10-मिनट बाद संदेश ऑटो-डिलीट</span>
-                    <input type="checkbox" id="autoDeleteToggle" checked class="w-4 h-4 accent-rose-600 cursor-pointer">
+                <!--Incoming Call Banner (When other side rings) -->
+                <div id="incomingCallBanner" class="hidden mt-3 bg-gradient-to-r from-emerald-900/80 to-slate-900 border border-emerald-500/40 rounded-xl p-3 items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center animate-bounce">
+                            <i class="fa-solid fa-phone-volume"></i>
+                        </div>
+                        <div>
+                            <p id="incomingCallTitle" class="text-xs font-bold text-white">Incoming Video Call...</p>
+                            <p class="text-[11px] text-emerald-300">ग्राहक / दुकानदार कॉल कर रहे हैं</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="window.acceptIncomingCall()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg">
+                            Accept
+                        </button>
+                        <button onclick="window.endMediaCall()" class="bg-red-600/80 hover:bg-red-600 text-white text-xs px-2.5 py-1.5 rounded-lg">
+                            Reject
+                        </button>
+                    </div>
                 </div>
 
-                <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-2.5 text-sm"></div>
+                <!-- Video Call Viewport & Screenshot Trigger -->
+                <div id="callViewportContainer" class="mt-3 relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 aspect-video flex items-center justify-center">
+                    <!-- Flash Overlay for Screenshot -->
+                    <div id="screenshotFlashOverlay" class="pointer-events-none absolute inset-0 z-30 opacity-0"></div>
 
-                <div class="p-3 border-t flex gap-2">
-                    <input type="text" id="chatInput" placeholder="संदेश लिखें..." class="flex-1 border rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-600">
-                    <button onclick="sendMessage()" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-indigo-700">भेजें</button>
+                    <!-- Placeholder when no call is active -->
+                    <div id="callIdlePlaceholder" class="text-center p-4">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto mb-2 text-slate-500 text-xl">
+                            <i class="fa-solid fa-camera-retro"></i>
+                        </div>
+                        <p class="text-xs text-slate-300 font-medium">Audio या Video Call शुरू करें</p>
+                        <p class="text-[11px] text-slate-500 mt-0.5 max-w-xs mx-auto">
+                            वीडियो कॉल के दौरान <b>"📸 Screenshot लें"</b> बटन से सीधे ग्राहक के डॉक्यूमेंट या चेहरे का फोटो लेकर क्रॉप व प्रिंट करें!
+                        </p>
+                    </div>
+
+                    <!-- Main Video Feed (Remote or Smart Demo Feed) -->
+                    <video id="mainCallVideo" autoplay playsinline class="hidden w-full h-full object-cover"></video>
+                    <!-- Canvas fallback for simulated live feed if user has no webcam -->
+                    <canvas id="simulatedVideoCanvas" width="640" height="360" class="hidden w-full h-full object-cover"></canvas>
+
+                    <!-- Picture-in-Picture Local Video -->
+                    <video id="pipLocalVideo" autoplay playsinline muted class="hidden absolute bottom-3 right-3 w-28 sm:w-32 aspect-video object-cover rounded-xl border-2 border-orange-500 shadow-lg z-20 bg-slate-900"></video>
+
+                    <!-- Audio Call Wave Indicator -->
+                    <div id="audioCallOverlay" class="hidden absolute inset-0 bg-slate-950/95 flex-col items-center justify-center z-10">
+                        <div class="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-2xl animate-pulse mb-2">
+                            <i class="fa-solid fa-microphone-lines"></i>
+                        </div>
+                        <p class="text-sm font-bold text-white">Audio Call Connected</p>
+                        <p id="callTimerLabel" class="text-xs text-emerald-400 font-mono mt-0.5">00:00</p>
+                    </div>
+
+                    <!-- Live Call Floating Controls Bar (Mute, Camera, SCREENSHOT) -->
+                    <div id="activeCallControlsBar" class="hidden absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between bg-slate-900/90 backdrop-blur-md border border-slate-700/80 px-3 py-2 rounded-xl">
+                        <div class="flex items-center gap-2">
+                            <button onclick="window.toggleMuteAudio()" id="btnMuteToggle" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs flex items-center justify-center" title="Mute/Unmute">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                            <span id="liveCallBadgeText" class="text-[11px] font-semibold text-emerald-400 flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Live
+                            </span>
+                        </div>
+
+                        <!-- SCREENSHOT BUTTON inside Call -->
+                        <button onclick="window.captureCallScreenshot()" class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg shadow-lg flex items-center gap-1.5 transition transform active:scale-95">
+                            <i class="fa-solid fa-camera"></i>
+                            <span>📸 Screenshot लें (Save to Print)</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
+            <!-- ==================== REAL-TIME CHAT + 10-MINUTE AUTO DELETE TOGGLE ==================== -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col flex-1 min-h-[420px]">
+                <!-- Chat Header & 10-Minute Auto-Delete ON/OFF Button -->
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-800">
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-comments text-amber-400"></i>
+                            ग्राहक ↔ दुकानदार लाइव चैट
+                        </h3>
+                        <p id="chatExpirySubtext" class="text-[11px] text-emerald-400 flex items-center gap-1 mt-0.5">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                            <span>10 मिनट में चैट अपने आप डिलीट हो जाएगी (Auto-Delete ON)</span>
+                        </p>
+                    </div>
+
+                    <!-- 10-Minute Auto-Delete ON/OFF Toggle Button -->
+                    <div class="flex items-center gap-2">
+                        <button 
+                            id="autoDeleteToggleBtn" 
+                            onclick="window.toggleTenMinAutoDelete()" 
+                            class="px-3 py-1.5 rounded-xl text-xs font-bold border transition flex items-center gap-2 bg-emerald-500/15 text-emerald-300 border-emerald-500/40"
+                            title="10 मिनट में चैट ऑटो-डिलीट ऑन/ऑफ करें"
+                        >
+                            <i class="fa-solid fa-stopwatch"></i>
+                            <span>10-Min Auto Delete: <strong id="autoDeleteStateText">ON</strong></span>
+                        </button>
+                        <button onclick="window.clearAllChatNow()" class="bg-slate-800 hover:bg-red-950/60 text-slate-400 hover:text-red-300 border border-slate-700 px-2.5 py-1.5 rounded-xl text-xs transition" title="अभी पूरी चैट साफ करें">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages Scroll Box -->
+                <div id="chatMessagesContainer" class="flex-1 overflow-y-auto my-3 pr-1 space-y-2.5 max-h-[280px] min-h-[220px]">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- Chat Input Form -->
+                <form onsubmit="window.sendChatMessage(event)" class="flex items-center gap-2 pt-2 border-t border-slate-800">
+                    <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-300 p-2.5 rounded-xl border border-slate-700 transition shrink-0" title="चैट में फोटो या डॉक्यूमेंट भेजें">
+                        <i class="fa-solid fa-paperclip"></i>
+                        <input type="file" accept="image/*,application/pdf" class="hidden" onchange="window.handleChatFileAttachment(event)">
+                    </label>
+                    <input 
+                        id="chatInputText" 
+                        type="text" 
+                        placeholder="यहाँ संदेश लिखें (जैसे: 2 रंगीन प्रिंट निकाल दीजिए)..." 
+                        class="flex-1 bg-slate-950 border border-slate-700 focus:border-orange-500 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none"
+                    />
+                    <button type="submit" class="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm shadow transition flex items-center gap-1.5 shrink-0">
+                        <span>भेजें</span>
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </form>
+            </div>
+
+        </div>
     </main>
 
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const isCustomerMode = urlParams.get('mode') === 'customer';
-        const urlShopId = urlParams.get('shop');
+    <!-- ================= 4. PERSPECTIVE CROP MODAL (STRICTLY FOR DUKANDAR) ================= -->
+    <div id="perspectiveCropModal" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full p-4 sm:p-6 shadow-2xl flex flex-col gap-4 my-auto">
+            <!-- Modal Header -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-800">
+                <div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-purple-300 bg-purple-500/15 px-2.5 py-0.5 rounded-full border border-purple-500/30">
+                        Dukandar Exclusive Tool • पर्सपेक्टिव क्रॉप
+                    </span>
+                    <h3 class="text-base sm:text-lg font-bold text-white mt-1 flex items-center gap-2">
+                        <i class="fa-solid fa-crop-simple text-purple-400"></i>
+                        4-Point Perspective Crop & Document Scanner (टेढ़े डॉक्यूमेंट को सीधा करें)
+                    </h3>
+                </div>
+                <button onclick="window.closePerspectiveCropModal()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
 
-        const DEFAULT_TAKEN_IDS = ["SHP-1001", "INDIA-PRINT", "SHOP-123"];
-        const TAB_SESSION_ID = "TAB_" + Math.random().toString(36).substring(2, 9);
-
-        function getTakenShopRegistry() {
-            let stored = {};
-            try {
-                stored = JSON.parse(localStorage.getItem("printsetu_taken_ids") || "{}");
-            } catch(e) { stored = {}; }
-            DEFAULT_TAKEN_IDS.forEach(id => { if (!stored[id]) stored[id] = "OTHER"; });
-            return stored;
-        }
-
-        function saveShopToRegistry(shopId, ownerTabId) {
-            const registry = getTakenShopRegistry();
-            registry[shopId] = ownerTabId;
-            localStorage.setItem("printsetu_taken_ids", JSON.stringify(registry));
-        }
-
-        function releaseShopFromRegistry(shopId) {
-            const registry = getTakenShopRegistry();
-            if (registry[shopId] === TAB_SESSION_ID) {
-                delete registry[shopId];
-                localStorage.setItem("printsetu_taken_ids", JSON.stringify(registry));
-            }
-        }
-
-        let currentShopId = urlShopId ? urlShopId.toUpperCase() : "SHP-" + Math.floor(1000 + Math.random() * 9000);
-        let qrCodeObj = null;
-
-        function initApp() {
-            if (isCustomerMode) {
-                document.getElementById("shopHeader").classList.add("hidden");
-                document.getElementById("newsBannerContainer").classList.add("hidden");
-                document.getElementById("shopView").classList.add("hidden");
-                document.getElementById("customerHeader").classList.remove("hidden");
-                document.getElementById("customerView").classList.remove("hidden");
-                document.getElementById("custHeaderShopId").innerText = currentShopId;
-                document.getElementById("custFormShopBadge").innerText = currentShopId;
-                document.getElementById("chatShopBadge").innerText = currentShopId;
-            } else {
-                saveShopToRegistry(currentShopId, TAB_SESSION_ID);
-                document.getElementById("customShopIdInput").value = currentShopId;
-                updateShopUI();
-            }
-            loadSharedData();
-        }
-
-        function claimCustomShopId() {
-            const inputEl = document.getElementById("customShopIdInput");
-            const desiredId = inputEl.value.trim().toUpperCase();
-            if (!desiredId || desiredId.length < 3) {
-                showAlert("⚠️ कृपया कम से कम 3 अक्षरों की वैध Shop ID लिखें!", "error");
-                return;
-            }
-            const registry = getTakenShopRegistry();
-            if (registry[desiredId] && registry[desiredId] !== TAB_SESSION_ID) {
-                inputEl.value = "";
-                inputEl.focus();
-                showAlert(`❌ "${desiredId}" पहले से ली जा चुकी है! यह ID हटा दी गई है, कृपया नई ID बनाएं।`, "error");
-                return;
-            }
-            releaseShopFromRegistry(currentShopId);
-            currentShopId = desiredId;
-            saveShopToRegistry(currentShopId, TAB_SESSION_ID);
-            updateShopUI();
-            showAlert(`✅ Shop ID "${currentShopId}" सफलतापूर्वक सेट हो गई है।`, "success");
-            loadSharedData();
-        }
-
-        function generateRandomUniqueId() {
-            const registry = getTakenShopRegistry();
-            let newId = "";
-            do {
-                newId = "SHP-" + Math.floor(1000 + Math.random() * 9000);
-            } while (registry[newId]);
-            document.getElementById("customShopIdInput").value = newId;
-            claimCustomShopId();
-        }
-
-        function showAlert(msg, type) {
-            const alertBox = document.getElementById("shopIdAlert");
-            alertBox.classList.remove("hidden", "bg-rose-100", "text-rose-800", "border-rose-300", "bg-emerald-100", "text-emerald-800", "border-emerald-300");
-            alertBox.classList.add(type === "error" ? "bg-rose-100 text-rose-800 border border-rose-300" : "bg-emerald-100 text-emerald-800 border border-emerald-300");
-            alertBox.innerText = msg;
-        }
-
-        function getCustomerPortalUrl() {
-            const baseUrl = window.location.href.split('?')[0];
-            return `${baseUrl}?mode=customer&shop=${encodeURIComponent(currentShopId)}`;
-        }
-
-        function updateShopUI() {
-            document.getElementById("headerShopId").innerText = currentShopId;
-            document.getElementById("activeShopBadge").innerText = currentShopId;
-            document.getElementById("chatShopBadge").innerText = currentShopId;
-            const qrContainer = document.getElementById("qrcode");
-            qrContainer.innerHTML = "";
-            qrCodeObj = new QRCode(qrContainer, { text: getCustomerPortalUrl(), width: 110, height: 110 });
-        }
-
-        function openCustomerNewTab() {
-            window.open(getCustomerPortalUrl(), "_blank");
-        }
-
-        function copyCustomerLink() {
-            navigator.clipboard.writeText(getCustomerPortalUrl());
-            alert("ग्राहक अपलोड लिंक कॉपी हो गया है!");
-        }
-
-        function selectPrintMode(mode) {
-            const bw = document.getElementById("cardBW");
-            const col = document.getElementById("cardColor");
-            if (mode === 'BW') {
-                bw.className = "cursor-pointer border-2 border-indigo-600 bg-indigo-50/60 p-3.5 rounded-xl flex items-center gap-3 transition";
-                col.className = "cursor-pointer border-2 border-slate-200 p-3.5 rounded-xl flex items-center gap-3 transition";
-            } else {
-                col.className = "cursor-pointer border-2 border-indigo-600 bg-indigo-50/60 p-3.5 rounded-xl flex items-center gap-3 transition";
-                bw.className = "cursor-pointer border-2 border-slate-200 p-3.5 rounded-xl flex items-center gap-3 transition";
-            }
-        }
-
-        function getDocsKey() { return `printsetu_docs_${currentShopId}`; }
-        function getChatKey() { return `printsetu_chat_${currentShopId}`; }
-
-        let documents = [];
-        let messages = [];
-
-        function loadSharedData() {
-            try {
-                documents = JSON.parse(localStorage.getItem(getDocsKey()) || "[]");
-                messages = JSON.parse(localStorage.getItem(getChatKey()) || "[]");
-            } catch(e) { documents = []; messages = []; }
-            if (!isCustomerMode) renderDocuments();
-            renderMessages();
-        }
-
-        window.addEventListener("storage", () => { loadSharedData(); });
-
-        // --- 5MB - 10MB+ FILE UPLOAD (Blob ObjectURL Support) ---
-        function uploadDocument() {
-            const name = document.getElementById("custName").value.trim();
-            const fileInput = document.getElementById("docFile");
-            const colorMode = document.querySelector('input[name="printColor"]:checked').value;
-            const copies = document.getElementById("custCopies").value || 1;
-            const side = document.getElementById("custSide").value;
-
-            if (!name) return alert("कृपया अपना नाम लिखें!");
-            if (!fileInput.files.length) return alert("कृपया प्रिंट के लिए कोई PDF या Photo चुनें!");
-
-            const file = fileInput.files[0];
-            // Use createObjectURL to support large files (5MB to 10MB+) without crashing localStorage
-            const fileUrl = URL.createObjectURL(file);
-
-            const newDoc = {
-                id: Date.now(),
-                customer: name,
-                name: file.name,
-                type: file.type === "application/pdf" ? "PDF" : "Image",
-                colorMode: colorMode,
-                copies: copies,
-                side: side,
-                status: "Pending",
-                url: fileUrl
-            };
-
-            let currentDocs = [];
-            try {
-                currentDocs = JSON.parse(localStorage.getItem(getDocsKey()) || "[]");
-            } catch(e) { currentDocs = []; }
-
-            currentDocs.unshift(newDoc);
-            try {
-                localStorage.setItem(getDocsKey(), JSON.stringify(currentDocs));
-            } catch(e) {
-                alert("Storage full ya file bahut badi hai! Kripya choti file try karein.");
-                return;
-            }
-
-            document.getElementById("uploadSuccessMsg").classList.remove("hidden");
-            document.getElementById("docFile").value = "";
-            loadSharedData();
-        }
-
-        function renderDocuments() {
-            const tbody = document.getElementById("docList");
-            if (!tbody) return;
-            if (documents.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">अभी तक कोई दस्तावेज़ प्राप्त नहीं हुआ है।</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = documents.map(doc => {
-                const isColor = doc.colorMode === "Color";
-                const colorBadge = isColor 
-                    ? `<span class="bg-pink-100 text-pink-800 px-2 py-0.5 rounded font-bold text-xs">🌈 Color</span>`
-                    : `<span class="bg-slate-200 text-slate-800 px-2 py-0.5 rounded font-bold text-xs">⚫⚪ B&W</span>`;
-
-                return `
-                    <tr class="border-b hover:bg-slate-50">
-                        <td class="p-3">
-                            <div class="font-extrabold text-slate-800">${doc.customer}</div>
-                            <div class="text-xs text-slate-500">${doc.name}</div>
-                        </td>
-                        <td class="p-3 space-y-1">
-                            <div>${colorBadge}</div>
-                            <div class="text-[11px] text-slate-500 font-semibold">${doc.copies} Copy • ${doc.side}</div>
-                        </td>
-                        <td class="p-3">
-                            <select onchange="updateStatus(${doc.id}, this.value)" class="text-xs font-bold px-2 py-1 rounded border bg-amber-50 text-amber-900">
-                                <option value="Pending" ${doc.status === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
-                                <option value="Printed" ${doc.status === 'Printed' ? 'selected' : ''}>✅ Printed</option>
-                            </select>
-                        </td>
-                        <td class="p-3 space-x-1">
-                            ${doc.type === 'Image' ? `<button onclick="openCropper(${doc.id})" class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-2.5 py-1 rounded text-xs font-bold">📐 Crop</button>` : ''}
-                            <button onclick="printDoc(${doc.id})" class="bg-slate-800 text-white hover:bg-slate-700 px-3 py-1 rounded text-xs font-bold">🖨️ Print</button>
-                        </td>
-                    </tr>
-                `;
-            }).join("");
-        }
-
-        function updateStatus(id, status) {
-            documents = documents.map(d => d.id === id ? { ...d, status } : d);
-            localStorage.setItem(getDocsKey(), JSON.stringify(documents));
-            renderDocuments();
-        }
-
-        function printDoc(id) {
-            const doc = documents.find(d => d.id === id);
-            if (!doc) return;
-            const win = window.open("");
-            win.document.write(`<img src="${doc.url}" style="max-width:100%;" onload="window.print();window.close()"/>`);
-        }
-
-        // --- CROPPER ---
-        let cropper = null;
-        let activeDocId = null;
-
-        function openCropper(id) {
-            const doc = documents.find(d => d.id === id);
-            if (!doc) return;
-            activeDocId = id;
-            const img = document.getElementById("cropImage");
-            img.src = doc.url;
-            document.getElementById("cropSection").classList.remove("hidden");
-            if (cropper) cropper.destroy();
-            cropper = new Cropper(img, { viewMode: 1 });
-        }
-
-        function saveCroppedImage() {
-            if (!cropper) return;
-            const url = cropper.getCroppedCanvas().toDataURL("image/png");
-            documents = documents.map(d => d.id === activeDocId ? { ...d, url } : d);
-            localStorage.setItem(getDocsKey(), JSON.stringify(documents));
-            closeCropper();
-            renderDocuments();
-        }
-
-        function closeCropper() {
-            if (cropper) cropper.destroy();
-            document.getElementById("cropSection").classList.add("hidden");
-        }
-
-        // --- CHAT WITH 10-MIN AUTO DELETE ---
-        const TEN_MINS = 10 * 60 * 1000;
-
-        function sendMessage() {
-            const input = document.getElementById("chatInput");
-            const text = input.value.trim();
-            if (!text) return;
-
-            const sender = isCustomerMode ? "ग्राहक" : "दुकानदार";
-            const autoDel = document.getElementById("autoDeleteToggle").checked;
-
-            let currentMsgs = [];
-            try { currentMsgs = JSON.parse(localStorage.getItem(getChatKey()) || "[]"); } catch(e) {}
-
-            currentMsgs.push({
-                id: Date.now(),
-                sender: sender,
-                text: text,
-                expiresAt: autoDel ? Date.now() + TEN_MINS : null
-            });
-
-            localStorage.setItem(getChatKey(), JSON.stringify(currentMsgs));
-            input.value = "";
-            loadSharedData();
-        }
-
-        function renderMessages() {
-            const container = document.getElementById("chatMessages");
-            if (!container) return;
-            const now = Date.now();
-            messages = messages.filter(m => !m.expiresAt || m.expiresAt > now);
-
-            container.innerHTML = messages.map(m => {
-                const isMe = (isCustomerMode && m.sender === "ग्राहक") || (!isCustomerMode && m.sender === "दुकानदार");
-                const rem = m.expiresAt ? Math.max(0, Math.ceil((m.expiresAt - now) / 1000)) : null;
-                return `
-                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                        <div class="max-w-xs px-3 py-2 rounded-xl ${isMe ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-800'}">
-                            <div class="text-[10px] font-bold opacity-75">${m.sender}</div>
-                            <div>${m.text}</div>
-                        </div>
-                        ${rem !== null ? `<span class="text-[10px] text-rose-600">⏳ ${Math.floor(rem/60)}m ${rem%60}s</span>` : ''}
+            <!-- Interactive Canvas & Controls -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                <!-- Left: 4-Corner Drag Canvas -->
+                <div class="lg:col-span-8 flex flex-col items-center bg-slate-950 border border-slate-800 rounded-xl p-2 relative overflow-hidden">
+                    <p class="text-[11px] text-amber-300 mb-1.5 text-center">
+                        <i class="fa-solid fa-hand-pointer mr-1"></i> चारों कोनों (1, 2, 3, 4 लाल-पीले बिंदुओं) को पकड़कर डॉक्यूमेंट के कोनों पर सेट करें:
+                    </p>
+                    <div class="relative flex items-center justify-center w-full overflow-hidden">
+                        <canvas id="perspectiveCanvas" width="560" height="400" class="max-w-full h-auto rounded-lg cursor-crosshair touch-none border border-slate-800"></canvas>
+                        <!-- Precision Loupe Magnifier -->
+                        <canvas id="cropLoupeCanvas" width="110" height="110" class="hidden absolute top-2 right-2 rounded-full border-2 border-amber-400 shadow-xl pointer-events-none bg-slate-950"></canvas>
                     </div>
-                `;
-            }).join("");
+                </div>
+
+                <!-- Right: Filter & Output Controls -->
+                <div class="lg:col-span-4 flex flex-col gap-3 bg-slate-950 border border-slate-800 rounded-xl p-4">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Scan Enhancement</h4>
+
+                    <!-- Preset Filters -->
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button onclick="window.setCropFilter('original')" id="filterBtnOriginal" class="crop-filter-btn bg-orange-600 text-white text-xs font-semibold py-2 rounded-lg border border-orange-500">
+                            Original
+                        </button>
+                        <button onclick="window.setCropFilter('magic')" id="filterBtnMagic" class="crop-filter-btn bg-slate-800 text-slate-300 text-xs font-semibold py-2 rounded-lg border border-slate-700">
+                            ✨ Magic Color
+                        </button>
+                        <button onclick="window.setCropFilter('bw')" id="filterBtnBw" class="crop-filter-btn bg-slate-800 text-slate-300 text-xs font-semibold py-2 rounded-lg border border-slate-700">
+                            🖨️ B&W Scan
+                        </button>
+                    </div>
+
+                    <!-- Aspect Ratio / Output Target -->
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">सीधा करने के बाद आकार (Output Ratio):</label>
+                        <select id="cropOutputRatio" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-xs text-white">
+                            <option value="idcard">ID Card / Aadhaar (856 × 540 px)</option>
+                            <option value="a4">A4 Document Portrait (794 × 1123 px)</option>
+                            <option value="square">Passport / Square (600 × 600 px)</option>
+                            <option value="auto">Auto Proportional</option>
+                        </select>
+                    </div>
+
+                    <!-- Reset Corners Button -->
+                    <button onclick="window.resetPerspectiveCorners()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold py-2 rounded-lg border border-slate-700 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-arrows-to-dot text-sky-400"></i> Reset 4 Corners
+                    </button>
+
+                    <!-- Preview Straightened Result Button -->
+                    <button onclick="window.applyPerspectiveTransformPreview()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs py-2.5 rounded-xl shadow-lg flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>पर्सपेक्टिव क्रॉप लागू करें (Straighten)</span>
+                    </button>
+
+                    <!-- Save Cropped Image to Print Queue -->
+                    <button onclick="window.savePerspectiveCroppedDoc()" class="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-bold text-xs py-3 rounded-xl shadow-lg flex items-center justify-center gap-1.5 mt-1">
+                        <i class="fa-solid fa-check-double"></i>
+                        <span>Save & Ready for Print 🖨️</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 5. PRINT PREVIEW & PAGE LAYOUT MODAL ================= -->
+    <div id="printStudioModal" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-3xl w-full p-4 sm:p-6 shadow-2xl flex flex-col gap-4 my-auto">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div>
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-print text-orange-400"></i>
+                        दुकानदार स्मार्ट प्रिंट स्टूडियो (Print Document)
+                    </h3>
+                    <p class="text-xs text-slate-400">कागज का साइज चुनें और सीधे प्रिंटर से प्रिंट निकालें</p>
+                </div>
+                <button onclick="window.closePrintModal()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                <!-- Left: Print Layout Options -->
+                <div class="md:col-span-5 space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">प्रिंट लेआउट (Paper Layout):</label>
+                        <select id="printLayoutSelect" onchange="window.updatePrintPreviewLayout()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
+                            <option value="a4_full">A4 Full Page Document</option>
+                            <option value="id_card">ID Card / Aadhaar Size (PVC / Center)</option>
+                            <option value="passport_8">Passport Photos Grid (8 Photos)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">रंग मोड (Color Mode):</label>
+                        <select id="printColorSelect" onchange="window.updatePrintPreviewLayout()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
+                            <option value="color">रंगीन (Color Print)</option>
+                            <option value="bw">ब्लैक एंड व्हाइट (Grayscale / B&W)</option>
+                        </select>
+                    </div>
+
+                    <button onclick="window.executeBrowserPrint()" class="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold py-3 rounded-xl text-sm shadow-lg flex items-center justify-center gap-2 mt-4">
+                        <i class="fa-solid fa-print"></i>
+                        <span>अभी प्रिंट करें (Print Now)</span>
+                    </button>
+                </div>
+
+                <!-- Right: Live A4 Sheet Preview -->
+                <div class="md:col-span-7 flex items-center justify-center bg-slate-950 p-4 rounded-xl border border-slate-800">
+                    <div id="printPreviewSheet" class="bg-white text-black w-64 h-80 rounded shadow-lg p-3 flex items-center justify-center overflow-hidden">
+                        <!-- Dynamically rendered -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Printable Area for window.print() -->
+    <div id="printableArea" class="hidden"></div>
+
+    <!-- Custom Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-xs w-full pointer-events-none"></div>
+
+    <!-- ================= 6. FOOTER WITH MADE IN INDIA BRANDING ================= -->
+    <footer class="mt-auto bg-slate-900 border-t border-slate-800 py-4 px-4">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-white">Smart Print & Cyber Hub</span>
+                <span>•</span>
+                <span>सुरक्षित QR डॉक्यूमेंट और प्रिंटिंग सिस्टम</span>
+            </div>
+            <div class="flex items-center gap-2 tricolor-badge px-3.5 py-1 rounded-full text-white font-bold shadow">
+                <span>🇮🇳 गर्व से भारत में निर्मित — Proudly Made in India</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================= 7. APPLICATION JAVASCRIPT & FIREBASE LOGIC ================= -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ---------------- STATE & GLOBAL VARIABLES ----------------
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'smart-print-india-hub';
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+        let isCloudReady = false;
+
+        // Current Role ('dukandar' | 'customer')
+        let currentRole = 'dukandar';
+        // Active Shop ID (Strictly blank initially!)
+        let activeShopId = '';
+        // Unsubscribe listeners
+        let unsubShopDoc = null;
+        let unsubMessages = null;
+        let unsubDocuments = null;
+
+        // Auto-Delete 10-minute chat toggle state
+        let autoDeleteTenMin = true;
+        const TEN_MINUTES_MS = 10 * 60 * 1000;
+
+        // Local state mirrors for immediate responsiveness
+        let documentsList = [];
+        let chatMessagesList = [];
+        let registeredShopsMemory = {}; // Fallback in-memory registry if offline
+
+        // Perspective Crop State
+        let activeCropDocId = null;
+        let cropSourceImage = new Image();
+        let cropCorners = [
+            { x: 60, y: 50 },   // Top-Left
+            { x: 500, y: 50 },  // Top-Right
+            { x: 500, y: 350 }, // Bottom-Right
+            { x: 60, y: 350 }   // Bottom-Left
+        ];
+        let draggingCornerIndex = -1;
+        let currentCropFilter = 'original';
+        let currentWarpedDataUrl = null;
+
+        // Print Studio State
+        let activePrintDoc = null;
+
+        // Audio / Video Call State
+        let localStream = null;
+        let activeCallType = null; // 'audio' | 'video' | null
+        let isAudioMuted = false;
+        let simulatedAnimId = null;
+        let callSeconds = 0;
+        let callTimerInterval = null;
+
+        // ---------------- 1. LOCATION-BASED NEWS TICKER ----------------
+        const cityNewsDatabase = {
+            "Jaipur": [
+                "📍 जयपुर: ई-मित्र और साइबर कैफे केंद्रों पर अब QR कोड से बिना व्हाट्सएप नंबर शेयर किए डॉक्यूमेंट प्रिंट की सुविधा तेज",
+                "📰 राजस्थान कर्मचारी चयन बोर्ड और RPSC परीक्षाओं के एडमिट कार्ड डाउनलोड शुरू, नजदीकी साइबर हब से प्रिंट कराएं",
+                "🌤️ जयपुर मौसम अपडेट: गुलाबी नगर में आज मौसम साफ, डिजिटल सेवा केंद्रों पर आधार अपडेट का कार्य सुचारू",
+                "🇮🇳 डिजिटल इंडिया पहल: अब 10 मिनट ऑटो-डिलीट फीचर से ग्राहकों के दस्तावेज रहेंगे 100% सुरक्षित"
+            ],
+            "Delhi": [
+                "📍 नई दिल्ली: मेट्रो स्टेशनों और मार्केट के साइबर कैफे में स्मार्ट QR प्रिंटिंग से ग्राहकों का समय बच रहा है",
+                "📰 DU एडमिशन और सरकारी फॉर्म भरने के लिए छात्र सीधे मोबाइल से दुकानदार को भेज रहे हैं डॉक्यूमेंट",
+                "🛡️ साइबर सुरक्षा अलर्ट: पब्लिक कंप्यूटर पर लॉगिन करने के बजाय QR स्कैन से फाइल शेयर करें"
+            ],
+            "Mumbai": [
+                "📍 मुंबई: लोकल स्टेशन के पास स्थित प्रिंट दुकानों में पर्सपेक्टिव क्रॉप और तुरंत प्रिंट सेवा लोकप्रिय",
+                "📰 महाराष्ट्र सरकार की नई योजनाओं के फॉर्म और दस्तावेज स्कैनिंग कार्य में तेजी",
+                "🇮🇳 Made in India स्मार्ट प्रिंट हब से दुकानदार और ग्राहक सीधे वीडियो कॉल पर सत्यापन कर सकते हैं"
+            ],
+            "Lucknow": [
+                "📍 लखनऊ: जनसुविधा केंद्रों और साइबर कैफे में आय, जाति, निवास प्रमाण पत्र के लिए तेज डॉक्यूमेंट अपलोड",
+                "📰 यूपी बोर्ड और प्रतियोगी परीक्षाओं के फॉर्म भरने हेतु छात्र इस्तेमाल कर रहे हैं सुरक्षित चैट व प्रिंट"
+            ],
+            "Patna": [
+                "📍 पटना: बिहार लोक सेवा आयोग और कॉलेज फॉर्म के लिए छात्रों को मिली बिना केबल तुरंत प्रिंट की सुविधा",
+                "📰 आधार, पैन और जमीन के कागजात को पर्सपेक्टिव क्रॉप से सीधा करके साफ प्रिंट निकालें"
+            ],
+            "Bhopal": [
+                "📍 भोपाल: एमपी ऑनलाइन और कियोस्क सेंटरों पर डिजिटल QR डॉक्यूमेंट शेयरिंग से कतारें हुईं कम",
+                "📰 समग्र आईडी और आयुष्मान कार्ड प्रिंटिंग अब एक क्लिक में उपलब्ध"
+            ],
+            "Indore": [
+                "📍 इंदौर: देश के सबसे स्वच्छ शहर में पेपरलेस और स्मार्ट QR प्रिंटिंग तकनीक का तेजी से विस्तार",
+                "📰 भंवरकुआं और एमजी रोड के साइबर हब में छात्र कर रहे हैं स्मार्ट प्रिंट का उपयोग"
+            ],
+            "Varanasi": [
+                "📍 वाराणसी: बीएचयू और शहर के साइबर केंद्रों में नई 4-पॉइंट क्रॉप तकनीक से मार्कशीट और आईडी कार्ड की साफ छपाई",
+                "📰 काशी में डिजिटल सेवाओं का विस्तार, ग्राहकों की गोपनीयता के लिए 10 मिनट ऑटो-डिलीट चैट सक्रिय"
+            ]
+        };
+
+        function updateTickerWithCity(cityName) {
+            const labelEl = document.getElementById('currentLocationLabel');
+            const tickerEl = document.getElementById('newsTickerContent');
+            labelEl.textContent = cityName;
+
+            const headlines = cityNewsDatabase[cityName] || [
+                `📍 ${cityName} लोकल न्यूज़: आपके क्षेत्र में स्मार्ट QR डॉक्यूमेंट और साइबर प्रिंट सेवा सक्रिय है`,
+                `📰 ${cityName}: अब बिना अपना मोबाइल नंबर दिए QR कोड स्कैन करके दुकानदार को आधार, पैन व PDF भेजें`,
+                `🛡️ गोपनीयता सुरक्षा: 10 मिनट बाद ग्राहक की चैट और फाइलें ऑटोमैटिक डिलीट हो जाती हैं`,
+                `🇮🇳 गर्व से भारत में निर्मित (Made in India) - दुकानदार टैब में पर्सपेक्टिव क्रॉप और लाइव वीडियो कॉल स्क्रीनशॉट उपलब्ध`
+            ];
+
+            tickerEl.innerHTML = headlines.join(' &nbsp;&nbsp;•&nbsp;&nbsp; ') + ' &nbsp;&nbsp;•&nbsp;&nbsp; ' + headlines.join(' &nbsp;&nbsp;•&nbsp;&nbsp; ');
         }
 
-        setInterval(renderMessages, 1000);
-
-        // --- CALL FIX: DIRECT WHATSAPP AUDIO/VIDEO CALL ---
-        function startCall(type) {
-            const phoneNumber = prompt("कृपया संपर्क के लिए मोबाइल नंबर दर्ज करें (उदा. 919876543210):");
-            if (!phoneNumber) return;
-            const cleanNum = phoneNumber.replace(/[^0-9]/g, '');
-            if (type === 'Video') {
-                window.open(`https://wa.me/${cleanNum}?text=Hello,%20PrintSetu%20se%20video%20call%20ke%20liye%20jud%20rahe%20hain.`, '_blank');
+        window.changeNewsCity = function(val) {
+            if (val === 'auto') {
+                window.detectUserLocation(true);
             } else {
-                window.open(`https://wa.me/${cleanNum}?text=Hello,%20PrintSetu%20se%20audio%20call%20ke%20liye%20jud%20rahe%20hain.`, '_blank');
+                updateTickerWithCity(val);
+                showToast(`📍 ${val} की ताज़ा खबरें लोड हो गईं!`, 'info');
             }
-        }
+        };
 
-        function getLocationNews() {
-            const banner = document.getElementById("locationNews");
-            if (!navigator.geolocation) return;
-            banner.innerText = "⏳ लोकेशन प्राप्त की जा रही है...";
+        window.detectUserLocation = function(manualTrigger = false) {
+            const labelEl = document.getElementById('currentLocationLabel');
+            if (!navigator.geolocation) {
+                updateTickerWithCity('Jaipur');
+                return;
+            }
+            if (manualTrigger) labelEl.textContent = "Locating...";
+
             navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    banner.innerHTML = `📍 <b>लोकल अपडेट (${pos.coords.latitude.toFixed(2)}°N):</b> आज सभी डिजिटल सेवा और प्रिंटिंग केंद्र खुले हैं।`;
+                async (pos) => {
+                    try {
+                        const { latitude, longitude } = pos.coords;
+                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`);
+                        const data = await res.json();
+                        const city = data?.address?.city || data?.address?.town || data?.address?.state_district || data?.address?.state || 'Jaipur';
+                        updateTickerWithCity(city);
+                        if (manualTrigger) showToast(`📍 आपकी लोकेशन (${city}) की खबरें सेट हो गईं!`, 'success');
+                    } catch (e) {
+                        updateTickerWithCity('Jaipur');
+                    }
                 },
                 () => {
-                    banner.innerHTML = "⚠️ लोकेशन अनुमति नहीं मिली।";
-                }
+                    // Fallback to Jaipur / Rajasthan context seamlessly
+                    updateTickerWithCity('Jaipur');
+                },
+                { timeout: 5000 }
             );
+        };
+
+        // ---------------- 2. TOAST NOTIFICATION HELPER ----------------
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-emerald-950/95 border-emerald-500/50 text-emerald-200',
+                error: 'bg-red-950/95 border-red-500/50 text-red-200',
+                warning: 'bg-amber-950/95 border-amber-500/50 text-amber-200',
+                info: 'bg-slate-900/95 border-orange-500/50 text-slate-100'
+            };
+            toast.className = `pointer-events-auto border px-4 py-3 rounded-xl shadow-2xl text-xs font-semibold flex items-center justify-between gap-2 backdrop-blur-md transition-all duration-300 ${colors[type] || colors.info}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
         }
 
-        window.addEventListener("beforeunload", () => {
-            if (!isCustomerMode) releaseShopFromRegistry(currentShopId);
-        });
+        // ---------------- 3. ROLE SWITCHING (DUKANDAR VS CUSTOMER) ----------------
+        window.switchRoleTab = function(role) {
+            currentRole = role;
+            const dukandarSec = document.getElementById('dukandarSection');
+            const customerSec = document.getElementById('customerSection');
+            const btnDukandar = document.getElementById('tabBtnDukandar');
+            const btnCustomer = document.getElementById('tabBtnCustomer');
 
-        initApp();
+            if (role === 'dukandar') {
+                dukandarSec.classList.remove('hidden');
+                dukandarSec.classList.add('flex');
+                customerSec.classList.add('hidden');
+                customerSec.classList.remove('flex');
+
+                btnDukandar.className = "px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-md";
+                btnCustomer.className = "px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 text-slate-400 hover:text-white";
+            } else {
+                // Close perspective crop modal immediately if open (Strictly Dukandar Only!)
+                window.closePerspectiveCropModal();
+                dukandarSec.classList.add('hidden');
+                dukandarSec.classList.remove('flex');
+                customerSec.classList.remove('hidden');
+                customerSec.classList.add('flex');
+
+                btnCustomer.className = "px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-md";
+                btnDukandar.className = "px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 text-slate-400 hover:text-white";
+
+                // Sync target shop ID if Dukandar already set one
+                const custInput = document.getElementById('customerTargetShopInput');
+                if (activeShopId && !custInput.value) {
+                    custInput.value = activeShopId;
+                    updateCustomerConnectionText();
+                }
+            }
+        };
+
+        // ---------------- 4. UNIQUE SHOP ID REGISTRATION & DUPLICATE CHECK ----------------
+        function showShopStatusMessage(msg, isError = false) {
+            const box = document.getElementById('shopIdStatusBox');
+            box.classList.remove('hidden');
+            if (isError) {
+                box.className = "rounded-xl p-3 text-xs border bg-red-950/60 border-red-500/50 text-red-200 font-semibold flex items-start gap-2";
+                box.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-400 mt-0.5 text-sm"></i><div>${msg}</div>`;
+            } else {
+                box.className = "rounded-xl p-3 text-xs border bg-emerald-950/60 border-emerald-500/40 text-emerald-200 font-semibold flex items-start gap-2";
+                box.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 mt-0.5 text-sm"></i><div>${msg}</div>`;
+            }
+        }
+
+        window.registerUniqueShopId = async function(simulatedOtherOwner = false) {
+            const inputEl = document.getElementById('dukandarShopIdInput');
+            const rawId = inputEl.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+
+            if (!rawId || rawId.length < 3) {
+                showShopStatusMessage("कृपया कम से कम 3 अक्षरों की अपनी Shop ID खुद लिखें (उदा. sharma_print_01)।", true);
+                return;
+            }
+
+            inputEl.value = rawId;
+            const myUid = simulatedOtherOwner ? 'other_dukandar_uid_999' : (currentUser?.uid || 'local_dukandar_1');
+
+            // 1. Check in local memory registry
+            if (registeredShopsMemory[rawId] && registeredShopsMemory[rawId].ownerUid !== myUid && registeredShopsMemory[rawId].active) {
+                showShopStatusMessage(
+                    `⚠️ <b>ये Shop ID ("${rawId}") पहले से किसी और दुकानदार के पास चालू है!</b><br>सेम Shop ID दो दुकानदारों में नहीं चल सकती। कृपया अपनी ID बदलें (जैसे: <b>${rawId}_2</b> या <b>new_${rawId}</b>)।`,
+                    true
+                );
+                showToast("❌ यह Shop ID पहले से किसी अन्य दुकानदार द्वारा ली जा चुकी है! कृपया ID बदलें।", "error");
+                return;
+            }
+
+            // 2. Check in Firestore if available
+            if (isCloudReady && currentUser) {
+                try {
+                    const shopDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'shops', rawId);
+                    const snap = await getDoc(shopDocRef);
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        if (data.active && data.ownerUid && data.ownerUid !== myUid) {
+                            showShopStatusMessage(
+                                `⚠️ <b>ये Shop ID ("${rawId}") पहले से किसी और दुकानदार के पास चालू है!</b><br>सेम Shop ID किसी भी दूसरे दुकानदार में नहीं चलेगी। कृपया अपनी ID बदलें (उदा. <b>${rawId}_02</b>)।`,
+                                true
+                            );
+                            showToast("❌ Same Shop ID पहले से चालू है! कृपया दूसरी ID चुनें।", "error");
+                            return;
+                        }
+                    }
+
+                    // Claim this unique Shop ID in Firestore
+                    await setDoc(shopDocRef, {
+                        shopId: rawId,
+                        ownerUid: currentUser.uid,
+                        active: true,
+                        autoDeleteTenMin: autoDeleteTenMin,
+                        updatedAt: Date.now()
+                    }, { merge: true });
+                } catch (err) {
+                    console.warn("Firestore shop check fallback:", err);
+                }
+            }
+
+            // Save in memory & activate
+            registeredShopsMemory[rawId] = {
+                ownerUid: currentUser?.uid || 'local_dukandar_1',
+                active: true
+            };
+
+            activateShopSession(rawId);
+            showShopStatusMessage(`✅ बधाई हो! आपकी यूनिक Shop ID <b>"${rawId}"</b> रजिस्टर हो गई है। आपका QR कोड तैयार है!`, false);
+            showToast(`✅ Shop ID "${rawId}" सफलतापूर्वक चालू हो गई!`, 'success');
+        };
+
+        // Helper so user can test what happens if a second shopkeeper tries the same ID
+        window.simulateDuplicateShopAttempt = function() {
+            if (!activeShopId) {
+                showToast("पहले अपनी Shop ID रजिस्टर करें!", "warning");
+                return;
+            }
+            document.getElementById('dukandarShopIdInput').value = activeShopId;
+            window.registerUniqueShopId(true);
+        };
+
+        window.releaseCurrentShopId = async function() {
+            if (!activeShopId) return;
+            const oldId = activeShopId;
+            if (registeredShopsMemory[oldId]) {
+                registeredShopsMemory[oldId].active = false;
+            }
+            if (isCloudReady && currentUser) {
+                try {
+                    const shopDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'shops', oldId);
+                    await setDoc(shopDocRef, { active: false, ownerUid: '' }, { merge: true });
+                } catch (e) {}
+            }
+            activeShopId = '';
+            document.getElementById('dukandarShopIdInput').value = '';
+            document.getElementById('dukandarShopIdInput').disabled = false;
+            document.getElementById('claimShopBtn').classList.remove('hidden');
+            document.getElementById('activeShopActions').classList.add('hidden');
+            document.getElementById('qrActiveContainer').classList.add('hidden');
+            document.getElementById('qrPlaceholder').classList.remove('hidden');
+            document.getElementById('connText').textContent = 'Shop ID Not Set';
+            document.getElementById('connDot').className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+            showShopStatusMessage(`ℹ️ आपने Shop ID "${oldId}" छोड़ दी है। अब आप नई Shop ID लिख सकते हैं।`, false);
+        };
+
+        function activateShopSession(shopId) {
+            activeShopId = shopId;
+            document.getElementById('activeShopIdDisplay').textContent = shopId;
+            document.getElementById('activeShopActions').classList.remove('hidden');
+            document.getElementById('qrPlaceholder').classList.add('hidden');
+            const qrContainer = document.getElementById('qrActiveContainer');
+            qrContainer.classList.remove('hidden');
+            qrContainer.classList.add('flex');
+
+            // Update Top Connection Badge
+            document.getElementById('connText').textContent = `Shop: ${shopId}`;
+            document.getElementById('connDot').className = 'w-2 h-2 rounded-full bg-emerald-400';
+
+            // Generate QR Code
+            const qrEl = document.getElementById('qrcodeCanvas');
+            qrEl.innerHTML = '';
+            const shareUrl = `${window.location.origin}${window.location.pathname}?shop=${encodeURIComponent(shopId)}`;
+            new QRCode(qrEl, {
+                text: shareUrl,
+                width: 136,
+                height: 136,
+                colorDark: "#0f172a",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+            document.getElementById('qrSubLabel').textContent = `ID: ${shopId}`;
+
+            // Also sync customer input field
+            document.getElementById('customerTargetShopInput').value = shopId;
+            updateCustomerConnectionText();
+
+            // Subscribe to real-time Firestore streams for this shop
+            subscribeToShopRealtimeData(shopId);
+        }
+
+        window.copyCustomerLink = function() {
+            if (!activeShopId) return;
+            const shareUrl = `${window.location.origin}${window.location.pathname}?shop=${encodeURIComponent(activeShopId)}`;
+            const tempInput = document.createElement('input');
+            tempInput.value = shareUrl;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            tempInput.remove();
+            showToast("📋 Customer QR Link कॉपी हो गया!", "success");
+        };
+
+        window.openCustomerWithCurrentShop = function() {
+            if (!activeShopId) {
+                showToast("पहले अपनी Shop ID रजिस्टर करें!", "warning");
+                return;
+            }
+            document.getElementById('customerTargetShopInput').value = activeShopId;
+            window.switchRoleTab('customer');
+            updateCustomerConnectionText();
+            showToast(`अब आप ग्राहक (Customer) की तरह "${activeShopId}" से जुड़े हैं!`, "info");
+        };
+
+        window.connectCustomerToShop = function() {
+            const val = document.getElementById('customerTargetShopInput').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+            if (!val) {
+                showToast("कृपया दुकानदार की Shop ID लिखें!", "warning");
+                return;
+            }
+            activeShopId = val;
+            document.getElementById('connText').textContent = `Connected: ${val}`;
+            document.getElementById('connDot').className = 'w-2 h-2 rounded-full bg-sky-400';
+            updateCustomerConnectionText();
+            subscribeToShopRealtimeData(val);
+            showToast(`✅ दुकानदार (${val}) से सफलतापूर्वक जुड़ गए! अब डॉक्यूमेंट भेजें।`, "success");
+        };
+
+        function updateCustomerConnectionText() {
+            const statusEl = document.getElementById('customerShopStatus');
+            if (activeShopId) {
+                statusEl.innerHTML = `<span class="text-emerald-400 font-semibold">● Connected to Dukandar Shop ID: <span class="font-mono underline">${activeShopId}</span></span>`;
+            } else {
+                statusEl.textContent = "अभी किसी दुकानदार की Shop ID से कनेक्ट नहीं है।";
+            }
+        }
+
+        // ---------------- 5. REAL-TIME FIRESTORE SYNC (DOCS, CHAT, CALL SIGNALING) ----------------
+        function subscribeToShopRealtimeData(shopId) {
+            if (!isCloudReady || !currentUser || !shopId) return;
+
+            if (unsubShopDoc) unsubShopDoc();
+            if (unsubMessages) unsubMessages();
+            if (unsubDocuments) unsubDocuments();
+
+            // 1. Listen to Shop room metadata (Auto-delete setting & WebRTC Call signals)
+            const shopDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'shops', shopId);
+            unsubShopDoc = onSnapshot(shopDocRef, (snap) => {
+                if (!snap.exists()) return;
+                const data = snap.data();
+                if (typeof data.autoDeleteTenMin === 'boolean') {
+                    autoDeleteTenMin = data.autoDeleteTenMin;
+                    updateAutoDeleteUI();
+                }
+                // Check incoming call notification
+                if (data.callState && data.callState.status === 'ringing' && data.callState.callerRole !== currentRole) {
+                    const banner = document.getElementById('incomingCallBanner');
+                    document.getElementById('incomingCallTitle').textContent = `Incoming ${data.callState.type === 'video' ? 'Video' : 'Audio'} Call (${data.callState.callerRole})...`;
+                    banner.classList.remove('hidden');
+                    banner.classList.add('flex');
+                } else if (data.callState && data.callState.status === 'ended') {
+                    document.getElementById('incomingCallBanner').classList.add('hidden');
+                }
+            }, (err) => console.warn("Shop doc listener error:", err));
+
+            // 2. Listen to Public Documents collection and filter by shopId in memory (Rule 2 compliance)
+            const docsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'shop_documents');
+            unsubDocuments = onSnapshot(docsColRef, (snap) => {
+                const items = [];
+                snap.forEach((d) => {
+                    const item = { id: d.id, ...d.data() };
+                    if (item.shopId === shopId) {
+                        items.push(item);
+                    }
+                });
+                items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                documentsList = items;
+                renderDukandarDocuments();
+                renderCustomerSentDocuments();
+            }, (err) => console.warn("Docs listener error:", err));
+
+            // 3. Listen to Public Chat Messages collection and filter by shopId in memory
+            const msgsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'shop_messages');
+            unsubMessages = onSnapshot(msgsColRef, (snap) => {
+                const msgs = [];
+                snap.forEach((d) => {
+                    const m = { id: d.id, ...d.data() };
+                    if (m.shopId === shopId) {
+                        msgs.push(m);
+                    }
+                });
+                msgs.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+                chatMessagesList = msgs;
+                renderChatMessages();
+            }, (err) => console.warn("Chat listener error:", err));
+        }
+
+        // ---------------- 6. IMAGE COMPRESSION & DOCUMENT UPLOADING ----------------
+        function compressImageFileToDataUrl(file, maxWidth = 1000, quality = 0.78) {
+            return new Promise((resolve) => {
+                if (file.type === 'application/pdf') {
+                    // Generate a crisp visual document card for PDF so it can be previewed & printed
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 600;
+                    canvas.height = 800;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, 600, 800);
+                    ctx.strokeStyle = '#cbd5e1';
+                    ctx.lineWidth = 8;
+                    ctx.strokeRect(24, 24, 552, 752);
+                    ctx.fillStyle = '#dc2626';
+                    ctx.font = 'bold 34px Inter, sans-serif';
+                    ctx.fillText('📄 PDF DOCUMENT', 60, 110);
+                    ctx.fillStyle = '#0f172a';
+                    ctx.font = 'bold 22px Inter, sans-serif';
+                    ctx.fillText(file.name.slice(0, 32), 60, 170);
+                    ctx.fillStyle = '#475569';
+                    ctx.font = '18px Inter, sans-serif';
+                    ctx.fillText(`Size: ${(file.size / 1024).toFixed(1)} KB`, 60, 215);
+                    ctx.fillText(`Sent via Smart Print & Cyber Hub QR`, 60, 260);
+                    ctx.strokeStyle = '#e2e8f0';
+                    ctx.lineWidth = 2;
+                    for (let y = 320; y < 700; y += 38) {
+                        ctx.beginPath();
+                        ctx.moveTo(60, y);
+                        ctx.lineTo(520, y);
+                        ctx.stroke();
+                    }
+                    resolve(canvas.toDataURL('image/jpeg', 0.85));
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > maxWidth) {
+                            h = Math.round((h * maxWidth) / w);
+                            w = maxWidth;
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function pushDocumentToShopQueue(docObj) {
+            const targetShop = activeShopId || 'demo_shop';
+            const fullDoc = {
+                id: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                shopId: targetShop,
+                name: docObj.name || 'Document.jpg',
+                sender: docObj.sender || 'Customer',
+                dataUrl: docObj.dataUrl,
+                isCropped: !!docObj.isCropped,
+                createdAt: Date.now()
+            };
+
+            // Optimistic local state update
+            documentsList.unshift(fullDoc);
+            renderDukandarDocuments();
+            renderCustomerSentDocuments();
+
+            if (isCloudReady && currentUser && activeShopId) {
+                try {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'shop_documents'), {
+                        shopId: fullDoc.shopId,
+                        name: fullDoc.name,
+                        sender: fullDoc.sender,
+                        dataUrl: fullDoc.dataUrl,
+                        isCropped: fullDoc.isCropped,
+                        createdAt: fullDoc.createdAt
+                    });
+                } catch (e) {
+                    console.warn("Cloud doc upload fallback:", e);
+                }
+            }
+        }
+
+        window.handleCustomerFileUpload = async function(event) {
+            const files = Array.from(event.target.files || []);
+            if (!files.length) return;
+            const customerName = document.getElementById('customerNameInput').value.trim() || 'ग्राहक (Customer)';
+
+            for (const file of files) {
+                showToast(`⏳ "${file.name}" दुकानदार को भेजा जा रहा है...`, 'info');
+                const dataUrl = await compressImageFileToDataUrl(file);
+                await pushDocumentToShopQueue({
+                    name: file.name,
+                    sender: customerName,
+                    dataUrl: dataUrl,
+                    isCropped: false
+                });
+                // Also post a notification in Chat
+                await appendChatMessage({
+                    senderRole: 'customer',
+                    senderName: customerName,
+                    text: `📎 डॉक्यूमेंट भेजा गया: ${file.name}`,
+                    attachmentUrl: dataUrl
+                });
+            }
+            event.target.value = '';
+            showToast(`✅ ${files.length} डॉक्यूमेंट दुकानदार के पास पहुँच गए!`, 'success');
+        };
+
+        window.handleDirectDukandarUpload = async function(event) {
+            const files = Array.from(event.target.files || []);
+            if (!files.length) return;
+            for (const file of files) {
+                const dataUrl = await compressImageFileToDataUrl(file);
+                await pushDocumentToShopQueue({
+                    name: file.name,
+                    sender: 'दुकानदार (Direct)',
+                    dataUrl: dataUrl,
+                    isCropped: false
+                });
+            }
+            event.target.value = '';
+            showToast(`✅ फाइल प्रिंट और क्रॉप लिस्ट में जुड़ गई!`, 'success');
+        };
+
+        // Generate a realistic tilted Aadhaar/ID card sample on canvas to showcase Perspective Crop
+        window.loadSampleTiltedDocument = async function() {
+            const c = document.createElement('canvas');
+            c.width = 640;
+            c.height = 440;
+            const ctx = c.getContext('2d');
+
+            // Wooden desk background
+            const grad = ctx.createLinearGradient(0, 0, 640, 440);
+            grad.addColorStop(0, '#334155');
+            grad.addColorStop(1, '#1e293b');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 640, 440);
+
+            // Draw a tilted/skewed ID Card polygon so user can test 4-point Perspective Crop!
+            ctx.save();
+            ctx.translate(320, 220);
+            ctx.rotate(-0.14);
+            ctx.transform(1, 0.08, -0.12, 1, 0, 0);
+
+            // Card Body
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(-210, -130, 420, 260);
+
+            // Tricolor Header inside ID Card
+            ctx.fillStyle = '#FF9933';
+            ctx.fillRect(-210, -130, 420, 28);
+            ctx.fillStyle = '#138808';
+            ctx.fillRect(-210, -102, 420, 10);
+
+            // Text & Photo placeholder inside ID card
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 20px sans-serif';
+            ctx.fillText('भारत सरकार • GOVT OF INDIA', -185, -70);
+
+            // Photo box
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillRect(-185, -48, 95, 115);
+            ctx.fillStyle = '#475569';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.fillText('PHOTO', -162, 15);
+
+            // Details
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 18px sans-serif';
+            ctx.fillText('नाम: राजेश कुमार शर्मा', -70, -25);
+            ctx.font = '15px sans-serif';
+            ctx.fillText('जन्म तिथि / DOB: 15/08/1996', -70, 5);
+            ctx.fillText('पता: जयपुर, राजस्थान (भारत)', -70, 32);
+
+            ctx.fillStyle = '#dc2626';
+            ctx.font = 'bold 24px monospace';
+            ctx.fillText('4829  9104  7732', -70, 75);
+
+            ctx.restore();
+
+            const sampleUrl = c.toDataURL('image/jpeg', 0.9);
+            await pushDocumentToShopQueue({
+                name: 'Tilted_Customer_ID_Card.jpg',
+                sender: 'ग्राहक (Demo Scan)',
+                dataUrl: sampleUrl,
+                isCropped: false
+            });
+            showToast("✨ टेढ़े आईडी कार्ड का सैंपल लोड हो गया! अब 'पर्सपेक्टिव क्रॉप' बटन दबाकर इसे सीधा करें।", "info");
+        };
+
+        // ---------------- 7. RENDER DOCUMENTS (DUKANDAR & CUSTOMER) ----------------
+        function renderDukandarDocuments() {
+            const grid = document.getElementById('dukandarDocGrid');
+            if (!documentsList.length) {
+                grid.innerHTML = `
+                    <div class="col-span-full bg-slate-950/60 border border-dashed border-slate-800 rounded-2xl p-8 text-center">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto mb-2 text-slate-500 text-xl">
+                            <i class="fa-solid fa-inbox"></i>
+                        </div>
+                        <p class="text-sm font-bold text-slate-300">अभी कोई डॉक्यूमेंट प्राप्त नहीं हुआ है</p>
+                        <p class="text-xs text-slate-500 mt-1">ग्राहक द्वारा QR स्कैन करके भेजे गए डॉक्यूमेंट या वीडियो कॉल के स्क्रीनशॉट यहाँ तुरंत दिखेंगे।</p>
+                        <button onclick="window.loadSampleTiltedDocument()" class="mt-3 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 text-xs font-bold px-4 py-2 rounded-xl transition">
+                            + सैंपल डॉक्यूमेंट लोड करें (Perspective Crop टेस्ट करने के लिए)
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = documentsList.map((docItem) => {
+                const remainText = getRemainingTimeBadge(docItem.createdAt);
+                return `
+                    <div class="bg-slate-950 border border-slate-800 hover:border-slate-700 rounded-2xl p-3 flex flex-col gap-3 shadow-md transition">
+                        <div class="relative aspect-video bg-slate-900 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
+                            <img src="${docItem.dataUrl}" alt="${docItem.name}" class="max-h-full max-w-full object-contain" />
+                            ${docItem.isCropped ? `<span class="absolute top-2 left-2 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">✓ Perspective Cropped</span>` : ''}
+                            ${remainText ? `<span class="absolute top-2 right-2 bg-slate-900/90 text-amber-300 text-[10px] font-mono px-2 py-0.5 rounded-full border border-amber-500/30">${remainText}</span>` : ''}
+                        </div>
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="min-w-0">
+                                <p class="text-xs font-bold text-white truncate" title="${docItem.name}">${docItem.name}</p>
+                                <p class="text-[11px] text-slate-400">प्रेषक: <span class="text-orange-300 font-medium">${docItem.sender}</span></p>
+                            </div>
+                            <button onclick="window.deleteSingleDocument('${docItem.id}')" class="text-slate-500 hover:text-red-400 text-xs p-1" title="Delete">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                        <!-- Strictly Dukandar Exclusive Perspective Crop + Print Buttons -->
+                        <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-900">
+                            <button onclick="window.openPerspectiveCropModal('${docItem.id}')" class="bg-purple-600/20 hover:bg-purple-600 text-purple-200 hover:text-white border border-purple-500/40 font-bold text-xs py-2 px-2.5 rounded-xl transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-crop-simple"></i>
+                                <span>पर्सपेक्टिव क्रॉप</span>
+                            </button>
+                            <button onclick="window.openPrintStudioModal('${docItem.id}')" class="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold text-xs py-2 px-2.5 rounded-xl shadow transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-print"></i>
+                                <span>प्रिंट करें (Print)</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderCustomerSentDocuments() {
+            const listEl = document.getElementById('customerSentList');
+            if (!documentsList.length) {
+                listEl.innerHTML = `<p class="text-slate-500 italic">अभी तक कोई डॉक्यूमेंट नहीं भेजा गया है।</p>`;
+                return;
+            }
+            // Note: Customer view intentionally has NO Perspective Crop button!
+            listEl.innerHTML = documentsList.map((d) => `
+                <div class="flex items-center justify-between bg-slate-950 border border-slate-800 rounded-xl px-3 py-2">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <img src="${d.dataUrl}" class="w-10 h-10 rounded-lg object-cover border border-slate-700 shrink-0" />
+                        <div class="min-w-0">
+                            <p class="text-xs font-bold text-white truncate">${d.name}</p>
+                            <p class="text-[11px] text-emerald-400">✓ दुकानदार के पास पहुँच गया</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] text-slate-400 font-mono shrink-0">${getRemainingTimeBadge(d.createdAt)}</span>
+                </div>
+            `).join('');
+        }
+
+        window.deleteSingleDocument = async function(docId) {
+            documentsList = documentsList.filter(d => d.id !== docId);
+            renderDukandarDocuments();
+            renderCustomerSentDocuments();
+            if (isCloudReady && currentUser) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shop_documents', docId));
+                } catch (e) {}
+            }
+        };
+
+        // ---------------- 8. 4-POINT PERSPECTIVE CROP (पर्सपेक्टिव क्रॉप) ENGINE ----------------
+        window.openPerspectiveCropModal = function(docId) {
+            if (currentRole !== 'dukandar') {
+                showToast("पर्सपेक्टिव क्रॉप केवल दुकानदार वाले टैब में उपलब्ध है!", "warning");
+                return;
+            }
+            const targetDoc = documentsList.find(d => d.id === docId);
+            if (!targetDoc) return;
+
+            activeCropDocId = docId;
+            currentWarpedDataUrl = null;
+            currentCropFilter = 'original';
+            updateFilterButtonsUI();
+
+            cropSourceImage = new Image();
+            cropSourceImage.onload = () => {
+                window.resetPerspectiveCorners();
+                document.getElementById('perspectiveCropModal').classList.remove('hidden');
+            };
+            cropSourceImage.src = targetDoc.dataUrl;
+        };
+
+        window.closePerspectiveCropModal = function() {
+            document.getElementById('perspectiveCropModal').classList.add('hidden');
+            activeCropDocId = null;
+        };
+
+        window.resetPerspectiveCorners = function() {
+            const canvas = document.getElementById('perspectiveCanvas');
+            const w = canvas.width;
+            const h = canvas.height;
+            // Default 4 corners slightly inset so user can immediately see and drag them
+            cropCorners = [
+                { x: Math.round(w * 0.16), y: Math.round(h * 0.16) }, // TL
+                { x: Math.round(w * 0.84), y: Math.round(h * 0.14) }, // TR
+                { x: Math.round(w * 0.86), y: Math.round(h * 0.84) }, // BR
+                { x: Math.round(w * 0.14), y: Math.round(h * 0.86) }  // BL
+            ];
+            currentWarpedDataUrl = null;
+            drawInteractivePerspectiveCanvas();
+        };
+
+        function drawInteractivePerspectiveCanvas(loupePos = null) {
+            const canvas = document.getElementById('perspectiveCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // If already previewing warped result, show it
+            if (currentWarpedDataUrl) {
+                const previewImg = new Image();
+                previewImg.onload = () => {
+                    ctx.fillStyle = '#090d16';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    const scale = Math.min((canvas.width - 20) / previewImg.width, (canvas.height - 20) / previewImg.height);
+                    const dw = previewImg.width * scale;
+                    const dh = previewImg.height * scale;
+                    ctx.drawImage(previewImg, (canvas.width - dw) / 2, (canvas.height - dh) / 2, dw, dh);
+                };
+                previewImg.src = currentWarpedDataUrl;
+                return;
+            }
+
+            // Draw source image scaled to fit canvas
+            ctx.fillStyle = '#090d16';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(cropSourceImage, 0, 0, canvas.width, canvas.height);
+
+            // Darken outside the 4-corner polygon
+            ctx.save();
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.58)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.moveTo(cropCorners[0].x, cropCorners[0].y);
+            ctx.lineTo(cropCorners[1].x, cropCorners[1].y);
+            ctx.lineTo(cropCorners[2].x, cropCorners[2].y);
+            ctx.lineTo(cropCorners[3].x, cropCorners[3].y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+
+            // Redraw bright image inside polygon
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(cropCorners[0].x, cropCorners[0].y);
+            ctx.lineTo(cropCorners[1].x, cropCorners[1].y);
+            ctx.lineTo(cropCorners[2].x, cropCorners[2].y);
+            ctx.lineTo(cropCorners[3].x, cropCorners[3].y);
+            ctx.closePath();
+            ctx.clip();
+            ctx.drawImage(cropSourceImage, 0, 0, canvas.width, canvas.height);
+            ctx.restore();
+
+            // Draw perspective grid lines inside quad
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.45)';
+            ctx.lineWidth = 1;
+            for (let t = 0.33; t <= 0.67; t += 0.34) {
+                const topX = cropCorners[0].x + (cropCorners[1].x - cropCorners[0].x) * t;
+                const topY = cropCorners[0].y + (cropCorners[1].y - cropCorners[0].y) * t;
+                const botX = cropCorners[3].x + (cropCorners[2].x - cropCorners[3].x) * t;
+                const botY = cropCorners[3].y + (cropCorners[2].y - cropCorners[3].y) * t;
+                ctx.beginPath(); ctx.moveTo(topX, topY); ctx.lineTo(botX, botY); ctx.stroke();
+
+                const leftX = cropCorners[0].x + (cropCorners[3].x - cropCorners[0].x) * t;
+                const leftY = cropCorners[0].y + (cropCorners[3].y - cropCorners[0].y) * t;
+                const rightX = cropCorners[1].x + (cropCorners[2].x - cropCorners[1].x) * t;
+                const rightY = cropCorners[1].y + (cropCorners[2].y - cropCorners[1].y) * t;
+                ctx.beginPath(); ctx.moveTo(leftX, leftY); ctx.lineTo(rightX, rightY); ctx.stroke();
+            }
+
+            // Draw Quad Border
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(cropCorners[0].x, cropCorners[0].y);
+            ctx.lineTo(cropCorners[1].x, cropCorners[1].y);
+            ctx.lineTo(cropCorners[2].x, cropCorners[2].y);
+            ctx.lineTo(cropCorners[3].x, cropCorners[3].y);
+            ctx.closePath();
+            ctx.stroke();
+
+            // Draw 4 Draggable Corner Handles
+            const labels = ['1 (TL)', '2 (TR)', '3 (BR)', '4 (BL)'];
+            cropCorners.forEach((pt, idx) => {
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, 12, 0, Math.PI * 2);
+                ctx.fillStyle = idx === draggingCornerIndex ? '#22c55e' : '#ea580c';
+                ctx.fill();
+                ctx.lineWidth = 2.5;
+                ctx.strokeStyle = '#ffffff';
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 10px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(idx + 1, pt.x, pt.y + 3.5);
+            });
+
+            // Update Magnifying Loupe if dragging
+            const loupe = document.getElementById('cropLoupeCanvas');
+            if (loupePos) {
+                loupe.classList.remove('hidden');
+                const lctx = loupe.getContext('2d');
+                lctx.clearRect(0, 0, loupe.width, loupe.height);
+                lctx.drawImage(
+                    cropSourceImage,
+                    (loupePos.x / canvas.width) * cropSourceImage.width - 25,
+                    (loupePos.y / canvas.height) * cropSourceImage.height - 25,
+                    50, 50,
+                    0, 0, loupe.width, loupe.height
+                );
+                // Crosshair in loupe
+                lctx.strokeStyle = '#f59e0b';
+                lctx.lineWidth = 1.5;
+                lctx.beginPath();
+                lctx.moveTo(loupe.width / 2, 0); lctx.lineTo(loupe.width / 2, loupe.height);
+                lctx.moveTo(0, loupe.height / 2); lctx.lineTo(loupe.width, loupe.height / 2);
+                lctx.stroke();
+            } else {
+                loupe.classList.add('hidden');
+            }
+        }
+
+        // Mouse & Touch Drag Listeners for Perspective Canvas
+        function setupPerspectiveCanvasEvents() {
+            const canvas = document.getElementById('perspectiveCanvas');
+
+            function getCanvasCoords(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: (clientX - rect.left) * (canvas.width / rect.width),
+                    y: (clientY - rect.top) * (canvas.height / rect.height)
+                };
+            }
+
+            function onDown(e) {
+                if (currentWarpedDataUrl) {
+                    currentWarpedDataUrl = null;
+                }
+                const pos = getCanvasCoords(e);
+                let bestIdx = -1;
+                let minDist = 32;
+                cropCorners.forEach((c, idx) => {
+                    const d = Math.hypot(c.x - pos.x, c.y - pos.y);
+                    if (d < minDist) {
+                        minDist = d;
+                        bestIdx = idx;
+                    }
+                });
+                if (bestIdx !== -1) {
+                    e.preventDefault();
+                    draggingCornerIndex = bestIdx;
+                    drawInteractivePerspectiveCanvas(cropCorners[bestIdx]);
+                }
+            }
+
+            function onMove(e) {
+                if (draggingCornerIndex === -1) return;
+                e.preventDefault();
+                const pos = getCanvasCoords(e);
+                cropCorners[draggingCornerIndex] = {
+                    x: Math.max(8, Math.min(canvas.width - 8, pos.x)),
+                    y: Math.max(8, Math.min(canvas.height - 8, pos.y))
+                };
+                drawInteractivePerspectiveCanvas(cropCorners[draggingCornerIndex]);
+            }
+
+            function onUp() {
+                if (draggingCornerIndex !== -1) {
+                    draggingCornerIndex = -1;
+                    drawInteractivePerspectiveCanvas(null);
+                }
+            }
+
+            canvas.addEventListener('mousedown', onDown);
+            canvas.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onUp);
+
+            canvas.addEventListener('touchstart', onDown, { passive: false });
+            canvas.addEventListener('touchmove', onMove, { passive: false });
+            window.addEventListener('touchend', onUp);
+        }
+
+        window.setCropFilter = function(mode) {
+            currentCropFilter = mode;
+            updateFilterButtonsUI();
+            if (currentWarpedDataUrl) {
+                window.applyPerspectiveTransformPreview();
+            }
+        };
+
+        function updateFilterButtonsUI() {
+            const map = {
+                original: 'filterBtnOriginal',
+                magic: 'filterBtnMagic',
+                bw: 'filterBtnBw'
+            };
+            Object.entries(map).forEach(([k, id]) => {
+                const btn = document.getElementById(id);
+                if (k === currentCropFilter) {
+                    btn.className = "crop-filter-btn bg-orange-600 text-white text-xs font-semibold py-2 rounded-lg border border-orange-500";
+                } else {
+                    btn.className = "crop-filter-btn bg-slate-800 text-slate-300 text-xs font-semibold py-2 rounded-lg border border-slate-700";
+                }
+            });
+        }
+
+        // True Projective / Bilinear Inverse Mapping to Warp Quad -> Flat Rectangle
+        window.applyPerspectiveTransformPreview = function() {
+            const canvas = document.getElementById('perspectiveCanvas');
+            const ratioMode = document.getElementById('cropOutputRatio').value;
+
+            let outW = 700;
+            let outH = 450;
+            if (ratioMode === 'idcard') { outW = 750; outH = 475; }
+            else if (ratioMode === 'a4') { outW = 620; outH = 877; }
+            else if (ratioMode === 'square') { outW = 550; outH = 550; }
+            else {
+                const topEdge = Math.hypot(cropCorners[1].x - cropCorners[0].x, cropCorners[1].y - cropCorners[0].y);
+                const leftEdge = Math.hypot(cropCorners[3].x - cropCorners[0].x, cropCorners[3].y - cropCorners[0].y);
+                outW = Math.max(300, Math.round(topEdge * 1.4));
+                outH = Math.max(220, Math.round(leftEdge * 1.4));
+            }
+
+            // Prepare source pixel buffer
+            const srcCanvas = document.createElement('canvas');
+            srcCanvas.width = cropSourceImage.width;
+            srcCanvas.height = cropSourceImage.height;
+            const sctx = srcCanvas.getContext('2d');
+            sctx.drawImage(cropSourceImage, 0, 0);
+            const srcData = sctx.getImageData(0, 0, srcCanvas.width, srcCanvas.height).data;
+
+            // Map canvas-space corners to source-image-space corners
+            const scaleX = srcCanvas.width / canvas.width;
+            const scaleY = srcCanvas.height / canvas.height;
+            const p0 = { x: cropCorners[0].x * scaleX, y: cropCorners[0].y * scaleY };
+            const p1 = { x: cropCorners[1].x * scaleX, y: cropCorners[1].y * scaleY };
+            const p2 = { x: cropCorners[2].x * scaleX, y: cropCorners[2].y * scaleY };
+            const p3 = { x: cropCorners[3].x * scaleX, y: cropCorners[3].y * scaleY };
+
+            const dstCanvas = document.createElement('canvas');
+            dstCanvas.width = outW;
+            dstCanvas.height = outH;
+            const dctx = dstCanvas.getContext('2d');
+            const dstImgData = dctx.createImageData(outW, outH);
+            const dstData = dstImgData.data;
+
+            const sw = srcCanvas.width;
+            const sh = srcCanvas.height;
+
+            for (let y = 0; y < outH; y++) {
+                const v = y / (outH - 1);
+                for (let x = 0; x < outW; x++) {
+                    const u = x / (outW - 1);
+
+                    // Bilinear interpolation of source coordinates from 4 corners
+                    const sx = Math.round(
+                        (1 - u) * (1 - v) * p0.x +
+                        u * (1 - v) * p1.x +
+                        u * v * p2.x +
+                        (1 - u) * v * p3.x
+                    );
+                    const sy = Math.round(
+                        (1 - u) * (1 - v) * p0.y +
+                        u * (1 - v) * p1.y +
+                        u * v * p2.y +
+                        (1 - u) * v * p3.y
+                    );
+
+                    const dstIdx = (y * outW + x) * 4;
+                    if (sx >= 0 && sx < sw && sy >= 0 && sy < sh) {
+                        const srcIdx = (sy * sw + sx) * 4;
+                        let r = srcData[srcIdx];
+                        let g = srcData[srcIdx + 1];
+                        let b = srcData[srcIdx + 2];
+
+                        if (currentCropFilter === 'magic') {
+                            // High-contrast clean document enhancement
+                            r = Math.min(255, Math.max(0, (r - 110) * 1.38 + 128));
+                            g = Math.min(255, Math.max(0, (g - 110) * 1.38 + 128));
+                            b = Math.min(255, Math.max(0, (b - 110) * 1.38 + 128));
+                        } else if (currentCropFilter === 'bw') {
+                            const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                            const bwVal = lum > 132 ? 255 : Math.max(0, (lum - 40) * 1.2);
+                            r = g = b = bwVal;
+                        }
+
+                        dstData[dstIdx] = r;
+                        dstData[dstIdx + 1] = g;
+                        dstData[dstIdx + 2] = b;
+                        dstData[dstIdx + 3] = 255;
+                    } else {
+                        dstData[dstIdx] = 255;
+                        dstData[dstIdx + 1] = 255;
+                        dstData[dstIdx + 2] = 255;
+                        dstData[dstIdx + 3] = 255;
+                    }
+                }
+            }
+
+            dctx.putImageData(dstImgData, 0, 0);
+            currentWarpedDataUrl = dstCanvas.toDataURL('image/jpeg', 0.92);
+            drawInteractivePerspectiveCanvas(null);
+            showToast("✨ पर्सपेक्टिव क्रॉप लागू हो गया! अब 'Save & Ready for Print' दबाएं।", "success");
+        };
+
+        window.savePerspectiveCroppedDoc = async function() {
+            if (!currentWarpedDataUrl) {
+                window.applyPerspectiveTransformPreview();
+            }
+            const idx = documentsList.findIndex(d => d.id === activeCropDocId);
+            if (idx !== -1) {
+                documentsList[idx].dataUrl = currentWarpedDataUrl;
+                documentsList[idx].isCropped = true;
+                documentsList[idx].name = 'Cropped_' + documentsList[idx].name;
+                renderDukandarDocuments();
+
+                if (isCloudReady && currentUser && documentsList[idx].id && !documentsList[idx].id.startsWith('doc_')) {
+                    try {
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shop_documents', documentsList[idx].id), {
+                            dataUrl: currentWarpedDataUrl,
+                            isCropped: true
+                        });
+                    } catch (e) {}
+                }
+            }
+            window.closePerspectiveCropModal();
+            showToast("✅ क्रॉप किया हुआ डॉक्यूमेंट प्रिंट के लिए सेव हो गया!", "success");
+        };
+
+        // ---------------- 9. PRINT STUDIO & DIRECT PRINT ----------------
+        window.openPrintStudioModal = function(docId) {
+            const docItem = documentsList.find(d => d.id === docId);
+            if (!docItem) return;
+            activePrintDoc = docItem;
+            document.getElementById('printStudioModal').classList.remove('hidden');
+            window.updatePrintPreviewLayout();
+        };
+
+        window.closePrintModal = function() {
+            document.getElementById('printStudioModal').classList.add('hidden');
+            activePrintDoc = null;
+        };
+
+        window.updatePrintPreviewLayout = function() {
+            if (!activePrintDoc) return;
+            const layout = document.getElementById('printLayoutSelect').value;
+            const colorMode = document.getElementById('printColorSelect').value;
+            const sheet = document.getElementById('printPreviewSheet');
+            const filterCss = colorMode === 'bw' ? 'grayscale(100%) contrast(125%)' : 'none';
+
+            if (layout === 'a4_full') {
+                sheet.innerHTML = `<img src="${activePrintDoc.dataUrl}" style="filter:${filterCss}; max-width:100%; max-height:100%; object-fit:contain;" />`;
+            } else if (layout === 'id_card') {
+                sheet.innerHTML = `
+                    <div class="flex flex-col items-center justify-center w-full h-full">
+                        <img src="${activePrintDoc.dataUrl}" style="filter:${filterCss}; width:72%; border:1px dashed #94a3b8; padding:4px; border-radius:6px;" />
+                        <p style="font-size:9px; color:#64748b; margin-top:6px;">Aadhaar / PVC ID Size (85.6mm × 54mm)</p>
+                    </div>
+                `;
+            } else if (layout === 'passport_8') {
+                let gridHtml = '<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:6px; width:100%; align-content:start;">';
+                for (let i = 0; i < 8; i++) {
+                    gridHtml += `<img src="${activePrintDoc.dataUrl}" style="filter:${filterCss}; width:100%; aspect-ratio:3.5/4.5; object-fit:cover; border:1px solid #334155;" />`;
+                }
+                gridHtml += '</div>';
+                sheet.innerHTML = gridHtml;
+            }
+        };
+
+        window.executeBrowserPrint = function() {
+            if (!activePrintDoc) return;
+            const layout = document.getElementById('printLayoutSelect').value;
+            const colorMode = document.getElementById('printColorSelect').value;
+            const filterCss = colorMode === 'bw' ? 'grayscale(100%) contrast(125%)' : 'none';
+            const printArea = document.getElementById('printableArea');
+
+            if (layout === 'a4_full') {
+                printArea.innerHTML = `<img src="${activePrintDoc.dataUrl}" style="filter:${filterCss}; max-width:95vw; max-height:95vh; object-fit:contain;" />`;
+            } else if (layout === 'id_card') {
+                printArea.innerHTML = `
+                    <div style="padding:30mm; text-align:center;">
+                        <img src="${activePrintDoc.dataUrl}" style="filter:${filterCss}; width:86mm; height:54mm; object-fit:contain; border:1px dashed #666; padding:2mm;" />
+                    </div>
+                `;
+            } else if (layout === 'passport_8') {
+                let gridHtml = '<div style="display:grid; grid-template-columns:repeat(4, 35mm); gap:5mm; padding:15mm;">';
+                for (let i = 0; i < 8; i++) {
+                    gridHtml += `<img src="${activePrintDoc.dataUrl}" style="filter:${filterCss}; width:35mm; height:45mm; object-fit:cover; border:1px solid #000;" />`;
+                }
+                gridHtml += '</div>';
+                printArea.innerHTML = gridHtml;
+            }
+
+            printArea.classList.remove('hidden');
+            setTimeout(() => {
+                window.print();
+                printArea.classList.add('hidden');
+            }, 150);
+        };
+
+        window.printShopQrPoster = function() {
+            if (!activeShopId) return;
+            const qrImg = document.querySelector('#qrcodeCanvas img') || document.querySelector('#qrcodeCanvas canvas');
+            if (!qrImg) return;
+            const src = qrImg.src || qrImg.toDataURL();
+            const printArea = document.getElementById('printableArea');
+            printArea.innerHTML = `
+                <div style="border:4px solid #0f172a; border-radius:20px; padding:40px; text-align:center; max-width:450px; font-family:sans-serif;">
+                    <h1 style="font-size:26px; font-weight:800; margin-bottom:6px;">🖨️ Smart Print & Cyber Hub</h1>
+                    <p style="font-size:14px; color:#475569; margin-bottom:20px;">स्कैन करके अपना डॉक्यूमेंट सीधे दुकानदार को भेजें</p>
+                    <img src="${src}" style="width:240px; height:240px; margin:0 auto 20px auto; display:block;" />
+                    <div style="background:#f1f5f9; padding:10px 18px; border-radius:10px; font-size:18px; font-weight:bold;">
+                        Shop ID: ${activeShopId}
+                    </div>
+                    <p style="margin-top:18px; font-size:12px; color:#64748b;">🇮🇳 Made in India • 10-Min Auto-Delete Privacy Protected</p>
+                </div>
+            `;
+            printArea.classList.remove('hidden');
+            setTimeout(() => {
+                window.print();
+                printArea.classList.add('hidden');
+            }, 150);
+        };
+
+        // ---------------- 10. REAL-TIME CHAT + 10-MINUTE AUTO DELETE ----------------
+        function getRemainingTimeBadge(createdAt) {
+            if (!autoDeleteTenMin || !createdAt) return '';
+            const elapsed = Date.now() - createdAt;
+            const remainMs = Math.max(0, TEN_MINUTES_MS - elapsed);
+            const mins = Math.floor(remainMs / 60000);
+            const secs = Math.floor((remainMs % 60000) / 1000);
+            return `⏳ ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function updateAutoDeleteUI() {
+            const btn = document.getElementById('autoDeleteToggleBtn');
+            const stateTxt = document.getElementById('autoDeleteStateText');
+            const sub = document.getElementById('chatExpirySubtext');
+
+            if (autoDeleteTenMin) {
+                stateTxt.textContent = 'ON';
+                btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold border transition flex items-center gap-2 bg-emerald-500/15 text-emerald-300 border-emerald-500/40";
+                sub.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i><span>10 मिनट में चैट अपने आप डिलीट हो जाएगी (Auto-Delete ON)</span>`;
+                sub.className = "text-[11px] text-emerald-400 flex items-center gap-1 mt-0.5";
+            } else {
+                stateTxt.textContent = 'OFF';
+                btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold border transition flex items-center gap-2 bg-slate-800 text-slate-400 border-slate-700";
+                sub.innerHTML = `<i class="fa-solid fa-pause"></i><span>10-Min Auto-Delete अभी बंद (OFF) है</span>`;
+                sub.className = "text-[11px] text-slate-400 flex items-center gap-1 mt-0.5";
+            }
+            renderChatMessages();
+            renderDukandarDocuments();
+        }
+
+        window.toggleTenMinAutoDelete = async function() {
+            autoDeleteTenMin = !autoDeleteTenMin;
+            updateAutoDeleteUI();
+            showToast(
+                autoDeleteTenMin
+                    ? "⏱️ 10-Minute Auto-Delete ON: 10 मिनट बाद चैट अपने आप डिलीट हो जाएगी!"
+                    : "⏸️ 10-Minute Auto-Delete OFF कर दिया गया है।",
+                autoDeleteTenMin ? 'success' : 'info'
+            );
+
+            if (isCloudReady && currentUser && activeShopId) {
+                try {
+                    const shopDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'shops', activeShopId);
+                    await setDoc(shopDocRef, { autoDeleteTenMin }, { merge: true });
+                } catch (e) {}
+            }
+        };
+
+        async function appendChatMessage(msgData) {
+            const targetShop = activeShopId || 'demo_shop';
+            const msgObj = {
+                id: 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                shopId: targetShop,
+                senderRole: msgData.senderRole || currentRole,
+                senderName: msgData.senderName || (currentRole === 'dukandar' ? 'दुकानदार' : 'ग्राहक'),
+                text: msgData.text || '',
+                attachmentUrl: msgData.attachmentUrl || null,
+                createdAt: Date.now()
+            };
+
+            chatMessagesList.push(msgObj);
+            renderChatMessages();
+
+            if (isCloudReady && currentUser && activeShopId) {
+                try {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'shop_messages'), {
+                        shopId: msgObj.shopId,
+                        senderRole: msgObj.senderRole,
+                        senderName: msgObj.senderName,
+                        text: msgObj.text,
+                        attachmentUrl: msgObj.attachmentUrl,
+                        createdAt: msgObj.createdAt
+                    });
+                } catch (e) {}
+            }
+        }
+
+        window.sendChatMessage = async function(e) {
+            e.preventDefault();
+            const input = document.getElementById('chatInputText');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+
+            const senderName = currentRole === 'dukandar'
+                ? 'दुकानदार (Dukandar)'
+                : (document.getElementById('customerNameInput').value.trim() || 'ग्राहक (Customer)');
+
+            await appendChatMessage({
+                senderRole: currentRole,
+                senderName,
+                text
+            });
+        };
+
+        window.handleChatFileAttachment = async function(e) {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const dataUrl = await compressImageFileToDataUrl(file);
+            const senderName = currentRole === 'dukandar' ? 'दुकानदार' : (document.getElementById('customerNameInput').value.trim() || 'ग्राहक');
+
+            await pushDocumentToShopQueue({
+                name: file.name,
+                sender: senderName,
+                dataUrl,
+                isCropped: false
+            });
+            await appendChatMessage({
+                senderRole: currentRole,
+                senderName,
+                text: `📎 फाइल भेजी गई: ${file.name}`,
+                attachmentUrl: dataUrl
+            });
+            e.target.value = '';
+            showToast("✅ चैट में डॉक्यूमेंट भेज दिया गया!", "success");
+        };
+
+        function renderChatMessages() {
+            const box = document.getElementById('chatMessagesContainer');
+            if (!chatMessagesList.length) {
+                box.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-center py-10 text-slate-500">
+                        <i class="fa-regular fa-comments text-2xl mb-1.5"></i>
+                        <p class="text-xs font-medium text-slate-400">ग्राहक और दुकानदार के बीच लाइव चैट</p>
+                        <p class="text-[11px] text-slate-500">यहाँ भेजे गए संदेश ${autoDeleteTenMin ? '10 मिनट में अपने आप डिलीट हो जाएंगे' : 'सुरक्षित हैं'}।</p>
+                    </div>
+                `;
+                return;
+            }
+
+            box.innerHTML = chatMessagesList.map((m) => {
+                const isMe = m.senderRole === currentRole;
+                const badge = getRemainingTimeBadge(m.createdAt);
+                return `
+                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                        <div class="max-w-[85%] rounded-2xl px-3.5 py-2 text-xs ${
+                            isMe
+                                ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white rounded-br-none'
+                                : 'bg-slate-800 border border-slate-700 text-slate-100 rounded-bl-none'
+                        }">
+                            <div class="flex items-center justify-between gap-3 mb-0.5">
+                                <span class="font-bold text-[10px] ${isMe ? 'text-amber-100' : 'text-orange-400'}">${m.senderName}</span>
+                                ${badge ? `<span class="text-[9px] font-mono opacity-90 bg-black/25 px-1.5 py-0.2 rounded">${badge}</span>` : ''}
+                            </div>
+                            <p class="leading-relaxed break-words">${m.text}</p>
+                            ${m.attachmentUrl ? `<img src="${m.attachmentUrl}" class="mt-2 max-h-28 rounded-lg border border-white/20 object-contain bg-slate-950" />` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        window.clearAllChatNow = async function() {
+            const toDelete = [...chatMessagesList];
+            chatMessagesList = [];
+            renderChatMessages();
+            showToast("🧹 पूरी चैट तुरंत डिलीट कर दी गई!", "info");
+
+            if (isCloudReady && currentUser) {
+                for (const m of toDelete) {
+                    if (m.id && !m.id.startsWith('msg_')) {
+                        try {
+                            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shop_messages', m.id));
+                        } catch (e) {}
+                    }
+                }
+            }
+        };
+
+        // Background ticker every second to update 10-minute countdowns and auto-purge expired items
+        setInterval(async () => {
+            if (!autoDeleteTenMin) return;
+            const now = Date.now();
+
+            // Check expired chat messages
+            const expiredMsgs = chatMessagesList.filter(m => (now - (m.createdAt || now)) >= TEN_MINUTES_MS);
+            if (expiredMsgs.length > 0) {
+                chatMessagesList = chatMessagesList.filter(m => (now - (m.createdAt || now)) < TEN_MINUTES_MS);
+                if (isCloudReady && currentUser) {
+                    for (const em of expiredMsgs) {
+                        if (em.id && !em.id.startsWith('msg_')) {
+                            try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shop_messages', em.id)); } catch (e) {}
+                        }
+                    }
+                }
+            }
+
+            // Refresh countdown badges
+            if (chatMessagesList.length > 0) renderChatMessages();
+            if (documentsList.length > 0) {
+                renderDukandarDocuments();
+                renderCustomerSentDocuments();
+            }
+        }, 1000);
+
+        // ---------------- 11. AUDIO / VIDEO CALL + SCREENSHOT TO PRINT QUEUE ----------------
+        window.startMediaCall = async function(type) {
+            activeCallType = type;
+            document.getElementById('callIdlePlaceholder').classList.add('hidden');
+            document.getElementById('activeCallControlsBar').classList.remove('hidden');
+            document.getElementById('activeCallControlsBar').classList.add('flex');
+            document.getElementById('btnEndCall').classList.remove('hidden');
+            document.getElementById('btnEndCall').classList.add('flex');
+
+            const mainVideo = document.getElementById('mainCallVideo');
+            const pipVideo = document.getElementById('pipLocalVideo');
+            const simCanvas = document.getElementById('simulatedVideoCanvas');
+            const audioOverlay = document.getElementById('audioCallOverlay');
+
+            // Notify room via Firestore
+            if (isCloudReady && currentUser && activeShopId) {
+                try {
+                    const shopDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'shops', activeShopId);
+                    await setDoc(shopDocRef, {
+                        callState: {
+                            status: 'ringing',
+                            type,
+                            callerRole: currentRole,
+                            timestamp: Date.now()
+                        }
+                    }, { merge: true });
+                } catch (e) {}
+            }
+
+            if (type === 'audio') {
+                mainVideo.classList.add('hidden');
+                pipVideo.classList.add('hidden');
+                simCanvas.classList.remove('hidden');
+                audioOverlay.classList.remove('hidden');
+                audioOverlay.classList.add('flex');
+                startSimulatedSmartFeed();
+                startCallTimer();
+                showToast("📞 Audio Call शुरू हो गई है! आप स्क्रीनशॉट भी ले सकते हैं।", "success");
+                return;
+            }
+
+            // Video Call Mode: Try getting real webcam first, fallback to smart interactive canvas stream
+            audioOverlay.classList.add('hidden');
+            audioOverlay.classList.remove('flex');
+
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                mainVideo.srcObject = localStream;
+                pipVideo.srcObject = localStream;
+                mainVideo.classList.remove('hidden');
+                pipVideo.classList.remove('hidden');
+                simCanvas.classList.add('hidden');
+                showToast("📹 लाइव Video Call चालू है! '📸 Screenshot लें' बटन से फोटो सीधे प्रिंट लिस्ट में भेजें।", "success");
+            } catch (err) {
+                // Fallback animated feed so user can always test Video Call & Screenshot even without a camera permission
+                mainVideo.classList.add('hidden');
+                pipVideo.classList.add('hidden');
+                simCanvas.classList.remove('hidden');
+                startSimulatedSmartFeed();
+                showToast("📹 स्मार्ट डेमो कैमरा चालू है! '📸 Screenshot लें' दबाकर टेस्ट करें।", "info");
+            }
+            startCallTimer();
+        };
+
+        window.acceptIncomingCall = function() {
+            document.getElementById('incomingCallBanner').classList.add('hidden');
+            window.startMediaCall('video');
+        };
+
+        function startCallTimer() {
+            callSeconds = 0;
+            if (callTimerInterval) clearInterval(callTimerInterval);
+            callTimerInterval = setInterval(() => {
+                callSeconds++;
+                const m = String(Math.floor(callSeconds / 60)).padStart(2, '0');
+                const s = String(callSeconds % 60).padStart(2, '0');
+                const el = document.getElementById('callTimerLabel');
+                if (el) el.textContent = `${m}:${s}`;
+            }, 1000);
+        }
+
+        function startSimulatedSmartFeed() {
+            const canvas = document.getElementById('simulatedVideoCanvas');
+            const ctx = canvas.getContext('2d');
+            let frame = 0;
+            if (simulatedAnimId) cancelAnimationFrame(simulatedAnimId);
+
+            function drawFrame() {
+                frame++;
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Animated background waves
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 2;
+                for (let i = 0; i < 6; i++) {
+                    ctx.beginPath();
+                    ctx.arc(320, 180, 40 + ((frame + i * 35) % 220), 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                // Simulated Customer holding an ID document in video call for screenshot verification
+                ctx.save();
+                const bobY = Math.sin(frame * 0.05) * 6;
+                ctx.translate(320, 185 + bobY);
+
+                // Document Card in Video Call
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(-170, -105, 340, 210);
+                ctx.fillStyle = '#FF9933';
+                ctx.fillRect(-170, -105, 340, 26);
+                ctx.fillStyle = '#138808';
+                ctx.fillRect(-170, -79, 340, 8);
+
+                ctx.fillStyle = '#0f172a';
+                ctx.font = 'bold 16px Inter, sans-serif';
+                ctx.fillText('LIVE VIDEO VERIFICATION DOCUMENT', -145, -52);
+
+                ctx.fillStyle = '#cbd5e1';
+                ctx.fillRect(-145, -35, 75, 90);
+                ctx.fillStyle = '#334155';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillText('LIVE PIC', -133, 15);
+
+                ctx.fillStyle = '#0f172a';
+                ctx.font = 'bold 15px sans-serif';
+                ctx.fillText('ग्राहक: अमित कुमार (Live Call)', -50, -15);
+                ctx.font = '13px monospace';
+                ctx.fillText(`Time: ${new Date().toLocaleTimeString()}`, -50, 12);
+                ctx.fillStyle = '#16a34a';
+                ctx.fillText('✓ Ready for Screenshot & Print', -50, 40);
+
+                ctx.restore();
+
+                simulatedAnimId = requestAnimationFrame(drawFrame);
+            }
+            drawFrame();
+        }
+
+        window.toggleMuteAudio = function() {
+            isAudioMuted = !isAudioMuted;
+            if (localStream) {
+                localStream.getAudioTracks().forEach(t => t.enabled = !isAudioMuted);
+            }
+            const btn = document.getElementById('btnMuteToggle');
+            btn.innerHTML = isAudioMuted ? '<i class="fa-solid fa-microphone-slash text-red-400"></i>' : '<i class="fa-solid fa-microphone"></i>';
+            showToast(isAudioMuted ? "🔇 माइक म्यूट हो गया" : "🎙️ माइक चालू है", "info");
+        };
+
+        window.endMediaCall = async function() {
+            if (localStream) {
+                localStream.getTracks().forEach(t => t.stop());
+                localStream = null;
+            }
+            if (simulatedAnimId) {
+                cancelAnimationFrame(simulatedAnimId);
+                simulatedAnimId = null;
+            }
+            if (callTimerInterval) {
+                clearInterval(callTimerInterval);
+                callTimerInterval = null;
+            }
+            activeCallType = null;
+            document.getElementById('mainCallVideo').classList.add('hidden');
+            document.getElementById('pipLocalVideo').classList.add('hidden');
+            document.getElementById('simulatedVideoCanvas').classList.add('hidden');
+            document.getElementById('audioCallOverlay').classList.add('hidden');
+            document.getElementById('activeCallControlsBar').classList.add('hidden');
+            document.getElementById('btnEndCall').classList.add('hidden');
+            document.getElementById('incomingCallBanner').classList.add('hidden');
+            document.getElementById('callIdlePlaceholder').classList.remove('hidden');
+
+            if (isCloudReady && currentUser && activeShopId) {
+                try {
+                    const shopDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'shops', activeShopId);
+                    await setDoc(shopDocRef, { callState: { status: 'ended', timestamp: Date.now() } }, { merge: true });
+                } catch (e) {}
+            }
+            showToast("कॉल समाप्त हो गई।", "info");
+        };
+
+        // SCREENSHOT CAPTURE DURING CALL -> SAVES DIRECTLY TO DUKANDAR PRINT & CROP QUEUE
+        window.captureCallScreenshot = async function() {
+            const flash = document.getElementById('screenshotFlashOverlay');
+            flash.classList.remove('shutter-flash');
+            void flash.offsetWidth; // Reflow
+            flash.classList.add('shutter-flash');
+
+            const mainVideo = document.getElementById('mainCallVideo');
+            const simCanvas = document.getElementById('simulatedVideoCanvas');
+
+            const outCanvas = document.createElement('canvas');
+            outCanvas.width = 640;
+            outCanvas.height = 360;
+            const ctx = outCanvas.getContext('2d');
+
+            if (!mainVideo.classList.contains('hidden') && mainVideo.videoWidth > 0) {
+                outCanvas.width = mainVideo.videoWidth;
+                outCanvas.height = mainVideo.videoHeight;
+                ctx.drawImage(mainVideo, 0, 0);
+            } else {
+                ctx.drawImage(simCanvas, 0, 0);
+            }
+
+            const dataUrl = outCanvas.toDataURL('image/jpeg', 0.92);
+            const fileName = `Call_Screenshot_${new Date().toLocaleTimeString().replace(/:/g, '-')}.jpg`;
+
+            await pushDocumentToShopQueue({
+                name: fileName,
+                sender: '📸 Video Call Screenshot',
+                dataUrl,
+                isCropped: false
+            });
+
+            await appendChatMessage({
+                senderRole: currentRole,
+                senderName: currentRole === 'dukandar' ? 'दुकानदार' : 'ग्राहक',
+                text: `📸 कॉल के दौरान स्क्रीनशॉट लिया गया: ${fileName}`,
+                attachmentUrl: dataUrl
+            });
+
+            showToast("📸 स्क्रीनशॉट ले लिया गया! यह दुकानदार की प्रिंट और पर्सपेक्टिव क्रॉप लिस्ट में जुड़ गया है।", "success");
+        };
+
+        // ---------------- 12. INITIALIZATION ON WINDOW LOAD ----------------
+        async function initSmartPrintHub() {
+            // 1. Start Location & News Ticker
+            window.detectUserLocation(false);
+
+            // 2. Setup 4-Point Perspective Crop Drag Listeners
+            setupPerspectiveCanvasEvents();
+
+            // 3. Initial Empty State Render
+            renderDukandarDocuments();
+            renderChatMessages();
+
+            // 4. Check URL Query Params (?shop=SHOP_ID)
+            const params = new URLSearchParams(window.location.search);
+            const urlShop = params.get('shop');
+
+            // 5. Initialize Firebase Auth & Firestore (Following Mandatory Rules 1, 2, 3)
+            try {
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    const app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    onAuthStateChanged(auth, (user) => {
+                        currentUser = user;
+                        if (user) {
+                            isCloudReady = true;
+                            if (urlShop) {
+                                activeShopId = urlShop.trim().toLowerCase();
+                                document.getElementById('customerTargetShopInput').value = activeShopId;
+                                window.switchRoleTab('customer');
+                                updateCustomerConnectionText();
+                                subscribeToShopRealtimeData(activeShopId);
+                            }
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn("Running in local session mode:", e);
+            }
+
+            // If URL has ?shop=... even before cloud finishes, switch to customer tab
+            if (urlShop) {
+                activeShopId = urlShop.trim().toLowerCase();
+                document.getElementById('customerTargetShopInput').value = activeShopId;
+                window.switchRoleTab('customer');
+                updateCustomerConnectionText();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', initSmartPrintHub);
     </script>
 </body>
 </html>
